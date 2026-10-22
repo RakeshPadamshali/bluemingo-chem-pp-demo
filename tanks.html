@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tank Farm &amp; Hazard Licence · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  .lic { position:relative; height:160px; border:1px solid var(--color-border); border-radius:var(--radius-sm); background:#fff; overflow:hidden; }
+  .lic .col { position:absolute; bottom:0; background:var(--color-info); }
+  .lic .col.near { background:var(--color-warning); } .lic .col.over { background:var(--color-danger); }
+  .lic .capl { position:absolute; left:0; right:0; border-top:2px dashed var(--color-danger); }
+  .lic .caplbl { position:absolute; right:4px; font-size:10px; font-weight:600; color:var(--color-danger); background:rgba(255,255,255,.85); padding:0 3px; }
+  .lic .dlbl { position:absolute; bottom:1px; font-size:9px; color:var(--color-text-hint); transform:translateX(-50%); }
+  .lic .dm { position:absolute; bottom:0; top:0; width:2px; background:rgba(37,169,224,.5); }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Tank Farm &amp; Hazard Licence</h1><div class="crumb">Safety and licence limits are hard constraints on the plan</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-gauge"></i>Licensed quantity held, day by day
+        <span class="right"><span class="fl">Hazard class</span>&nbsp;<select id="haz"></select></span></div>
+      <div class="card-body">
+        <div class="lic" id="lic"></div>
+        <div class="legend" style="margin-top:8px" id="lleg"></div>
+        <div class="note"><i class="fa-solid fa-circle-info"></i><div id="lnote"></div></div>
+      </div>
+    </div>
+
+    <div class="grid-2-1">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-oil-well"></i>The farm, by bund
+          <span class="right">level at the as-of moment · a bund may not hold two segregated classes</span></div>
+        <div class="card-body"><div class="farm" id="farm"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-truck-droplet"></i>Deliveries
+          <span class="right"><span id="dmeta"></span></span></div>
+        <div class="card-body" id="dels"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-ban"></i>Refused at the gate
+        <span class="right"><span id="rmeta"></span> · by the licence, not by the tank</span></div>
+      <div class="card-body tbl-wrap" style="max-height:340px;overflow:auto"><table class="tbl" id="ref"></table></div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='tanks'; window.CHM_TITLE='Tank Farm & Hazard Licence'; window.CHM_ICON='fa-oil-well';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D, E = X.E;
+  var $ = function (id) { return document.getElementById(id); };
+  var CUR = null;
+
+  function hazSeries(C, hid) {
+    var m = C.m || X.model(), hz = m.hazs[m.hix[hid]], out = [];
+    for (var d = Math.floor(X.ASOF / 1440); d < Math.ceil(m.end / 1440); d++) {
+      out.push({ d: d, v: E.hazPos(m, C.aware.state, hz.ix, d), cap: hz.licensedKL });
+    }
+    return out;
+  }
+  function tankLevel(C, tix, day) { return E.tankPos(C.m || X.model(), C.aware.state, tix, day); }
+
+  function kpis(C) {
+    var m = C.m || X.model(), a = C.aware.kpi;
+    var worst = null;
+    m.hazs.forEach(function (hz) {
+      var r = 1 - (a.licenceMin[hz.id] == null ? 1 : a.licenceMin[hz.id]);
+      if (!worst || r > worst.r) worst = { id: hz.id, name: hz.name, r: r, cap: hz.licensedKL, pk: a.licencePeak[hz.id] };
+    });
+    var ref = C.aware.refused.filter(function (r) { return r.at >= X.ASOF; });
+    var byLic = ref.filter(function (r) { return r.reason === 'licence'; });
+    var em = (C.aware.state.emergency || []).filter(function (r) { return r.at >= X.ASOF; });
+    $('kpis').innerHTML = [
+      ['blue', 'Tanks', X.n(m.tanks.length), 'in ' + m.bunds.length + ' bunds, ' + m.hazs.length + ' licensed hazard classes'],
+      ['amber', 'Tightest licence', X.esc(worst.id), X.n(worst.pk, 0) + ' of ' + worst.cap + ' kL at its fullest — ' + X.pct(1 - worst.r, 0) + ' headroom left'],
+      ['green', 'Days inside every licence', X.n((C.proof.byNuance.P6 || {}).checks), (C.proof.byNuance.P6 || {}).violations === 0 ? 'checked, never exceeded' : 'exceeded'],
+      ['grey', 'Tankers taken in', X.n((C.aware.state.accepted || []).filter(function (r) { return r.at >= X.ASOF; }).length), 'of ' + X.n(m.deliveries.filter(function (d) { return d.at >= X.ASOF; }).length) + ' offered'],
+      ['red', 'Turned away', X.n(ref.length), byLic.length + ' by the licence, ' + (ref.length - byLic.length) + ' by a full tank'],
+      ['red', 'Bought in at a premium', X.rs(em.reduce(function (s, r) { return s + r.rupees; }, 0)), em.length + ' charges a tank could not cover']
+    ].map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  function lic(C) {
+    var m = C.m || X.model(), hid = $('haz').value, hz = m.hazs[m.hix[hid]];
+    var s = hazSeries(C, hid), top = Math.max(hz.licensedKL, Math.max.apply(null, s.map(function (x) { return x.v; }))) * 1.1 || 1;
+    var W = $('lic').clientWidth || 1200, bw = Math.max(1, W / s.length), html = '';
+    var dels = (C.aware.state.accepted || []).filter(function (r) { return r.hix === hz.ix && r.at >= X.ASOF; });
+    s.forEach(function (x, i) {
+      var k = x.v > x.cap + 1e-6 ? 'over' : x.v > x.cap * 0.9 ? 'near' : '';
+      html += '<div class="col ' + k + '" style="left:' + (i * bw).toFixed(2) + 'px;width:' + Math.max(1, bw - 0.5).toFixed(2) + 'px;height:' +
+        (x.v / top * 160).toFixed(1) + 'px" title="' + X.esc(X.fmtD(x.d * 1440) + ' — ' + X.n(x.v, 1) + ' of ' + x.cap + ' kL licensed') + '"></div>';
+      if (i % Math.max(1, Math.ceil(s.length / 12)) === 0) html += '<div class="dlbl" style="left:' + (i * bw + bw / 2).toFixed(2) + 'px">' + X.fmtDM(x.d * 1440) + '</div>';
+    });
+    dels.forEach(function (r) {
+      var i = Math.floor(r.at / 1440) - s[0].d;
+      if (i >= 0 && i < s.length) html += '<div class="dm" style="left:' + (i * bw).toFixed(2) + 'px" title="' +
+        X.esc(r.tank + ' took ' + r.kl + ' kL on ' + X.fmtD(r.at)) + '"></div>';
+    });
+    var capY = 160 - (hz.licensedKL / top * 160);
+    html += '<div class="capl" style="top:' + capY.toFixed(1) + 'px"></div>' +
+            '<div class="caplbl" style="top:' + Math.max(0, capY - 12).toFixed(1) + 'px">licensed ' + hz.licensedKL + ' kL</div>';
+    $('lic').innerHTML = html;
+    $('lleg').innerHTML = '<span><i style="background:var(--color-info)"></i>held on site</span>' +
+      '<span><i style="background:var(--color-warning)"></i>within 10% of the licence</span>' +
+      '<span><i style="background:var(--color-danger)"></i>over</span>' +
+      '<span><i style="background:rgba(37,169,224,.5);width:3px"></i>a tanker taken in</span>' +
+      '<span><i style="background:transparent;border-top:2px dashed var(--color-danger);height:0"></i>the licensed quantity</span>';
+    var pk = Math.max.apply(null, s.map(function (x) { return x.v; }));
+    var tight = s.filter(function (x) { return x.v > x.cap * 0.9; }).length;
+    $('lnote').innerHTML = '<b>' + X.esc(hz.name) + '</b> is licensed at ' + hz.licensedKL + ' kL across the whole site. This plan peaks at ' +
+      X.n(pk, 1) + ' kL — <b>' + X.pct(1 - pk / hz.licensedKL, 1) + '</b> of headroom at its fullest, with ' + tight + ' days inside the last tenth. ' +
+      'The ceiling that refuses a tanker is this one, not the tank: a half-empty tank is no use if the site is at its licensed quantity, and ' +
+      'recovered solvent coming back counts towards it too. ' + X.esc(hz.note || '');
+  }
+
+  function farm(C) {
+    var m = C.m || X.model(), day = Math.floor(X.ASOF / 1440);
+    $('farm').innerHTML = m.bunds.map(function (b) {
+      var ts = m.tanks.filter(function (t) { return t.bundId === b.id; });
+      return '<div class="bund"><div class="bh">' + X.esc(b.name) + '<br><span style="font-weight:400;text-transform:none">' +
+        X.esc(b.classes.join(' · ')) + '</span></div>' +
+        ts.map(function (t) {
+          var lvl = tankLevel(C, t.ix, day), pc = Math.max(0, Math.min(100, lvl / t.capKL * 100));
+          var col = pc > 92 ? 'var(--color-danger)' : pc > 78 ? 'var(--color-warning)' : 'var(--color-info)';
+          return '<div class="tank" title="' + X.esc(t.name + ' · ' + t.solvClass + ' · ' + t.haz) + '">' +
+            '<div class="tn"><span>' + X.esc(t.id) + '</span><span class="hint">' + X.esc(t.solventId) + '</span></div>' +
+            '<div class="tb"><div class="tf" style="width:' + pc.toFixed(0) + '%;background:' + col + '"></div></div>' +
+            '<div class="tv">' + X.n(lvl, 1) + ' of ' + t.capKL + ' kL · tanker ' + t.tankerKL + '</div></div>';
+        }).join('') + '</div>';
+    }).join('') +
+    '<div class="note"><i class="fa-solid fa-arrows-left-right-to-line"></i><div>Segregation: ' +
+    m.segregation.map(function (sg) { return '<b>' + X.esc(sg[0]) + '</b> may not share a bund with <b>' + X.esc(sg[1]) + '</b>'; }).join('; ') +
+    '. The plan is checked against that as well as against the licensed quantity.</div></div>';
+  }
+
+  function dels(C) {
+    var m = C.m || X.model();
+    var acc = (C.aware.state.accepted || []).filter(function (r) { return r.at >= X.ASOF; }).sort(function (a, b) { return a.at - b.at; });
+    $('dmeta').textContent = X.n(acc.length) + ' taken in · ' + X.kl(acc.reduce(function (s, r) { return s + r.kl; }, 0));
+    $('dels').innerHTML = (acc.length ? '<table class="tbl"><thead><tr><th>Arrives</th><th>Tank</th><th class="num">kL</th><th>Class</th><th class="num">Re-presented</th></tr></thead><tbody>' +
+      acc.slice(0, 24).map(function (r) {
+        return '<tr><td>' + X.fmtD(r.at) + '</td><td>' + X.esc(r.tank) + '</td><td class="num">' + X.n(r.kl, 1) + '</td>' +
+          '<td><span class="badge b-grey">' + X.esc(r.haz) + '</span></td>' +
+          '<td class="num">' + (r.tries ? '<span class="badge b-amber">' + r.tries + '×</span>' : '') + '</td></tr>';
+      }).join('') + '</tbody></table>' : '<div class="empty-state">No deliveries in the plan window.</div>') +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div>A tanker refused at the gate does not evaporate — it waits and comes back two ' +
+      'days later, up to four times. The demurrage is priced in the ledger; what actually hurts is the campaign that was waiting for it.</div></div>';
+  }
+
+  function refused(C) {
+    var ref = C.aware.refused.filter(function (r) { return r.at >= X.ASOF; }).sort(function (a, b) { return a.at - b.at; });
+    var gref = C.generic.refused.filter(function (r) { return r.at >= X.ASOF; });
+    $('rmeta').textContent = X.n(ref.length) + ' in this plan · ' + X.n(gref.length) + ' in the generic plan';
+    if (!ref.length) { $('ref').innerHTML = '<tbody><tr><td class="empty-state">Nothing was turned away in this plan.</td></tr></tbody>'; return; }
+    $('ref').innerHTML = '<thead><tr><th>Offered</th><th>Tank</th><th class="num">kL</th><th>Refused by</th><th class="num">Class held</th><th class="num">Licensed</th><th>Came back</th></tr></thead><tbody>' +
+      ref.slice(0, 80).map(function (r) {
+        return '<tr><td>' + X.fmt(r.at) + '</td><td>' + X.esc(r.tank) + '</td><td class="num">' + X.n(r.kl, 1) + '</td>' +
+          '<td>' + (r.reason === 'licence' ? '<span class="badge b-red">the licence</span>' : '<span class="badge b-amber">a full tank</span>') + '</td>' +
+          '<td class="num">' + X.n(r.hazPos, 1) + '</td><td class="num">' + X.n(r.licensed, 0) + '</td>' +
+          '<td>' + (r.requeued ? 'in 2 days (attempt ' + r.tries + ')' : '<span class="hint">gave up after ' + r.tries + '</span>') + '</td></tr>';
+      }).join('') + '</tbody>';
+  }
+
+  function acts(C) {
+    $('acts').innerHTML = X.nuOf('tanks').map(function (x) { return X.nuChip(x.id); }).join(' ') +
+      '<button class="btn btn-ghost btn-sm" id="run"><i class="fa-solid fa-play"></i>Run C6</button>' +
+      '<button class="btn btn-outline btn-sm" id="dl"><i class="fa-solid fa-file-excel"></i>Farm to Excel</button>';
+    $('run').onclick = function () { X.runScenario('C6'); };
+    $('dl').onclick = function () {
+      var m = C.m || X.model();
+      X.xlsx(m.hazs.map(function (hz) {
+        return { name: hz.id, cols: ['Day', 'Date', 'Held kL', 'Licensed kL'],
+                 rows: hazSeries(C, hz.id).map(function (x) { return [x.d, X.fmtD(x.d * 1440), Math.round(x.v * 10) / 10, x.cap]; }) };
+      }).concat([{ name: 'Refused', cols: ['Offered', 'Tank', 'kL', 'Reason', 'Class held', 'Licensed', 'Attempt'],
+                   rows: C.aware.refused.map(function (r) { return [X.fmt(r.at), r.tank, r.kl, r.reason, r.hazPos, r.licensed, r.tries]; }) }]),
+             'tank-farm.xlsx');
+    };
+  }
+
+  function paint(C) {
+    CUR = C;
+    var m = C.m || X.model();
+    if (!$('haz').options.length) {
+      $('haz').innerHTML = m.hazs.map(function (hz) { return '<option value="' + hz.id + '">' + X.esc(hz.name) + '</option>'; }).join('');
+      $('haz').onchange = function () { lic(CUR); };
+    }
+    var h = X.hashParam();
+    if (h && m.hix[h] != null) $('haz').value = h;
+    else if (h && m.tix[h] != null) $('haz').value = m.tanks[m.tix[h]].haz;
+    kpis(C); lic(C); farm(C); dels(C); refused(C); acts(C);
+  }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+  window.addEventListener('chm:activated', function () { if (CUR) lic(CUR); });
+  window.addEventListener('chm:navigate', function () {
+    var h = X.hashParam(), m = CUR && (CUR.m || X.model());
+    if (!CUR || !h) return;
+    if (m.hix[h] != null) $('haz').value = h;
+    else if (m.tix[h] != null) $('haz').value = m.tanks[m.tix[h]].haz;
+    lic(CUR);
+  });
+})();
+</script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+</body>
+</html>

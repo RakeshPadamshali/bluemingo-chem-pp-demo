@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Capacity, Mix &amp; Margin · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  .struck { text-decoration:line-through; color:var(--color-text-disabled); }
+  .mrow { display:grid; grid-template-columns:118px 1fr 1fr 118px; gap:9px; align-items:center; font-size:11.5px; margin-bottom:4px; }
+  .mrow .mb { height:14px; background:#eef1f4; border-radius:4px; overflow:hidden; }
+  .mrow .mf { height:100%; border-radius:4px; }
+  .mrow.flip { background:rgba(37,169,224,.08); border-radius:var(--radius-sm); padding:3px 4px; }
+  .mo { display:grid; grid-template-columns:96px 1fr 104px 92px; gap:9px; align-items:center; font-size:11.5px; margin-bottom:4px; }
+  .mo .mb { position:relative; height:15px; background:#eef1f4; border-radius:4px; }
+  .mo .mf { position:absolute; left:0; top:0; bottom:0; border-radius:4px; background:var(--color-info); }
+  .mo .mf.over { background:var(--color-danger); }
+  .mo .cl { position:absolute; top:-2px; bottom:-2px; width:2px; background:var(--color-text-primary); }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Capacity, Mix &amp; Margin</h1><div class="crumb">Capacity moves with the product mix, so one tonnage number misleads</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-chart-pie"></i>What this plant can make — of <i>this</i> mix
+        <span class="right" id="hmeta"></span></div>
+      <div class="card-body" id="env"></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-ranking-star"></i>Margin per tonne against margin per bottleneck hour
+          <span class="right"><span id="rmeta"></span></span></div>
+        <div class="card-body" id="rank"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-calendar-days"></i>Twelve months against a finite plant
+          <span class="right">load on the class that binds each month</span></div>
+        <div class="card-body" id="months"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-arrows-split-up-and-left"></i>Co-products
+        <span class="right">a co-product is made whether or not it is wanted</span></div>
+      <div class="card-body" id="co"></div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='capacity'; window.CHM_TITLE='Capacity, Mix & Margin'; window.CHM_ICON='fa-chart-pie';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D;
+  var $ = function (id) { return document.getElementById(id); };
+  var CUR = null;
+
+  function kpis(C) {
+    var s = C.sop, m = C.m || X.model();
+    var infeasible = s.months.filter(function (x) { return !x.feasible; });
+    var off = s.rank.filter(function (r) { return r.offBottleneck; });
+    $('kpis').innerHTML = [
+      ['grey', 'Nameplate, this mix', X.n(s.nameplateTonnesMonth, 1) + ' t', 'a month, if the plant only processed'],
+      ['blue', 'Realised, this mix', X.n(s.realisedTonnesMonth, 1) + ' t', 'a month once cleaning is inside the envelope'],
+      ['amber', 'Cleaning', X.pct(s.cleanShare), 'of the plant\'s hours — taken out of the envelope, not added to it'],
+      ['blue', 'Bottleneck', X.esc(String(s.bottleneck).toLowerCase()), 'for this mix; a different mix moves it'],
+      ['red', 'Months over capacity', X.n(infeasible.length), infeasible.length ? infeasible.map(function (x) { return x.label; }).join(', ') : 'none in the twelve'],
+      ['green', 'Never touch the bottleneck', X.n(off.length), off.length ? off.map(function (r) { return r.productId; }).join(', ') : '—']
+    ].map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  function env(C) {
+    var s = C.sop, m = C.m || X.model();
+    var mixTot = Object.keys(s.mixKg).reduce(function (a, k) { return a + s.mixKg[k]; }, 0) || 1;
+    var mix = Object.keys(s.mixKg).map(function (k) { return { id: k, kg: s.mixKg[k], share: s.mixKg[k] / mixTot }; })
+      .sort(function (a, b) { return b.kg - a.kg; });
+    $('hmeta').innerHTML = X.nuChip('S1');
+    $('env').innerHTML =
+      '<div class="grid2" style="margin-bottom:10px">' +
+        '<div><div style="font-size:26px;font-weight:700;line-height:1.1">' +
+          '<span class="struck">' + X.n(s.nameplateTonnesMonth, 1) + ' t</span> &nbsp;' + X.n(s.realisedTonnesMonth, 1) + ' t a month</div>' +
+          '<div class="hint" style="margin-top:6px;line-height:1.5">The struck-through number is what the equipment would make if it only ' +
+          'processed. It is the number a single tonnage figure reports, and it is wrong by ' +
+          '<b>' + X.n(s.nameplateTonnesMonth - s.realisedTonnesMonth, 1) + ' t a month</b> — the cleaning this mix requires, which is ' +
+          X.pct(s.cleanShare) + ' of the plant\'s hours. Change the mix and both numbers move, because the matrix changes with it.</div></div>' +
+        '<div><div class="sub-title">This mix, by share of volume</div>' +
+          mix.slice(0, 8).map(function (x) {
+            var p = m.P[m.pix[x.id]];
+            return '<div class="mrow"><span title="' + X.esc(X.pname(x.id)) + '">' + X.esc(x.id) + '</span>' +
+              '<span class="mb"><span class="mf" style="width:' + (x.share * 100).toFixed(1) + '%;background:' + X.famColor(p ? p.family : 'F1') + '"></span></span>' +
+              '<span class="hint">' + X.esc(p ? X.famName(p.family) : '') + '</span>' +
+              '<span style="text-align:right">' + X.pct(x.share, 0) + ' · ' + X.t(x.kg) + '</span></div>';
+          }).join('') + '</div>' +
+      '</div>' +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div>The envelope is worked out from this mix\'s own routes: the hours each ' +
+      'product needs on every class of equipment, plus the cleaning the matrix requires between them. ' +
+      '<a href="#" id="runmix">Shift the mix</a> and watch both the tonnage and the bottleneck move.</div></div>';
+    var a = document.getElementById('runmix');
+    if (a) a.onclick = function (e) { e.preventDefault(); X.runScenario('C8'); };
+  }
+
+  function rank(C) {
+    var s = C.sop, m = C.m || X.model(), S = D.scenarios.C9 || {};
+    var users = s.rank.filter(function (r) { return !r.offBottleneck; });
+    var maxT = Math.max.apply(null, users.map(function (r) { return r.perTonne; }).concat([1]));
+    var maxH = Math.max.apply(null, users.map(function (r) { return r.perBhHour; }).concat([1]));
+    $('rmeta').innerHTML = X.nuChip('S2');
+    var byT = users.slice().sort(function (a, b) { return b.perTonne - a.perTonne; });
+    $('rank').innerHTML =
+      '<div class="mrow" style="font-weight:600;color:var(--color-text-muted);font-size:10.5px;text-transform:uppercase">' +
+      '<span>Product</span><span>Per tonne</span><span>Per ' + X.esc(String(s.bottleneck).toLowerCase()) + ' hour</span><span style="text-align:right">Hours on it</span></div>' +
+      byT.map(function (r) {
+        var flip = r.productId === S.perTonneWinner || r.productId === S.perHourWinner;
+        return '<div class="mrow' + (flip ? ' flip' : '') + '" title="' + X.esc(X.pname(r.productId)) + '"><span>' + X.esc(r.productId) +
+          (r.productId === S.perTonneWinner ? ' <i class="fa-solid fa-trophy" style="color:var(--color-warning)" title="wins per tonne"></i>' : '') +
+          (r.productId === S.perHourWinner ? ' <i class="fa-solid fa-bolt" style="color:var(--color-primary)" title="wins per bottleneck hour"></i>' : '') + '</span>' +
+          '<span class="mb"><span class="mf" style="width:' + (r.perTonne / maxT * 100).toFixed(1) + '%;background:#9e9e9e"></span></span>' +
+          '<span class="mb"><span class="mf" style="width:' + (r.perBhHour / maxH * 100).toFixed(1) + '%;background:var(--color-primary)"></span></span>' +
+          '<span style="text-align:right">' + X.n(r.bhHours, 0) + ' h · ' + X.rs(r.perBhHour) + '</span></div>';
+      }).join('') +
+      (S.perTonneWinner && S.perHourWinner ? '<div class="note"><i class="fa-solid fa-ranking-star"></i><div>' +
+        '<b>' + X.esc(S.perTonneWinner) + '</b> wins on margin per tonne; <b>' + X.esc(S.perHourWinner) + '</b> wins on margin per hour of the ' +
+        X.esc(String(s.bottleneck).toLowerCase()) + ', by ' + X.n(S.flipStrength, 2) + '×. When the plant is full the second ranking is the one ' +
+        'that pays, because the hour is what is scarce — not the tonne.</div></div>' : '') +
+      (s.rank.filter(function (r) { return r.offBottleneck; }).length ?
+        '<div class="note"><i class="fa-solid fa-circle-check"></i><div><b>' +
+        X.esc(s.rank.filter(function (r) { return r.offBottleneck; }).map(function (r) { return r.productId; }).join(' and ')) +
+        '</b> never touch the ' + X.esc(String(s.bottleneck).toLowerCase()) + ' at all. Measured per bottleneck hour they are free money; ' +
+        'measured per tonne they look like the least interesting products in the book.</div></div>' : '');
+  }
+
+  function months(C) {
+    var s = C.sop;
+    var max = Math.max.apply(null, s.months.map(function (x) { return x.loadPct; }).concat([1]));
+    $('months').innerHTML = s.months.map(function (x) {
+      return '<div class="mo"><span>' + X.esc(x.label) + (x.shutdown ? ' <span class="chip">shutdown</span>' : '') + '</span>' +
+        '<span class="mb"><span class="mf' + (x.feasible ? '' : ' over') + '" style="width:' + Math.min(100, x.loadPct / max * 100).toFixed(1) + '%"></span>' +
+        '<span class="cl" style="left:' + Math.min(99.6, 1 / max * 100).toFixed(1) + '%" title="capacity"></span></span>' +
+        '<span style="text-align:right">' + X.pct(x.loadPct, 0) + ' of ' + X.esc(String(x.bottleneck).toLowerCase()) + '</span>' +
+        '<span style="text-align:right" class="hint">' + X.t(x.demandKg) + '</span></div>';
+    }).join('') +
+    '<div class="note"><i class="fa-solid fa-circle-info"></i><div>The bar is the demand plan against the hours the binding class has that month, ' +
+    'cleaning included and the shutdown taken out. The tick is capacity. A month past it is not a stretch target — it is tonnage that has to be ' +
+    'built earlier, bought, tolled, or not promised. The bottleneck named on each row is the class that binds <i>that</i> month, and it moves.</div></div>';
+  }
+
+  function co(C) {
+    var s = C.sop, m = C.m || X.model();
+    if (!s.coproducts.length) { $('co').innerHTML = '<div class="empty-state">No co-products in this product set.</div>'; return; }
+    $('co').innerHTML = '<table class="tbl"><thead><tr><th>Main product</th><th>Co-product</th><th class="num">Ratio</th>' +
+      '<th class="num">Main, a month</th><th class="num">Co-product, a month</th><th>What caps what</th></tr></thead><tbody>' +
+      s.coproducts.map(function (c) {
+        var p = m.P[m.pix[c.productId]], cp = (p && p.coprodId) ? p : null;
+        var raw = (D.m.products.filter(function (x) { return x.id === c.productId; })[0] || {});
+        return '<tr><td>' + X.esc(X.pname(c.productId)) + '</td><td>' + X.esc(c.coprodId) + '</td>' +
+          '<td class="num">' + X.n(c.ratio, 2) + ' : 1</td>' +
+          '<td class="num">' + X.t(c.mainKgMonth) + '</td><td class="num">' + X.t(c.coprodKgMonth) + '</td>' +
+          '<td style="white-space:normal">Every tonne of ' + X.esc(c.productId) + ' makes ' + X.n(c.ratio, 2) +
+          ' t of ' + X.esc(c.coprodId) + ', wanted or not. When its storage fills, the main product stops.</td></tr>';
+      }).join('') + '</tbody></table>' +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div>A co-product is not a by-line in the costing — it is a second output ' +
+      'that needs somewhere to go. Cut its storage or its disposal route and it caps the product that pays for the campaign. ' +
+      '<a href="#" id="runco">Try it</a>.</div></div>';
+    var a = document.getElementById('runco');
+    if (a) a.onclick = function (e) { e.preventDefault(); X.runScenario('C10'); };
+  }
+
+  function acts(C) {
+    $('acts').innerHTML = X.nuOf('capacity').map(function (x) { return X.nuChip(x.id); }).join(' ') +
+      '<button class="btn btn-outline btn-sm" id="dl"><i class="fa-solid fa-file-excel"></i>S&amp;OP to Excel</button>';
+    $('dl').onclick = function () {
+      var s = C.sop;
+      X.xlsx([{ name: 'Months', cols: ['Month', 'Days', 'Demand kg', 'Contribution', 'Bottleneck', 'Load', 'Feasible', 'Gap kg'],
+                rows: s.months.map(function (x) { return [x.label, x.days, x.demandKg, x.contribution, x.bottleneck, x.loadPct, x.feasible ? 'yes' : 'no', x.gapKg]; }) },
+              { name: 'Margin ranking', cols: ['Product', 'Family', 'Margin per kg', 'Per tonne', 'Bottleneck hours', 'Per bottleneck hour', 'Off the bottleneck'],
+                rows: s.rank.map(function (r) { return [r.productId, r.family, r.marginKg, r.perTonne, r.bhHours, r.perBhHour, r.offBottleneck ? 'yes' : 'no']; }) },
+              { name: 'Co-products', cols: ['Main', 'Co-product', 'Ratio', 'Main kg a month', 'Co-product kg a month'],
+                rows: s.coproducts.map(function (c) { return [c.productId, c.coprodId, c.ratio, c.mainKgMonth, c.coprodKgMonth]; }) }],
+             'sop-capacity.xlsx');
+    };
+  }
+
+  function paint(C) { CUR = C; kpis(C); env(C); rank(C); months(C); co(C); acts(C); }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+})();
+</script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+</body>
+</html>

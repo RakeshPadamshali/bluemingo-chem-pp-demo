@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stock, Shelf Life &amp; Pack · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  .ladder2 { display:grid; grid-template-columns:116px 1fr 118px; gap:9px; align-items:center; font-size:11.5px; margin-bottom:4px; }
+  .ladder2 .lb { position:relative; height:15px; background:#eef1f4; border-radius:4px; }
+  .ladder2 .lf { position:absolute; left:0; top:0; bottom:0; border-radius:4px; background:var(--color-success); }
+  .ladder2 .lf.warn { background:var(--color-warning); } .ladder2 .lf.bad { background:var(--color-danger); }
+  .ladder2 .lm { position:absolute; top:-2px; bottom:-2px; width:2px; background:var(--color-text-primary); }
+  .mo2 { display:grid; grid-template-columns:96px 1fr 110px; gap:9px; align-items:center; font-size:11.5px; margin-bottom:4px; }
+  .mo2 .mb { position:relative; height:15px; background:#eef1f4; border-radius:4px; overflow:hidden; }
+  .mo2 .dm { position:absolute; left:0; top:0; bottom:0; background:var(--color-info); }
+  .mo2 .cp { position:absolute; top:0; bottom:0; width:2px; background:var(--color-text-primary); }
+  .mo2.shut .mb { background:repeating-linear-gradient(45deg,#f3b7b7 0 4px,#ffe0e0 4px 8px); }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Stock, Shelf Life &amp; Pack</h1><div class="crumb">Inventory has an expiry, peaks are met with stock built early, and the pack decision can wait</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="grid-2-1">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-clock-rotate-left"></i>Remaining life, lot by lot
+          <span class="right"><span class="fl">Product</span>&nbsp;<select id="prod"><option value="">All</option></select>&nbsp;<span id="lmeta"></span></span></div>
+        <div class="card-body"><div id="ladder" style="max-height:400px;overflow:auto"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-user-clock"></i>What each customer insists on <span class="right" id="cmeta"></span></div>
+        <div class="card-body" id="mins"></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-calendar-xmark"></i>The season and the shutdown
+          <span class="right"><span id="smeta"></span></span></div>
+        <div class="card-body" id="season"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-boxes-packing"></i>Bulk against packed
+          <span class="right"><span id="pmeta"></span></span></div>
+        <div class="card-body" id="pack"></div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='stock'; window.CHM_TITLE='Stock, Shelf Life & Pack'; window.CHM_ICON='fa-boxes-stacked';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D;
+  var $ = function (id) { return document.getElementById(id); };
+  var CUR = null, MONTH = 30.4 * 1440;
+
+  function lifeOf(l) { return (l.retestAt - X.ASOF) / MONTH; }
+
+  function kpis(C) {
+    var s = C.sop, lots = C.aware.lots.filter(function (l) { return l.left > 0; });
+    var minNeed = D.m.customers.filter(function (c) { return c.regulated; })
+      .reduce(function (a, c) { return Math.max(a, c.minLifeMonths || 0); }, 0);
+    var tight = lots.filter(function (l) { return lifeOf(l) < 12; });
+    var dead = lots.filter(function (l) { return lifeOf(l) <= 0; });
+    var packed = (C.m || X.model()).P.filter(function (p) { return p.ops.some(function (o) { return o.cls === 'PACK'; }); });
+    $('kpis').innerHTML = [
+      ['blue', 'Lots on hand', X.n(lots.length), X.t(lots.reduce(function (a, l) { return a + l.left; }, 0)) + ' unallocated'],
+      ['amber', 'Under a year of life left', X.n(tight.length), X.t(tight.reduce(function (a, l) { return a + l.left; }, 0))],
+      ['red', 'Past their retest date', X.n(dead.length), dead.length ? 'written off' : 'none'],
+      ['grey', 'Strictest customer', X.n(minNeed) + ' months', 'of remaining life demanded on receipt'],
+      ['blue', 'Shutdown', X.n(s.shutdownDays) + ' days', s.shutdownMonth ? 'in ' + X.esc(s.shutdownMonth) : 'none planned'],
+      ['green', 'Products packed to order', X.n(packed.length), 'of ' + X.n((C.m || X.model()).P.length) + ' — the rest ship in bulk']
+    ].map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  function ladder(C) {
+    var pid = $('prod').value;
+    var lots = C.aware.lots.filter(function (l) { return l.left > 0 && (!pid || l.productId === pid); })
+      .sort(function (a, b) { return lifeOf(a) - lifeOf(b); });
+    var used = {};
+    C.aware.allocs.forEach(function (a) { a.lots.forEach(function (z) { used[z.id] = a.lineId; }); });
+    var maxL = Math.max.apply(null, lots.map(lifeOf).concat([24]));
+    var strict = D.m.customers.filter(function (c) { return c.regulated; })
+      .reduce(function (a, c) { return Math.max(a, c.minLifeMonths || 0); }, 0);
+    $('lmeta').innerHTML = X.nuChip('S6') + ' ' + X.n(lots.length) + ' lots';
+    $('ladder').innerHTML = (lots.length ? lots.slice(0, 80).map(function (l) {
+      var mo = lifeOf(l), k = mo <= 0 ? 'bad' : mo < strict ? 'warn' : '';
+      return '<div class="ladder2" title="' + X.esc(l.id + ' · ' + l.productId + ' · retest ' + X.fmtD(l.retestAt)) + '">' +
+        '<span class="mono">' + X.esc(l.id) + '</span>' +
+        '<span class="lb"><span class="lf ' + k + '" style="width:' + Math.max(1, Math.min(100, mo / maxL * 100)).toFixed(1) + '%"></span>' +
+        '<span class="lm" style="left:' + Math.min(99.6, strict / maxL * 100).toFixed(1) + '%" title="the strictest customer minimum, ' + strict + ' months"></span></span>' +
+        '<span style="text-align:right">' + X.n(Math.max(0, mo), 1) + ' mo · ' + X.n(l.left) + ' kg</span></div>';
+    }).join('') : '<div class="empty-state">No unallocated stock of this product.</div>') +
+    '<div class="legend" style="margin-top:8px"><span><i style="background:var(--color-success)"></i>can serve anyone</span>' +
+    '<span><i style="background:var(--color-warning)"></i>too short for the strictest customer</span>' +
+    '<span><i style="background:var(--color-danger)"></i>past its retest date</span>' +
+    '<span><i style="background:var(--color-text-primary);width:3px"></i>' + strict + '-month minimum</span></div>' +
+    '<div class="note"><i class="fa-solid fa-circle-info"></i><div>A lot to the left of the tick is not useless — it is useless <i>to that ' +
+    'customer</i>. It can still serve a domestic order with no minimum, which is why shelf life is an allocation decision rather than a ' +
+    'write-off decision. <a href="#" id="runlife">See what happens when one ages</a>.</div></div>';
+    var a = document.getElementById('runlife');
+    if (a) a.onclick = function (e) { e.preventDefault(); X.runScenario('C11'); };
+  }
+
+  function mins(C) {
+    var regs = D.m.customers.filter(function (c) { return c.regulated && c.minLifeMonths; })
+      .sort(function (a, b) { return b.minLifeMonths - a.minLifeMonths; });
+    var lots = C.aware.lots.filter(function (l) { return l.left > 0; });
+    $('cmeta').innerHTML = X.n(regs.length) + ' customers';
+    $('mins').innerHTML = '<table class="tbl"><thead><tr><th>Customer</th><th class="num">Needs</th><th class="num">Lots that qualify</th></tr></thead><tbody>' +
+      regs.slice(0, 12).map(function (c) {
+        var buys = String(c.buys || '').split(',').filter(Boolean);
+        var ok = lots.filter(function (l) { return buys.indexOf(l.productId) >= 0 && lifeOf(l) >= c.minLifeMonths; });
+        var any = lots.filter(function (l) { return buys.indexOf(l.productId) >= 0; });
+        return '<tr><td>' + X.esc(c.name) + '</td><td class="num">' + c.minLifeMonths + ' mo</td>' +
+          '<td class="num">' + X.n(ok.length) + ' of ' + X.n(any.length) +
+          (any.length && !ok.length ? ' <span class="badge b-red">none</span>' : '') + '</td></tr>';
+      }).join('') + '</tbody></table>' +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div>The same warehouse looks different to each customer. This is the column a ' +
+      'quantity-based stock report cannot produce, and it is the one that decides whether an order ships.</div></div>';
+  }
+
+  function season(C) {
+    var s = C.sop;
+    var max = Math.max.apply(null, s.months.map(function (m) { return m.demandKg; }).concat([1]));
+    var cap = s.realisedTonnesMonth * 1000;
+    $('smeta').innerHTML = X.nuChip('S8');
+    var pre = s.prebuild.filter(function (p) { return p.shutdownKg > 0; });
+    $('season').innerHTML = s.months.map(function (m) {
+      return '<div class="mo2' + (m.shutdown ? ' shut' : '') + '"><span>' + X.esc(m.label) + '</span>' +
+        '<span class="mb"><span class="dm" style="width:' + (m.demandKg / max * 100).toFixed(1) + '%;background:' +
+        (m.feasible ? 'var(--color-info)' : 'var(--color-danger)') + '"></span>' +
+        '<span class="cp" style="left:' + Math.min(99.6, cap / max * 100).toFixed(1) + '%" title="what the plant realises in a normal month"></span></span>' +
+        '<span style="text-align:right">' + X.t(m.demandKg) + (m.shutdown ? ' · ' + s.shutdownDays + ' d down' : '') + '</span></div>';
+    }).join('') +
+    '<div class="note"><i class="fa-solid fa-circle-info"></i><div>The tick is what the plant realises in a normal month. The hatched row is the ' +
+    'shutdown: ' + s.shutdownDays + ' days out of ' + X.esc(s.shutdownMonth || 'that month') + '. ' +
+    (pre.length ? 'Covering it means building <b>' + X.t(pre.reduce(function (a, p) { return a + p.shutdownKg; }, 0)) +
+      '</b> early — and only the products with the shelf life for it can be built early at all: ' +
+      X.esc(pre.filter(function (p) { return p.feasible; }).slice(0, 4).map(function (p) { return p.productId; }).join(', ')) +
+      (pre.some(function (p) { return !p.feasible; }) ? '. ' + X.esc(pre.filter(function (p) { return !p.feasible; }).map(function (p) { return p.productId; }).join(', ')) +
+        ' cannot — too short a retest date, so that demand has to be bought, tolled or not promised.' : '.') : '') +
+    '</div></div>' +
+    (pre.length ? '<table class="tbl" style="margin-top:8px"><thead><tr><th>Product</th><th class="num">Lost to the shutdown</th>' +
+      '<th class="num">Retest</th><th class="num">Build how early</th><th>Can it be pre-built?</th></tr></thead><tbody>' +
+      pre.slice(0, 8).map(function (p) {
+        return '<tr><td>' + X.esc(p.productId) + '</td><td class="num">' + X.n(p.shutdownKg) + ' kg</td>' +
+          '<td class="num">' + p.retestM + ' mo</td><td class="num">' + p.monthsEarly + ' mo</td>' +
+          '<td>' + (p.feasible ? '<span class="badge b-green">yes</span>' : '<span class="badge b-red">shelf life too short</span>') + '</td></tr>';
+      }).join('') + '</tbody></table>' : '');
+  }
+
+  function pack(C) {
+    var m = C.m || X.model();
+    var packed = m.P.filter(function (p) { return p.ops.some(function (o) { return o.cls === 'PACK'; }); });
+    var bulk = m.P.filter(function (p) { return !p.ops.some(function (o) { return o.cls === 'PACK'; }); });
+    var custOf = {};
+    C.aware.lines.forEach(function (l) { (custOf[l.productId] = custOf[l.productId] || {})[l.cust] = 1; });
+    $('pmeta').innerHTML = X.nuChip('S9');
+    $('pack').innerHTML = '<table class="tbl"><thead><tr><th>Product</th><th>Ships as</th><th class="num">Customers</th>' +
+      '<th class="num">Pack hours a batch</th><th>What postponing buys</th></tr></thead><tbody>' +
+      packed.concat(bulk).slice(0, 10).map(function (p) {
+        var po = p.ops.filter(function (o) { return o.cls === 'PACK'; })[0];
+        var nc = Object.keys(custOf[p.id] || {}).length;
+        return '<tr><td>' + X.esc(p.id) + '</td>' +
+          '<td>' + (po ? '<span class="badge b-blue">packed</span>' : '<span class="badge b-grey">bulk</span>') + '</td>' +
+          '<td class="num">' + X.n(nc) + '</td><td class="num">' + (po ? X.n(po.hours, 0) + ' h' : '—') + '</td>' +
+          '<td style="white-space:normal" class="hint">' + (po
+            ? (nc > 1 ? 'one bulk lot can still become any of ' + nc + ' customers’ packs, so the commitment waits until the order is firm'
+                      : 'only one customer takes it, so postponing buys little')
+            : 'already shipped as it is made') + '</td></tr>';
+      }).join('') + '</tbody></table>' +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Packing is the last operation and the cheapest one to move. Hold the bulk ' +
+      'and the same stock serves whichever order firms up first; pack it early and it is committed to one customer, one label and one ' +
+      'pack size while the order can still change. <a href="#" id="runpack">Hold this one as bulk</a>.</div></div>';
+    var a = document.getElementById('runpack');
+    if (a) a.onclick = function (e) { e.preventDefault(); X.runScenario('C13c'); };
+  }
+
+  function acts(C) {
+    $('acts').innerHTML = X.nuOf('stock').map(function (x) { return X.nuChip(x.id); }).join(' ') +
+      '<button class="btn btn-ghost btn-sm" id="r13"><i class="fa-solid fa-play"></i>Run C13</button>' +
+      '<button class="btn btn-outline btn-sm" id="dl"><i class="fa-solid fa-file-excel"></i>Stock to Excel</button>';
+    $('r13').onclick = function () { X.runScenario('C13'); };
+    $('dl').onclick = function () {
+      X.xlsx([{ name: 'Lots', cols: ['Lot', 'Product', 'kg left', 'Assay', 'Impurity', 'd90', 'Made', 'Retest', 'Months left'],
+                rows: C.aware.lots.filter(function (l) { return l.left > 0; }).map(function (l) {
+                  return [l.id, l.productId, l.left, l.assay, l.imp, l.psd, X.fmtD(l.madeAt), X.fmtD(l.retestAt), Math.round(lifeOf(l) * 10) / 10]; }) },
+              { name: 'Pre-build', cols: ['Product', 'Lost to the shutdown kg', 'Retest months', 'Build months early', 'Feasible'],
+                rows: C.sop.prebuild.map(function (p) { return [p.productId, p.shutdownKg, p.retestM, p.monthsEarly, p.feasible ? 'yes' : 'no']; }) }],
+             'stock-and-shelf-life.xlsx');
+    };
+  }
+
+  function paint(C) {
+    CUR = C;
+    if (!$('prod').options.length || $('prod').options.length === 1) {
+      $('prod').innerHTML = '<option value="">All products</option>' + (C.m || X.model()).P.map(function (p) {
+        return '<option value="' + p.id + '">' + X.esc(p.id) + '</option>'; }).join('');
+      $('prod').onchange = function () { ladder(CUR); };
+    }
+    var h = X.hashParam();
+    if (h && C.aware.lots.some(function (l) { return l.id === h; })) {
+      var lot = C.aware.lots.filter(function (l) { return l.id === h; })[0];
+      $('prod').value = lot.productId;
+    }
+    kpis(C); ladder(C); mins(C); season(C); pack(C); acts(C);
+  }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+  window.addEventListener('chm:navigate', function () { if (CUR) paint(CUR); });
+})();
+</script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+</body>
+</html>

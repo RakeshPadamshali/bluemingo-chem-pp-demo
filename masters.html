@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Master Data · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  .mlist { max-height:620px; overflow:auto; }
+  .mitem { display:flex; align-items:center; gap:8px; padding:6px 9px; border-radius:var(--radius-sm); cursor:pointer; font-size:12px; border:1px solid transparent; }
+  .mitem:hover { background:var(--color-bg-alt); } .mitem.on { background:var(--color-primary-light); border-color:var(--color-primary); font-weight:600; }
+  .mitem i { width:15px; text-align:center; color:var(--color-primary); }
+  .mitem .n { margin-left:auto; font-size:10.5px; color:var(--color-text-hint); font-weight:400; }
+  .mgroup { font:700 9.5px Roboto; letter-spacing:1px; text-transform:uppercase; color:var(--color-text-muted); padding:10px 9px 3px; }
+  .route { font-size:10px; font-weight:700; letter-spacing:.3px; padding:1px 6px; border-radius:var(--radius-sm); }
+  .route-Configure { background:rgba(56,142,60,.14); color:#2e7d32; }
+  .route-Extend { background:rgba(245,124,0,.16); color:#e65100; }
+  .route---- { background:rgba(158,158,158,.16); color:#555; }
+  .src { font-size:10px; font-weight:700; padding:1px 6px; border-radius:var(--radius-sm); background:rgba(158,158,158,.16); color:#555; }
+  .src-GENERATED { background:rgba(33,150,243,.12); color:#1565c0; }
+  .src-RULE { background:rgba(103,58,183,.12); color:#5e35b1; }
+  .src-DECK { background:rgba(245,124,0,.14); color:#e65100; }
+  .drop { border:2px dashed var(--color-border); border-radius:var(--radius-md); padding:16px; text-align:center; color:var(--color-text-hint); font-size:12px; }
+  .drop.on { border-color:var(--color-primary); background:var(--color-primary-light); color:var(--color-primary-dark); }
+  .ready { display:grid; grid-template-columns:1fr 92px 120px; gap:8px; align-items:center; font-size:11.5px; padding:4px 0; border-bottom:1px solid var(--color-border-light); }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Master Data</h1><div class="crumb">Where every number comes from, and the upload that re-plans the plant</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="grid-1-2">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-database"></i>The masters <span class="right" id="mcount"></span></div>
+        <div class="card-body" style="padding:6px"><div class="mlist" id="mlist"></div></div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-head"><i class="fa-solid fa-table" id="mi"></i><span id="mtitle">—</span>
+            <span class="right" id="mbadges"></span></div>
+          <div class="card-body">
+            <div id="mabout"></div>
+            <div class="filters" style="margin:9px 0 0" id="mtools"></div>
+            <div id="prevcard" style="display:none;margin-top:10px"></div>
+            <div class="tbl-wrap" style="max-height:330px;overflow:auto;margin-top:9px"><table class="tbl" id="mtable"></table></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-clipboard-check"></i>What a new product inherits
+          <span class="right">no mapping table anywhere</span></div>
+        <div class="card-body" id="inherit"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-list-check"></i>What this needs from you
+          <span class="right">a readiness view, master by master</span></div>
+        <div class="card-body" id="ready"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-clock-rotate-left"></i>Audit <span class="right" id="ameta"></span></div>
+      <div class="card-body" id="audit"></div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='masters'; window.CHM_TITLE='Master Data'; window.CHM_ICON='fa-database';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D, E = X.E;
+  var $ = function (id) { return document.getElementById(id); };
+  var CUR = null, sel = 'products', preview = null;
+  var DESC = D.meta.masters;
+  function desc(k) { return DESC.filter(function (d) { return d.key === k; })[0]; }
+  function overlay() { return X.State.get('masters', {}); }
+  function rowsOf(k) {
+    var base = (D.m[k] || []).map(function (r) { return Object.assign({}, r); });
+    var o = overlay()[k];
+    if (!o || !o.rows) return base;
+    var kf = o.kf || 'id', idx = {};
+    base.forEach(function (r, i) { idx[r[kf]] = i; });
+    o.rows.forEach(function (r) { if (r[kf] in idx) base[idx[r[kf]]] = Object.assign({}, base[idx[r[kf]]], r); else base.push(Object.assign({}, r)); });
+    return base;
+  }
+
+  function kpis(C) {
+    var live = DESC.filter(function (d) { return d.live; });
+    var conf = DESC.filter(function (d) { return d.route === 'Configure'; });
+    var ext = DESC.filter(function (d) { return d.route === 'Extend'; });
+    var ov = overlay(), changed = Object.keys(ov).length;
+    var rows = DESC.reduce(function (a, d) { return a + d.n; }, 0);
+    $('kpis').innerHTML = [
+      ['blue', 'Masters', X.n(DESC.length), X.n(rows) + ' rows in all'],
+      ['green', 'You can upload', X.n(live.length), 'and the plant re-plans from the change'],
+      ['green', 'Configure', X.n(conf.length), 'set up on capability the product already has'],
+      ['amber', 'Extend', X.n(ext.length), 'new rules or logic to build'],
+      ['grey', 'Everything here is', 'generated', 'a fictional plant — see the provenance on each master'],
+      [changed ? 'red' : 'grey', 'Changed in this session', X.n(changed), changed ? 'the plan you are looking at includes them' : 'nothing uploaded yet']
+    ].map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  function list(C) {
+    var groups = [];
+    DESC.forEach(function (d) { if (groups.indexOf(d.group) < 0) groups.push(d.group); });
+    var ov = overlay();
+    $('mcount').textContent = X.n(DESC.length) + ' masters';
+    $('mlist').innerHTML = groups.map(function (g) {
+      return '<div class="mgroup">' + X.esc(g) + '</div>' + DESC.filter(function (d) { return d.group === g; }).map(function (d) {
+        return '<div class="mitem' + (d.key === sel ? ' on' : '') + '" data-k="' + d.key + '">' +
+          '<i class="fa-solid ' + d.icon + '"></i><span>' + X.esc(d.label) + '</span>' +
+          (ov[d.key] ? '<span class="badge b-amber" style="font-size:9px">changed</span>' : '') +
+          (d.live ? '' : '<i class="fa-solid fa-eye" title="a view, not an input" style="color:var(--color-text-disabled)"></i>') +
+          '<span class="n">' + X.n(d.n) + '</span></div>';
+      }).join('');
+    }).join('');
+    $('mlist').onclick = function (e) {
+      var it = e.target.closest('.mitem[data-k]'); if (!it) return;
+      sel = it.getAttribute('data-k'); preview = null; list(CUR); detail(CUR);
+    };
+  }
+
+  function detail(C) {
+    var d = desc(sel);
+    if (!d) return;
+    $('mi').className = 'fa-solid ' + d.icon;
+    $('mtitle').textContent = d.label;
+    $('mbadges').innerHTML = '<span class="src src-' + d.source + '">' + X.esc(d.source === 'RULE' ? 'DERIVED' : d.source) + '</span>' +
+      '<span class="route route-' + d.route.replace(/[^A-Za-z]/g, '-') + '">' + X.esc(d.route === '—' ? 'reference' : d.route) + '</span>' +
+      (d.live ? '<span class="chip">uploadable</span>' : '<span class="chip">view only</span>') +
+      ' ' + d.nuances.map(function (n) { return X.nuChip(n); }).join(' ');
+    $('mabout').innerHTML = '<div style="font-size:12px;line-height:1.5">' + X.esc(d.note) + '</div>' +
+      '<div class="hint" style="margin-top:6px">' +
+      (d.source === 'GENERATED' ? 'Every value in this master is <b>generated</b> for the demo and lives in <code>tools/gen/config.py</code>. '
+        : d.source === 'RULE' ? 'This is <b>derived</b> from other masters — a view of a rule, not something anyone types. '
+        : 'This comes from the <b>Bluemingo Specialty Chemicals deck</b>. ') +
+      (d.route === 'Configure' ? 'Slide 39 puts this on the <b>Configure</b> route: it is set up on capability the Production Planner already has.'
+        : d.route === 'Extend' ? 'Slide 39 puts this on the <b>Extend</b> route: it needs new rules or logic in the product.'
+        : 'Reference only.') + '</div>';
+    tools(C, d);
+    table(C, d);
+  }
+
+  function tools(C, d) {
+    $('mtools').innerHTML =
+      '<button class="btn btn-ghost btn-sm" id="tpl"><i class="fa-solid fa-download"></i>Download template</button>' +
+      (d.live ? '<button class="btn btn-ghost btn-sm" id="up"><i class="fa-solid fa-upload"></i>Upload a change</button>' +
+                '<input type="file" id="file" accept=".xlsx,.xls,.csv" style="display:none">' +
+                '<button class="btn btn-ghost btn-sm" id="sample"><i class="fa-solid fa-wand-magic-sparkles"></i>Use a worked example</button>' : '') +
+      (overlay()[d.key] ? '<button class="btn btn-danger btn-sm" id="undo"><i class="fa-solid fa-rotate-left"></i>Undo this master</button>' : '') +
+      '<span class="hint">' + X.n(d.n) + ' rows · key <code>' + X.esc(d.kf) + '</code></span>';
+    $('tpl').onclick = function () {
+      var rows = rowsOf(d.key);
+      X.xlsx([{ name: d.key.slice(0, 28), cols: d.cols, rows: rows.map(function (r) { return d.cols.map(function (c) { return r[c] == null ? '' : r[c]; }); }) }],
+             'chm-' + d.key + '-template.xlsx');
+      X.toast('Template downloaded with the ' + X.n(rows.length) + ' rows as they stand', 'fa-file-excel');
+    };
+    if ($('undo')) $('undo').onclick = function () {
+      X.replan(function () { var o = overlay(); delete o[d.key]; X.State.set('masters', o); }, 'Putting ' + d.label + ' back', function (r) {
+        preview = null; paint(r); X.toast(d.label + ' is back to the generated values', 'fa-rotate-left');
+      });
+    };
+    if (!d.live) return;
+    $('up').onclick = function () { $('file').click(); };
+    $('file').onchange = function (e) {
+      var f = e.target.files[0]; if (!f) return;
+      var fr = new FileReader();
+      fr.onload = function (ev) {
+        try {
+          var wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' });
+          var ws = wb.Sheets[wb.SheetNames[0]];
+          var rows = XLSX.utils.sheet_to_json(ws, { defval: null });
+          validate(C, d, rows);
+        } catch (err) { X.toast('Could not read that file: ' + err.message, 'fa-triangle-exclamation'); }
+      };
+      fr.readAsArrayBuffer(f);
+      e.target.value = '';
+    };
+    $('sample').onclick = function () {
+      var ex = sampleFor(d);
+      if (Array.isArray(ex)) { validate(C, d, ex); return; }
+      // an example that touches more than one master: validate each, then preview them together
+      var parts = [];
+      Object.keys(ex).forEach(function (k) {
+        var dk = desc(k);
+        var v = validateRows(dk, ex[k]);
+        if (v.errs.length) { X.toast(v.errs[0], 'fa-triangle-exclamation'); return; }
+        if (v.out.length) parts.push({ key: k, kf: dk.kf, label: dk.label, rows: v.out });
+      });
+      if (!parts.length) { X.toast('Nothing to change', 'fa-circle-check'); return; }
+      previewMulti(C, parts);
+    };
+  }
+
+  /* A worked example per live master — the change the scenarios talk about, so the upload path can be shown without
+     anyone having to type a spreadsheet in the room. */
+  function sampleFor(d) {
+    var rows = rowsOf(d.key), m = CUR ? (CUR.m || X.model()) : null;
+    if (d.key === 'cleanGrades') {
+      return rows.map(function (r) { return r.id === 'BOILOUT' ? Object.assign({}, r, { hours: 22 }) : r; });
+    }
+    if (d.key === 'utilities') {
+      // Cut the utility THIS plan leans on hardest, to just under the duty it is actually drawing. A fixed percentage of
+      // nameplate lands in clear air as soon as the plan changes, and then the worked example proves nothing.
+      var pk = (CUR ? CUR.aware.kpi.utilPeak : {}) || {}, worst = null, ratio = 0;
+      rows.forEach(function (r) {
+        var v = (pk[r.id] || 0) / Math.max(1, +r.cap);
+        if (v > ratio) { ratio = v; worst = r.id; }
+      });
+      if (!worst) worst = 'BRINE';
+      return rows.map(function (r) {
+        return r.id === worst ? Object.assign({}, r, { cap: Math.max(1, Math.round((pk[r.id] || +r.cap) * 0.88 * 10) / 10) }) : r;
+      });
+    }
+    if (d.key === 'waste') {
+      var wpk = (CUR ? CUR.aware.kpi.wastePeak : {}) || {}, ww = null, wr = 0;
+      rows.forEach(function (r) { var v = (wpk[r.id] || 0) / Math.max(1, +r.cap); if (v > wr) { wr = v; ww = r.id; } });
+      if (!ww) ww = 'ETP';
+      return rows.map(function (r) {
+        return r.id === ww ? Object.assign({}, r, { cap: Math.max(1, Math.round((wpk[r.id] || +r.cap) * 0.85 * 10) / 10) }) : r;
+      });
+    }
+    if (d.key === 'hazardClasses') {
+      return rows.map(function (r) { return r.id === 'FLAM' ? Object.assign({}, r, { licensedKL: Math.round(r.licensedKL * 0.9) }) : r; });
+    }
+    if (d.key === 'cleanOverrides') {
+      // override the pair this plan makes MOST OFTEN, so the change is visible rather than theoretical
+      var freq = {}, best = null;
+      (CUR ? CUR.aware.cleans : []).forEach(function (c) {
+        if (!c.frm || !c.to || c.frm === c.to) return;
+        var k = c.frm + '>' + c.to;
+        freq[k] = (freq[k] || 0) + 1;
+        if (!best || freq[k] > freq[best]) best = k;
+      });
+      if (!best) { var pp = D.m.products; best = pp[0].id + '>' + pp[1].id; }
+      var fr = best.split('>')[0], to = best.split('>')[1];
+      var cur = D.m.cleanMatrix.filter(function (r) { return r.frm === fr && r.to === to; })[0];
+      var grade = (cur && cur.grade === 'BOILOUT') ? 'DEDICATE' : 'BOILOUT';
+      return rows.filter(function (r) { return r.id !== best; }).concat([{
+        id: best, frm: fr, to: to, grade: grade,
+        why: 'Added from the floor: the swab test does not pass at the derived grade' }]);
+    }
+    if (d.key === 'routes') {
+      var r0 = rows.filter(function (r) { return r.seq > 1; })[0];
+      return rows.map(function (r) { return r.id === r0.id ? Object.assign({}, r, { maxLagH: Math.max(2, Math.round(r.maxLagH * 0.5)) }) : r; });
+    }
+    if (d.key === 'products') {
+      /* A new product, built only from attributes — and its ROUTE, because a product without one cannot be planned and
+         the demo should show that honestly rather than demonstrate a half-added product. */
+      var base = rows.filter(function (r) { return r.family === 'F1'; })[0] || rows[0];
+      var nid = 'AM-140';
+      var prod = Object.assign({}, base, {
+        id: nid, name: '4-Methoxy-aniline (new)', colour: 2, chargeKL: 4.2, batchKg: 650,
+        assayMean: 98.4, assaySd: 0.42, impMax: 0.32, psdMean: 150, psdSd: 38, retestM: 30,
+        priceKg: 1320, costKg: 810, marginKg: 510, yieldMean: 0.88, yieldSd: 0.035, coprodId: null, coprodRatio: null
+      });
+      var rt = rowsOf('routes'), src = rt.filter(function (r) { return r.productId === base.id; });
+      var newRoutes = rt.concat(src.map(function (r) {
+        return Object.assign({}, r, { id: nid + '/' + String(r.seq).padStart(2, '0'), productId: nid });
+      }));
+      return { products: rows.concat([prod]), routes: newRoutes };
+    }
+    if (d.key === 'customers') {
+      var c0 = rows.filter(function (r) { return r.regulated; })[0];
+      return rows.map(function (r) { return r.id === c0.id ? Object.assign({}, r, { minLifeMonths: (r.minLifeMonths || 12) + 6 }) : r; });
+    }
+    if (d.key === 'units') {
+      // working volume is what the scheduler reads: shrink the biggest reactor and some products stop being eligible on it.
+      // (Uptime is a reporting figure — changing it moves no batch, so it would be a poor example.)
+      var u0 = rows.filter(function (r) { return r.cls === 'REACTOR' && r.block === 'A'; })
+        .sort(function (a, b) { return b.vol - a.vol; })[0];
+      return rows.map(function (r) { return r.id === u0.id ? Object.assign({}, r, { vol: Math.round(r.vol * 0.55 * 10) / 10 }) : r; });
+    }
+    if (d.key === 'blockTimes') {
+      // a longer maintenance window on the busiest unit
+      var b0 = rows[0];
+      return rows.map(function (r) { return r.id === b0.id ? Object.assign({}, r, { hours: r.hours + 8 }) : r; });
+    }
+    if (d.key === 'campaignRule') {
+      return rows.map(function (r) { return Object.assign({}, r, { maxBatches: Math.max(3, Math.round(r.maxBatches * 0.5)), forcedBreakAfter: Math.max(3, Math.round(r.forcedBreakAfter * 0.5)) }); });
+    }
+    if (d.key === 'solventRecovery') {
+      return rows.map(function (r) { return Object.assign({}, r, { cap: Math.round(r.cap * 0.7) }); });
+    }
+    if (d.key === 'tanks') {
+      /* A smaller day tank, on the tank this plan actually takes deliveries into, and small enough that a full tanker no
+         longer fits on top of its opening stock — which is what being refused for space means. */
+      var cnt = {};
+      (CUR ? (CUR.aware.state.accepted || []) : []).forEach(function (x) { cnt[x.tank] = (cnt[x.tank] || 0) + 1; });
+      var t0 = rows.slice().sort(function (a, b) { return (cnt[b.id] || 0) - (cnt[a.id] || 0) || b.capKL - a.capKL; })[0];
+      return rows.map(function (r) {
+        if (r.id !== t0.id) return r;
+        return Object.assign({}, r, { capKL: Math.round((r.openKL + r.tankerKL * 0.4) * 10) / 10 });
+      });
+    }
+    if (d.key === 'orderClasses') {
+      var o0 = rows.filter(function (r) { return r.id === 'EXPORT_REG'; })[0] || rows[0];
+      return rows.map(function (r) { return r.id === o0.id ? Object.assign({}, r, { penaltyPerDay: Math.round(r.penaltyPerDay * 2.5), relWinDays: Math.max(7, r.relWinDays - 10) }) : r; });
+    }
+    if (d.key === 'approvals') {
+      // withdraw a second site from a customer who had one
+      var a0 = rows.filter(function (r) { return r.approved && r.siteId !== 'UNIT-2'; })[0];
+      if (!a0) return rows;
+      return rows.map(function (r) { return r.id === a0.id ? Object.assign({}, r, { approved: false, qualWeeks: 24, why: 'Filing withdrawn — 24 weeks to re-qualify' }) : r; });
+    }
+    if (d.key === 'demandPlan') {
+      // a bigger seasonal peak in the first month
+      var mo = rows[0] && rows[0].month;
+      return rows.map(function (r) { return r.month === mo ? Object.assign({}, r, { kg: Math.round(r.kg * 1.4) }) : r; });
+    }
+    if (d.key === 'rawMaterials') {
+      var r0 = rows.sort(function (a, b) { return b.priceUnit - a.priceUnit; })[0];
+      return rows.map(function (r) { return r.id === r0.id ? Object.assign({}, r, { minBlock: Math.round(r.minBlock * 2 * 10) / 10, leadDays: r.leadDays + 21 }) : r; });
+    }
+    if (d.key === 'sourcing') {
+      var s0 = rows[0];
+      return rows.map(function (r) { return r.id === s0.id ? Object.assign({}, r, { buyCostKg: Math.round(r.makeCostKg * 0.92) }) : r; });
+    }
+    if (d.key === 'weights') {
+      var w0 = rows.filter(function (r) { return r.id === 'balanced'; })[0] || rows[0];
+      return rows.map(function (r) { return r.id === w0.id ? Object.assign({}, r, { clean: Math.min(60, r.clean + 24), dates: Math.max(10, r.dates - 24) }) : r; });
+    }
+    return rows;
+  }
+
+  var ENUMS = {
+    cleanOverrides: { grade: D.m.cleanGrades.map(function (g) { return g.id; }) },
+    routes: { wasteCat: D.m.waste.map(function (w) { return w.id; }), cls: (D.cfg.opClasses || []) },
+    products: { family: D.m.families.map(function (f) { return f.id; }), haz: D.m.hazardClasses.map(function (h) { return h.id; }) },
+    tanks: { haz: D.m.hazardClasses.map(function (h) { return h.id; }) }
+  };
+
+  function validateRows(d, rows) {
+    var errs = [], kf = d.kf, base = {}, out = [];
+    rowsOf(d.key).forEach(function (r) { base[r[kf]] = r; });
+    if (!rows || !rows.length) return { errs: ['That file had no rows'], out: [] };
+    if (!(kf in rows[0])) return { errs: ['The key column ' + kf + ' is missing'], out: [] };
+    rows.forEach(function (r, i) {
+      var id = r[kf];
+      if (id == null || id === '') { errs.push('row ' + (i + 2) + ': no ' + kf); return; }
+      var ref = base[id], chg = {};
+      d.cols.forEach(function (c) {
+        if (!(c in r)) return;
+        var v = r[c];
+        if (v === '' ) v = null;
+        var was = ref ? ref[c] : undefined;
+        if (typeof was === 'number' && v != null && isNaN(Number(v))) { errs.push(id + ': ' + c + ' is not a number'); return; }
+        if (typeof was === 'number' && v != null) v = Number(v);
+        if (typeof was === 'boolean' && v != null) v = (v === true || v === 'true' || v === 'yes' || v === 1 || v === '1');
+        var en = (ENUMS[d.key] || {})[c];
+        if (en && v != null && en.indexOf(String(v)) < 0) { errs.push(id + ': ' + c + ' must be one of ' + en.join(', ')); return; }
+        if (String(was) !== String(v)) chg[c] = v;
+      });
+      if (!ref) { out.push({ id: id, row: r, isNew: true, chg: r }); }
+      else if (Object.keys(chg).length) out.push({ id: id, row: Object.assign({}, ref, chg), chg: chg, isNew: false });
+    });
+    return { errs: errs, out: out };
+  }
+
+  function validate(C, d, rows) {
+    var v = validateRows(d, rows), errs = v.errs, out = v.out;
+    if (errs.length) {
+      $('prevcard').style.display = '';
+      $('prevcard').innerHTML = '<div class="note" style="margin:0"><i class="fa-solid fa-triangle-exclamation" style="color:var(--color-danger)"></i>' +
+        '<div><b>Nothing was applied.</b> ' + X.n(errs.length) + ' problem' + (errs.length > 1 ? 's' : '') + ' in that file:<br>' +
+        errs.slice(0, 8).map(X.esc).join('<br>') + '</div></div>';
+      return;
+    }
+    if (!out.length) { $('prevcard').style.display = 'none'; X.toast('That file matches what is already there — nothing to change', 'fa-circle-check'); return; }
+    previewMulti(C, [{ key: d.key, kf: d.kf, label: d.label, rows: out }]);
+  }
+
+  function previewMulti(C, parts) {
+    var out = parts.reduce(function (a, p) { return a.concat(p.rows); }, []);
+    var d = desc(parts[0].key), kf = parts[0].kf;
+    preview = { parts: parts, key: parts[0].key, kf: kf, rows: parts[0].rows };
+    $('prevcard').style.display = '';
+    $('prevcard').innerHTML =
+      '<div class="card" style="margin:0;border-color:var(--color-primary)"><div class="card-head" style="background:var(--color-primary-light)">' +
+      '<i class="fa-solid fa-eye"></i>Before anything is applied: ' + X.n(out.filter(function (x) { return x.isNew; }).length) + ' new, ' +
+      X.n(out.filter(function (x) { return !x.isNew; }).length) + ' changed' +
+      (parts.length > 1 ? ' across ' + parts.map(function (p) { return X.esc(p.label.toLowerCase()); }).join(' and ') : '') +
+      '<span class="right"><button class="btn btn-primary btn-sm" id="apply"><i class="fa-solid fa-check"></i>Apply and re-plan</button>' +
+      '<button class="btn btn-ghost btn-sm" id="cancel">Cancel</button></span></div>' +
+      '<div class="card-body"><table class="sub-tbl"><thead><tr><th>' + X.esc(kf) + '</th><th>What changes</th></tr></thead><tbody>' +
+      out.slice(0, 12).map(function (x) {
+        return '<tr><td class="mono">' + X.esc(x.id) + (x.isNew ? ' <span class="badge b-green">new</span>' : '') + '</td>' +
+          '<td style="white-space:normal">' + Object.keys(x.chg).filter(function (c) { return c !== kf; }).slice(0, 6).map(function (c) {
+            var was = x.isNew ? null : (rowsOf(d.key).filter(function (r) { return r[kf] === x.id; })[0] || {})[c];
+            return '<b>' + X.esc(c) + '</b> ' + (x.isNew ? X.esc(String(x.chg[c])) : X.esc(String(was)) + ' &rarr; ' + X.esc(String(x.chg[c])));
+          }).join(' · ') + '</td></tr>';
+      }).join('') + '</tbody></table></div></div>';
+    $('apply').onclick = function () { apply(C, d); };
+    $('cancel').onclick = function () { preview = null; $('prevcard').style.display = 'none'; };
+  }
+
+  function apply(C, d) {
+    if (!preview) return;
+    var before = { batches: C.aware.kpi.batches, otif: C.aware.kpi.otif, clean: C.aware.kpi.cleanHours, cons: C.cons.total.rupees };
+    var parts = preview.parts || [{ key: preview.key, kf: preview.kf, label: d.label, rows: preview.rows }];
+    X.replan(function () {
+      var o = overlay(), log = X.State.get('audit', []);
+      parts.forEach(function (pt) {
+        o[pt.key] = { kf: pt.kf, rows: pt.rows.map(function (x) { return x.row; }) };
+        log.push({ at: new Date().toISOString(), key: pt.key, label: pt.label, n: pt.rows.length,
+                   newRows: pt.rows.filter(function (x) { return x.isNew; }).length, user: 'ppadmin',
+                   ids: pt.rows.slice(0, 6).map(function (x) { return x.id; }) });
+      });
+      X.State.set('masters', o);
+      X.State.set('audit', log);
+    }, 'Applying ' + d.label + ' and re-planning the plant', function (r) {
+      preview = null;
+      $('prevcard').style.display = 'none';
+      paint(r);
+      var dB = r.aware.kpi.batches - before.batches, dO = r.aware.kpi.otif - before.otif, dC = r.aware.kpi.cleanHours - before.clean;
+      X.toast('Applied and re-planned: ' + (dB ? (dB > 0 ? '+' : '') + dB + ' batches, ' : '') +
+              (Math.abs(dC) > 0.5 ? (dC > 0 ? '+' : '') + X.n(dC, 0) + ' h cleaning, ' : '') +
+              'OTIF ' + (dO >= 0 ? '+' : '') + X.pct(dO, 1), 'fa-circle-check');
+    });
+  }
+
+  function table(C, d) {
+    var rows = rowsOf(d.key), ov = overlay()[d.key];
+    var changed = {};
+    if (ov) ov.rows.forEach(function (r) { changed[r[d.kf]] = 1; });
+    var cols = d.cols.slice(0, 11);
+    $('mtable').innerHTML = '<thead><tr>' + cols.map(function (c) { return '<th>' + X.esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      rows.slice(0, 140).map(function (r) {
+        return '<tr' + (changed[r[d.kf]] ? ' class="sel"' : '') + '>' + cols.map(function (c) {
+          var v = r[c];
+          if (v === true) v = 'yes'; else if (v === false) v = 'no'; else if (v == null) v = '';
+          return '<td' + (typeof r[c] === 'number' ? ' class="num"' : '') + '>' + X.esc(String(v)).slice(0, 80) + '</td>';
+        }).join('') + '</tr>';
+      }).join('') + '</tbody>';
+  }
+
+  function inherit(C) {
+    var m = C.m || X.model();
+    if ((m.unroutable || []).length) {
+      $('inherit').innerHTML = '<div class="note" style="margin:0"><i class="fa-solid fa-triangle-exclamation" style="color:var(--color-warning)"></i>' +
+        '<div><b>' + X.n(m.unroutable.length) + ' product' + (m.unroutable.length > 1 ? 's are' : ' is') + ' waiting for a route:</b> ' +
+        m.unroutable.map(function (u) { return X.esc(u.id); }).join(', ') +
+        '. A product cannot be planned until its operations are in the Routes master — attributes decide which units can run it, ' +
+        'but the route decides what has to be run at all. Everything else about it is already inherited.</div></div>';
+      return;
+    }
+    var nw = m.P.filter(function (p) { return !(D.m.products || []).some(function (x) { return x.id === p.id; }); })[0];
+    if (!nw) {
+      $('inherit').innerHTML = '<div class="empty-state">Add a product through the Products master — use the worked example — and ' +
+        'this shows what it inherited from its attributes alone.</div>';
+      return;
+    }
+    var cleanRow = m.P.filter(function (p) { return p.ix !== nw.ix; }).slice(0, 4).map(function (other) {
+      var g = m.cleanGrade[other.ix * m.P.length + nw.ix], h = m.cleanMin[other.ix * m.P.length + nw.ix];
+      return other.id + ' &rarr; ' + nw.id + ': <b>' + X.esc(X.gradeName(g)) + '</b>' + (h > 0 ? ' (' + X.n(h / 60, 0) + ' h)' : '');
+    }).join(' · ');
+    $('inherit').innerHTML =
+      '<div class="kv">' +
+        '<div class="k">Added</div><div class="v"><b>' + X.esc(nw.id) + '</b> ' + X.esc(nw.name) + '</div>' +
+        '<div class="k">Eligible units</div><div class="v">' + nw.ops.map(function (o) {
+          return X.esc(o.label) + ': ' + (o.units.length ? X.esc(o.units.map(function (u) { return m.U[u].id; }).join(', ')) : '<span style="color:var(--color-danger)">none</span>');
+        }).join('<br>') + '</div>' +
+        '<div class="k">Clean grades</div><div class="v">' + cleanRow + '</div>' +
+        '<div class="k">Utility duty</div><div class="v">' + nw.ops.slice(0, 2).map(function (o) {
+          return X.esc(o.label) + ': ' + Object.keys(o.duty[1].draw).map(function (k) { return k + ' ' + X.n(o.duty[1].draw[k], 1); }).join(', ');
+        }).join('<br>') + '</div>' +
+        '<div class="k">Effluent</div><div class="v">' + X.m3(nw.efflM3) + ' and ' + X.kl(nw.solvKL) + ' of solvent per batch</div>' +
+        '<div class="k">Hazard class</div><div class="v">' + X.esc(nw.haz) + ' — it counts towards that licence from the first batch</div>' +
+      '</div>' +
+      '<div class="note"><i class="fa-solid fa-circle-check"></i><div>Nobody mapped any of that. The eligible units come from the charge volume, ' +
+      'the material of construction and the containment class; the clean grades from family, solvent class, colour load and potency; the duty ' +
+      'from the operation archetype times the charge. Add a product and it is schedulable and quotable immediately.</div></div>';
+  }
+
+  function ready(C) {
+    var rows = DESC.filter(function (d) { return d.live; });
+    $('ready').innerHTML = '<div class="ready" style="font-weight:600;color:var(--color-text-muted);font-size:10.5px;text-transform:uppercase">' +
+      '<span>Master</span><span style="text-align:right">Rows</span><span style="text-align:right">Route</span></div>' +
+      rows.map(function (d) {
+        return '<div class="ready"><span><i class="fa-solid ' + d.icon + '" style="color:var(--color-primary);width:15px"></i> ' + X.esc(d.label) + '</span>' +
+          '<span style="text-align:right">' + X.n(d.n) + '</span>' +
+          '<span style="text-align:right"><span class="route route-' + d.route.replace(/[^A-Za-z]/g, '-') + '">' + X.esc(d.route) + '</span></span></div>';
+      }).join('') +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div>These are the ' + rows.length + ' masters a demonstration actually needs. ' +
+      'Everything else on this page is derived from them or is reference. <b>Configure</b> means the Production Planner can already hold it; ' +
+      '<b>Extend</b> means it is a rule to build — the split proposed on slide 39 of the deck, to be confirmed with the product team.</div></div>';
+  }
+
+  function audit(C) {
+    var log = X.State.get('audit', []);
+    $('ameta').textContent = log.length ? X.n(log.length) + ' changes this session' : 'nothing changed yet';
+    $('audit').innerHTML = (log.length ? '<table class="tbl"><thead><tr><th>When</th><th>User</th><th>Master</th><th class="num">Rows</th><th class="num">New</th><th>Keys</th></tr></thead><tbody>' +
+      log.slice().reverse().map(function (a) {
+        return '<tr><td>' + X.esc(new Date(a.at).toLocaleString('en-IN')) + '</td><td>' + X.esc(a.user) + '</td>' +
+          '<td>' + X.esc(a.label) + '</td><td class="num">' + X.n(a.n) + '</td><td class="num">' + X.n(a.newRows) + '</td>' +
+          '<td class="mono hint">' + X.esc(a.ids.join(', ')) + '</td></tr>';
+      }).join('') + '</tbody></table>' : '<div class="empty-state">Upload a change to a master and it is logged here, with the plan it produced.</div>') +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Every change is recorded with who made it and when, and <b>Reset demo</b> ' +
+      'in the header clears all of it. Nothing here touches the generated dataset on disk — <code>data/chm-data.js</code> is written by ' +
+      '<code>tools/generate_data.py</code> and is never hand-edited.</div></div>';
+  }
+
+  function acts(C) {
+    $('acts').innerHTML = '<button class="btn btn-ghost btn-sm" id="all"><i class="fa-solid fa-file-excel"></i>Every master to Excel</button>' +
+      (Object.keys(overlay()).length ? '<button class="btn btn-danger btn-sm" id="clr"><i class="fa-solid fa-rotate-left"></i>Undo every change</button>' : '');
+    $('all').onclick = function () {
+      X.xlsx(DESC.map(function (d) {
+        return { name: d.key.slice(0, 28), cols: d.cols, rows: rowsOf(d.key).map(function (r) { return d.cols.map(function (c) { return r[c] == null ? '' : r[c]; }); }) };
+      }), 'chm-masters.xlsx');
+    };
+    if ($('clr')) $('clr').onclick = function () {
+      X.replan(function () { X.State.set('masters', {}); }, 'Putting every master back', function (r) { preview = null; paint(r); });
+    };
+  }
+
+  function paint(C) { CUR = C; kpis(C); list(C); detail(C); inherit(C); ready(C); audit(C); acts(C); }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+  window.addEventListener('chm:navigate', function () {
+    var h = X.hashParam();
+    if (CUR && h && desc(h)) { sel = h; list(CUR); detail(CUR); }
+  });
+  (function () { var h = X.hashParam(); if (h && desc(h)) sel = h; })();
+})();
+</script>
+</body>
+</html>

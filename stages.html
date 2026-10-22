@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Multi-stage &amp; Hold Times · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  .route { display:flex; align-items:stretch; gap:0; flex-wrap:wrap; }
+  .route .op { border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:6px 9px; background:#fff; min-width:118px; }
+  .route .op .on { font-weight:600; font-size:11.5px; }
+  .route .op .ou { font-size:10.5px; color:var(--color-text-hint); }
+  .route .lk { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 8px; min-width:104px; }
+  .route .lk .ln { height:2px; background:var(--color-border); width:100%; position:relative; }
+  .route .lk .lt { font-size:10px; color:var(--color-text-muted); white-space:nowrap; margin-bottom:3px; }
+  .route .lk.tight .lt { color:var(--color-danger); font-weight:600; }
+  .route .lk.tight .ln { background:var(--color-danger); }
+  .clock { display:grid; grid-template-columns:132px 108px 1fr 96px; gap:9px; align-items:center; font-size:11.5px; margin-bottom:4px; }
+  .clock .wb { position:relative; height:14px; background:#eef1f4; border-radius:4px; overflow:hidden; }
+  .clock .wf2 { position:absolute; left:0; top:0; bottom:0; background:var(--color-success); }
+  .clock .wf2.near { background:var(--color-warning); } .clock .wf2.over { background:var(--color-danger); }
+  .clock .wm { position:absolute; top:-2px; bottom:-2px; width:2px; background:var(--color-text-primary); }
+  .clock .wv { text-align:right; font-variant-numeric:tabular-nums; }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Multi-stage &amp; Hold Times</h1><div class="crumb">Intermediates turn stock into a timing decision</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-diagram-project"></i>The route
+        <span class="right"><span class="fl">Product</span>&nbsp;<select id="prod"></select></span></div>
+      <div class="card-body">
+        <div class="route" id="route"></div>
+        <div class="note"><i class="fa-solid fa-circle-info"></i><div id="rnote"></div></div>
+      </div>
+    </div>
+
+    <div class="grid-2-1">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-stopwatch"></i>The hold clock
+          <span class="right"><span id="hmeta"></span> · every link of every batch, against the window on that link</span></div>
+        <div class="card-body">
+          <div class="filters">
+            <span class="fl">Show</span><select id="filt">
+              <option value="tight">The 40 tightest links</option>
+              <option value="all">Every link</option>
+              <option value="prod">This product only</option>
+            </select>
+            <span class="hint" id="fnote"></span>
+          </div>
+          <div id="clocks" style="max-height:430px;overflow:auto"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-hand"></i>What this cost
+          <span class="right"><span id="smeta"></span></span></div>
+        <div class="card-body" id="sacs"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-triangle-exclamation"></i>Where the generic plan broke a window
+        <span class="right"><span id="gmeta"></span></span></div>
+      <div class="card-body tbl-wrap" style="max-height:380px;overflow:auto"><table class="tbl" id="gen"></table></div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='stages'; window.CHM_TITLE='Multi-stage & Hold Times'; window.CHM_ICON='fa-hourglass-half';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D;
+  var $ = function (id) { return document.getElementById(id); };
+  var CUR = null;
+
+  function links(C) {
+    // every link of every forward batch, with the lag it got and the window it had
+    var m = C.m || X.model(), out = [];
+    C.aware.fwd.forEach(function (b) {
+      var p = m.P[b.pix];
+      for (var i = 1; i < b.ops.length; i++) {
+        var lag = b.ops[i].s - b.ops[i - 1].e, win = p.ops[i].maxLag, mn = p.ops[i].minLag;
+        out.push({ batch: b.id, productId: p.id, seq: i, from: p.ops[i - 1].label, to: p.ops[i].label,
+                   fromUnit: b.ops[i - 1].unit, toUnit: b.ops[i].unit, lag: lag, win: win, min: mn,
+                   use: win ? lag / win : 0, at: b.ops[i - 1].e });
+      }
+    });
+    return out;
+  }
+
+  function kpis(C) {
+    var L = links(C), pr = C.proof.byNuance.P3 || { checks: 0, violations: 0 };
+    var tight = L.filter(function (x) { return x.use > 0.85; }).length;
+    var cons = C.cons.byNuance.P3 || { rupees: 0, n: 0, kg: 0 };
+    var sac = C.aware.sacrifices.filter(function (s) { return s.nuance === 'P3'; });
+    var m = C.m || X.model();
+    var min = 1e9, minP = '';
+    m.P.forEach(function (p) { p.ops.forEach(function (o, i) { if (i && o.maxLagH < min) { min = o.maxLagH; minP = p.id + ' ' + o.label.toLowerCase(); } }); });
+    $('kpis').innerHTML = [
+      ['blue', 'Links in the plan', X.n(L.length), 'across ' + X.n(C.aware.fwd.length) + ' batches and ' + m.P.length + ' routes'],
+      ['green', 'Windows honoured', X.n(pr.checks), pr.violations === 0 ? 'checked, none breached' : pr.violations + ' breached'],
+      ['amber', 'Within 15% of closing', X.n(tight), 'links that had almost no room left'],
+      ['grey', 'Tightest window in the plant', min + ' h', X.esc(minP)],
+      ['red', 'Waiting, on purpose', X.n(sac.reduce(function (a, s) { return a + s.min; }, 0) / 60, 0) + ' h', sac.length + ' starts held back rather than strand a stage'],
+      ['red', 'What generic\'s breaches cost', X.rs(cons.rupees), cons.n + ' breaches, ' + X.n(cons.kg) + ' kg re-worked or lost']
+    ].map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  function route(C) {
+    var m = C.m || X.model(), pid = $('prod').value, p = m.P[m.pix[pid]];
+    if (!p) { $('route').innerHTML = ''; return; }
+    var html = '';
+    p.ops.forEach(function (o, i) {
+      if (i) {
+        var tight = o.maxLagH <= 12;
+        html += '<div class="lk' + (tight ? ' tight' : '') + '"><div class="lt">' + o.minLagH + '&ndash;' + o.maxLagH + ' h</div>' +
+          '<div class="ln"></div><div class="lt" style="margin:3px 0 0;color:var(--color-text-hint)">hold window</div></div>';
+      }
+      html += '<div class="op"><div class="on">' + X.esc(o.label) + '</div>' +
+        '<div class="ou">' + X.n(o.hours, 0) + ' h · ' + X.esc(o.cls.toLowerCase()) + '</div>' +
+        '<div class="ou">' + X.esc(o.units.map(function (u) { return m.U[u].id; }).join(', ')) + '</div></div>';
+    });
+    $('route').innerHTML = html;
+    var tightest = p.ops.slice(1).reduce(function (a, o) { return o.maxLagH < a.maxLagH ? o : a; }, p.ops[1] || p.ops[0]);
+    $('rnote').innerHTML = X.esc(X.pname(pid)) + ' runs ' + p.ops.length + ' operations over ' + X.n(p.cycleH, 0) + ' hours. ' +
+      'The window that binds is <b>' + tightest.maxLagH + ' h before ' + X.esc(tightest.label.toLowerCase()) + '</b> — that is how long the material from the ' +
+      'step before it may stand. In the Production Planner these are the minimum and maximum lag on a link between two routing positions; ' +
+      'a plan that breaks one cannot exist, so the scheduler holds the start back instead.';
+  }
+
+  function clocks(C) {
+    var L = links(C), mode = $('filt').value, pid = $('prod').value;
+    if (mode === 'prod') L = L.filter(function (x) { return x.productId === pid; });
+    L.sort(function (a, b) { return b.use - a.use || a.at - b.at; });
+    var show = mode === 'all' ? L.slice(0, 200) : L.slice(0, 40);
+    $('hmeta').textContent = X.n(L.length) + ' links';
+    $('fnote').textContent = mode === 'all' ? 'first 200 by how little room they had' : mode === 'prod' ? X.pname(pid) : '';
+    $('clocks').innerHTML = show.map(function (x) {
+      var w = Math.min(100, x.use * 100), kls = x.use > 1 ? 'over' : x.use > 0.85 ? 'near' : '';
+      return '<div class="clock" title="' + X.esc(x.batch + ': ' + x.from + ' on ' + x.fromUnit + ' then ' + x.to + ' on ' + x.toUnit) + '">' +
+        '<span class="mono">' + X.esc(x.batch) + '</span>' +
+        '<span class="hint">' + X.esc(x.to.toLowerCase()) + '</span>' +
+        '<span class="wb"><span class="wf2 ' + kls + '" style="width:' + w.toFixed(1) + '%"></span>' +
+        '<span class="wm" style="left:' + Math.min(99.5, (x.min / Math.max(1, x.win)) * 100).toFixed(1) + '%" title="minimum lag"></span></span>' +
+        '<span class="wv">' + X.n(x.lag / 60, 1) + ' / ' + X.n(x.win / 60, 0) + ' h</span></div>';
+    }).join('') +
+    '<div class="note"><i class="fa-solid fa-circle-info"></i><div>The bar is how much of the window this link used. ' +
+    'The dark tick is the <b>minimum</b> lag — the transfer and cool-down that has to happen before the next step can start at all. ' +
+    'Nothing here passes 100%: the plan would not exist if it did.</div></div>';
+  }
+
+  function sacs(C) {
+    var s = C.aware.sacrifices.filter(function (x) { return x.nuance === 'P3'; });
+    var grp = {};
+    s.forEach(function (x) {
+      var k = x.unit + '|' + x.productId;
+      var g = grp[k] || (grp[k] = { unit: x.unit, productId: x.productId, n: 0, min: 0, max: 0, text: x.text });
+      g.n++; g.min += x.min; if (x.min > g.max) { g.max = x.min; g.text = x.text; }
+    });
+    var rows = Object.keys(grp).map(function (k) { return grp[k]; }).sort(function (a, b) { return b.min - a.min; });
+    $('smeta').textContent = s.length ? X.n(s.length) + ' waits · ' + X.n(s.reduce(function (a, x) { return a + x.min; }, 0) / 60, 0) + ' h' : 'none';
+    $('sacs').innerHTML = (rows.length ? rows.slice(0, 6).map(function (g) {
+      return '<div class="sac">' + X.esc(g.text) + (g.n > 1 ? ' <b>' + g.n + ' times, ' + X.n(g.min / 60, 0) + ' h in all.</b>' : '') + '</div>';
+    }).join('') : '<div class="empty-state">No unit had to wait to protect a window in this plan.</div>') +
+    '<div class="note"><i class="fa-solid fa-circle-info"></i><div>A reactor standing idle while a filter finishes looks like lost ' +
+    'capacity, and it is. The alternative is a batch of intermediate standing too long, which is lost product. The plan takes the first.</div></div>';
+  }
+
+  function gen(C) {
+    var ev = C.cons.events.filter(function (e) { return e.nuance === 'P3'; }).sort(function (a, b) { return b.cost.rupees - a.cost.rupees; });
+    $('gmeta').textContent = ev.length ? X.n(ev.length) + ' breaches · ' + X.rs(ev.reduce(function (s, e) { return s + e.cost.rupees; }, 0)) : 'none';
+    if (!ev.length) { $('gen').innerHTML = '<tbody><tr><td class="empty-state">The generic plan happened not to breach a window in this run.</td></tr></tbody>'; return; }
+    $('gen').innerHTML = '<thead><tr><th>Batch</th><th>Link</th><th class="num">Waited</th><th class="num">Window</th><th class="num">Over by</th><th>Outcome</th><th class="num">Cost</th></tr></thead><tbody>' +
+      ev.slice(0, 80).map(function (e) {
+        return '<tr><td class="mono">' + X.esc(e.batch) + '</td><td>' + X.esc(e.link || '') + '</td>' +
+          '<td class="num">' + X.n(e.lagH) + ' h</td><td class="num">' + X.n(e.maxLagH) + ' h</td>' +
+          '<td class="num"><b>' + X.n(e.over, 1) + '×</b></td>' +
+          '<td style="white-space:normal">' + (e.gross ? '<span class="badge b-red">re-worked</span> ' : '<span class="badge b-amber">yield lost</span> ') +
+          X.esc(e.outcome.replace(/^the intermediate /, '')) + '</td>' +
+          '<td class="num" style="color:var(--color-danger);font-weight:600">' + X.rs(e.cost.rupees) + '</td></tr>';
+      }).join('') + '</tbody>';
+  }
+
+  function acts(C) {
+    $('acts').innerHTML = X.nuOf('stages').map(function (x) { return X.nuChip(x.id); }).join(' ') +
+      '<button class="btn btn-outline btn-sm" id="dl"><i class="fa-solid fa-file-excel"></i>Links to Excel</button>';
+    $('dl').onclick = function () {
+      X.xlsx([{ name: 'Hold clock', cols: ['Batch', 'Product', 'Link', 'From unit', 'To unit', 'Lag h', 'Min lag h', 'Window h', 'Window used'],
+                rows: links(C).map(function (x) { return [x.batch, x.productId, x.from + ' -> ' + x.to, x.fromUnit, x.toUnit,
+                  Math.round(x.lag / 60 * 10) / 10, Math.round(x.min / 60 * 10) / 10, Math.round(x.win / 60), Math.round(x.use * 100) / 100]; }) }],
+             'hold-times.xlsx');
+    };
+  }
+
+  function paint(C) {
+    CUR = C;
+    var m = C.m || X.model();
+    if (!$('prod').options.length) {
+      $('prod').innerHTML = m.P.filter(function (p) { return p.ops.length > 1; })
+        .map(function (p) { return '<option value="' + p.id + '">' + X.esc(X.pname(p.id)) + '</option>'; }).join('');
+      $('prod').onchange = function () { route(CUR); clocks(CUR); };
+      $('filt').onchange = function () { clocks(CUR); };
+    }
+    var h = X.hashParam();
+    if (h && m.pix[h] != null) $('prod').value = h;
+    kpis(C); route(C); clocks(C); sacs(C); gen(C); acts(C);
+  }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+  window.addEventListener('chm:navigate', function () {
+    var h = X.hashParam(), m = CUR && (CUR.m || X.model());
+    if (CUR && h && m.pix[h] != null) { $('prod').value = h; route(CUR); clocks(CUR); }
+  });
+})();
+</script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+</body>
+</html>

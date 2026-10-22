@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plan Studio · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  .nbar { display:grid; grid-template-columns:190px 1fr 108px; gap:9px; align-items:center; font-size:11.5px; margin-bottom:5px; }
+  .nbar .bt { height:13px; background:#eef1f4; border-radius:4px; overflow:hidden; }
+  .nbar .bf { height:100%; background:var(--color-danger); border-radius:4px; }
+  .nbar .bv { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; }
+  .nbar .nm { display:flex; align-items:center; gap:6px; } .nbar .nm i { color:var(--color-primary); width:13px; text-align:center; }
+  tr.ledrow { cursor:pointer; } tr.ledrow.open td { background:var(--color-primary-light); }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Plan Studio</h1><div class="crumb">One scheduler, two rule sets — and what the difference actually costs</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-body" style="padding:10px 12px">
+        <div class="note" style="margin:0"><i class="fa-solid fa-scale-balanced"></i><div id="fairness"></div></div>
+      </div>
+    </div>
+
+    <div class="boards">
+      <div class="card">
+        <div class="card-head"><div class="boardhead"><span class="tag tag-naive">Scoreboard 1</span>What each plan reports about itself</div>
+          <span class="right">nameplate yield, booked changeovers, no limits checked</span></div>
+        <div class="card-body" id="naive"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="boardhead"><span class="tag tag-real">Scoreboard 2</span>What the plant actually gets</div>
+          <span class="right">the same two plans, replayed against the chemistry</span></div>
+        <div class="card-body" id="real"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-list-check"></i>The assumption ratchet
+        <span class="right">switch a generic assumption to the chemical rule and watch its consequence disappear</span></div>
+      <div class="card-body">
+        <div class="ratchet" id="ratchet"></div>
+        <div class="note"><i class="fa-solid fa-circle-info"></i><div>Each switch changes one rule in the generic plan and nothing else — same weights, same order book, same physics.
+          The cost column is what that assumption is costing <b>right now</b>, with the switches as they stand.</div></div>
+      </div>
+    </div>
+
+    <div class="grid-2-1">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-receipt"></i>The consequence ledger
+          <span class="right"><span id="ledmeta"></span> · click a row for what happened and what the aware plan did instead</span></div>
+        <div class="card-body tbl-wrap" style="max-height:470px;overflow:auto"><table class="tbl led" id="led"></table></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-chart-simple"></i>Where the cost sits</div>
+        <div class="card-body" id="bars"></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-sliders"></i>Objective weights
+          <span class="right">both rule sets always use the same weights</span></div>
+        <div class="card-body" id="weights"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-hand"></i>What the aware plan gave up on purpose
+          <span class="right"><span id="sacmeta"></span></span></div>
+        <div class="card-body" id="sacs"></div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='studio'; window.CHM_TITLE='Plan Studio'; window.CHM_ICON='fa-code-compare';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D, E = X.E;
+  var $ = function (id) { return document.getElementById(id); };
+  var open = {};
+
+  function fairness(C) {
+    var g = C.naive.generic, a = C.naive.aware;
+    var won = g.otif >= a.otif;
+    $('fairness').innerHTML =
+      '<b>Read the left-hand scoreboard first.</b> On the measures a conventional plan is reported against, the generic plan ' +
+      (won ? 'wins' : 'is competitive') + ': ' + X.pct(g.otif) + ' on time against ' + X.pct(a.otif) + ', and ' +
+      X.n(g.cleanHours) + ' cleaning hours against ' + X.n(a.cleanHours) + '. That is the point — it is not a weak plan, it is a plan ' +
+      'scored on what it assumes about itself. The right-hand scoreboard is the same two plans with the chemistry put back.';
+  }
+
+  function board(C, which) {
+    var naive = which === 'naive';
+    var cons = C.cons, a = C.aware.kpi, g = C.generic.kpi;
+    var lostKg = cons.events.reduce(function (s, r) { return s + (r.statusChanging ? (r.cost.kg || 0) : 0); }, 0);
+    // which side wins a row is read off the numbers and the direction that is better for the plant — never hard-coded,
+    // or a scoreboard ends up colouring 106 t as the loser against 101 t
+    function who(gv, av, dir) {
+      if (Math.abs(gv - av) < 1e-9) return 'tie';
+      return (dir === 'up' ? gv > av : gv < av) ? 'generic' : 'aware';
+    }
+    var rows;
+    if (naive) {
+      rows = [
+        ['On time, in full', X.pct(g.otif), X.pct(a.otif), who(g.otif, a.otif, 'up')],
+        ['Output booked', X.t(g.nominalKg), X.t(a.nominalKg), who(g.nominalKg, a.nominalKg, 'up')],
+        ['Batches', X.n(g.batches), X.n(a.batches), who(g.batches, a.batches, 'up')],
+        ['Cleaning hours booked', X.n(g.cleanHours), X.n(a.cleanHours), who(g.cleanHours, a.cleanHours, 'down')],
+        [(a.utilClass ? X.clsName(a.utilClass) : 'Unit') + ' time used',
+         X.pct((g.utilByClass[a.utilClass] || {}).busy || 0), X.pct(a.utilBusiest),
+         who((g.utilByClass[a.utilClass] || {}).busy || 0, a.utilBusiest, 'up')],
+        ['Late lines', X.n(g.late), X.n(a.late), who(g.late, a.late, 'down')]
+      ];
+    } else {
+      var gNet = g.contribution - g.delayCost - cons.total.rupees;
+      var aNet = a.contribution - a.delayCost;
+      rows = [
+        ['Output actually delivered', X.t(g.madeKg - lostKg), X.t(a.madeKg), who(g.madeKg - lostKg, a.madeKg, 'up')],
+        ['Constraints broken', X.n(C.proofGeneric.total.violations), X.n(C.proof.total.violations), who(C.proofGeneric.total.violations, C.proof.total.violations, 'down')],
+        ['Product written off or re-worked', X.kg(cons.total.kg), X.kg(0), who(cons.total.kg, 0, 'down')],
+        ['Plant hours lost to the consequences', X.n(cons.total.hours, 0) + ' h', '0 h', who(cons.total.hours, 0, 'down')],
+        ['Firefighting batches needed', X.n(C.repair.placed), '0', who(C.repair.placed, 0, 'down')],
+        ['Contribution', X.rs(g.contribution), X.rs(a.contribution), who(g.contribution, a.contribution, 'up')],
+        ['Late-delivery penalties', X.rs(-g.delayCost), X.rs(-a.delayCost), who(-g.delayCost, -a.delayCost, 'up')],
+        ['Cost of the assumptions', X.rs(-cons.total.rupees), X.rs(0), who(-cons.total.rupees, 0, 'up')],
+        ['__total', X.rs(gNet), X.rs(aNet), who(gNet, aNet, 'up')]
+      ];
+    }
+    var html = '<table class="score"><thead><tr><th>' + (naive ? 'As each plan reports it' : 'What the plant is left with') +
+      '</th><th>Generic</th><th>Chemical-aware</th></tr></thead><tbody>' +
+      rows.map(function (r) {
+        var total = r[0] === '__total';
+        var lbl = total ? 'Net' : r[0];
+        return '<tr' + (total ? ' class="total"' : '') + '><td>' + X.esc(lbl) + '</td>' +
+          '<td class="' + (r[3] === 'generic' ? 'win' : r[3] === 'aware' ? 'lose' : '') + '">' + r[1] + '</td>' +
+          '<td class="' + (r[3] === 'aware' ? 'win' : r[3] === 'generic' ? 'lose' : '') + '">' + r[2] + '</td></tr>';
+      }).join('') + '</tbody></table>';
+    if (!naive) html += '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Only <b>' + C.cons.statusChanging +
+      '</b> consequences are carried through to a batch\'s status — the first-order ones. A further <b>' + C.cons.unmodelled +
+      '</b> are priced but not propagated, so the figure above is a floor, not a worst case.</div></div>';
+    $(naive ? 'naive' : 'real').innerHTML = html;
+  }
+
+  function ratchet(C) {
+    var on = X.settings().assume || [];
+    $('ratchet').innerHTML = D.m.genericAssumptions.map(function (as) {
+      var isOn = on.indexOf(as.id) >= 0;
+      var cost = (C.cons.byNuance[as.nuance] || {}).rupees || 0;
+      var nEv = (C.cons.byNuance[as.nuance] || {}).n || 0;
+      return '<div class="rr"><div class="sw' + (isOn ? ' on' : '') + '" data-as="' + as.id + '" title="' +
+        (isOn ? 'Using the chemical rule. Switch off to go back to the generic assumption.' : 'Using the generic assumption. Switch on to apply the chemical rule.') + '"></div>' +
+        '<div class="as">' + (isOn ? '<b>' + X.esc(as.real) + '</b>' : '<b>' + X.esc(as.label) + '</b>') +
+        '<span> — ' + X.esc(isOn ? 'was: ' + as.label : 'should be: ' + as.real) + '</span></div>' +
+        '<div class="nu">' + X.nuChip(as.nuance) + '</div>' +
+        '<div class="cost" style="color:' + (isOn ? 'var(--color-success)' : 'var(--color-danger)') + '">' +
+        (isOn ? 'honoured' : (cost ? X.rs(cost) + ' <span class="hint" style="font-weight:400">· ' + nEv + '</span>' : '—')) + '</div></div>';
+    }).join('');
+    $('ratchet').onclick = function (e) {
+      var sw = e.target.closest('[data-as]'); if (!sw) return;
+      var id = sw.getAttribute('data-as'), list = (X.settings().assume || []).slice();
+      var i = list.indexOf(id);
+      if (i >= 0) list.splice(i, 1); else list.push(id);
+      X.replan(function () { X.State.set('assume', list); }, 'Re-planning with ' + list.length + ' chemical rule' + (list.length === 1 ? '' : 's'), paint);
+    };
+  }
+
+  var LABEL = { CLEAN_SHORT: 'Cleaning under-booked', CLEAN_FORBIDDEN: 'Forbidden pair run', YIELD: 'Campaign ended short',
+                HOLD: 'Hold window breached', UTIL: 'Utility over its cap', WASTE: 'Effluent over its consent',
+                LICENCE: 'Licensed quantity exceeded', ALLOC: 'Allocation outside spec' };
+  function ledger(C) {
+    var ev = C.cons.events;
+    $('ledmeta').textContent = X.n(ev.length) + ' rows · ' + X.rs(C.cons.total.rupees);
+    var head = '<thead><tr><th>Nuance</th><th>What happened</th><th>Batch</th><th>Unit</th><th>When</th><th class="num">kg</th><th class="num">Hours</th><th class="num">Cost</th></tr></thead>';
+    var body = ev.slice(0, 160).map(function (r, i) {
+      var tr = '<tr class="ledrow' + (open[i] ? ' open' : '') + '" data-i="' + i + '">' +
+        '<td>' + X.nuChip(r.nuance) + '</td>' +
+        '<td><b>' + X.esc(LABEL[r.code] || r.code) + '</b>' + (r.statusChanging ? '' : ' <span class="chip">priced only</span>') + '</td>' +
+        '<td class="mono">' + X.esc(r.batch || '—') + '</td><td>' + X.esc(r.unit || '—') + '</td>' +
+        '<td>' + X.fmtD(r.at) + '</td><td class="num kg">' + (r.cost.kg ? X.n(r.cost.kg) : '') + '</td>' +
+        '<td class="num hrs">' + (r.cost.hours ? X.n(r.cost.hours, 1) : '') + '</td>' +
+        '<td class="num money">' + X.rs(r.cost.rupees) + '</td></tr>';
+      if (open[i]) tr += '<tr class="sub-detail"><td colspan="8"><div class="sub-wrap led-why">' +
+        '<div class="cause"><b>Cause.</b> ' + X.esc(r.cause) + '</div>' +
+        '<div class="outcome" style="margin-top:4px"><b>Outcome.</b> ' + X.esc(r.outcome) + '</div>' +
+        (r.fix ? '<div class="fix" style="margin-top:4px"><b>The chemical-aware plan instead.</b> ' + X.esc(r.fix) + '</div>' : '') +
+        '</div></td></tr>';
+      return tr;
+    }).join('');
+    $('led').innerHTML = head + '<tbody>' + body + '</tbody>';
+    $('led').onclick = function (e) {
+      var tr = e.target.closest('tr.ledrow'); if (!tr) return;
+      var i = +tr.getAttribute('data-i'); open[i] = !open[i]; ledger(C);
+    };
+  }
+
+  function bars(C) {
+    var byNu = C.cons.byNuance;
+    var rows = window.CHM_NUANCES.filter(function (x) { return x.grp === 'plant'; }).map(function (x) {
+      return { nu: x, cost: (byNu[x.id] || {}).rupees || 0 };
+    }).sort(function (a, b) { return b.cost - a.cost; });
+    var max = Math.max.apply(null, rows.map(function (r) { return r.cost; }).concat([1]));
+    $('bars').innerHTML = rows.map(function (r) {
+      return '<div class="nbar"><div class="nm" title="' + X.esc(r.nu.claim) + '"><i class="fa-solid ' + r.nu.icon + '"></i>' +
+        X.esc(r.nu.name) + '</div><div class="bt"><div class="bf" style="width:' + Math.max(1, Math.round(r.cost / max * 100)) + '%"></div></div>' +
+        '<div class="bv">' + (r.cost ? X.rs(r.cost) : '—') + '</div></div>';
+    }).join('') +
+    '<div class="note"><i class="fa-solid fa-circle-info"></i><div>These seven add to <b>' + X.rs(C.cons.total.rupees) +
+    '</b>, the figure on the PP Dashboard. The nine S&OP nuances are a quarter out, not on this plan — they are priced on ' +
+    '<a href="capacity.html">Capacity</a>, <a href="sourcing.html">Sourcing</a> and <a href="stock.html">Stock</a>.</div></div>';
+  }
+
+  function weights(C) {
+    var st = X.settings(), cur = (D.m.weights.filter(function (w) { return w.id === st.preset; })[0]) || D.m.weights[0];
+    var ws = st.preset === 'custom' && st.weights ? st.weights : cur;
+    var levers = [['dates', 'Delivery dates'], ['profit', 'Margin'], ['clean', 'Cleaning and campaigns'], ['util', 'Utility headroom'], ['waste', 'Effluent headroom']];
+    $('weights').innerHTML =
+      '<div class="filters" style="margin-bottom:10px"><span class="fl">Preset</span><select id="pre">' +
+      D.m.weights.map(function (w) { return '<option value="' + w.id + '"' + (w.id === st.preset ? ' selected' : '') + '>' + X.esc(w.label) + '</option>'; }).join('') +
+      '<option value="custom"' + (st.preset === 'custom' ? ' selected' : '') + '>Custom</option></select>' +
+      '<span class="hint">the same weights drive both rule sets</span></div>' +
+      levers.map(function (l) {
+        return '<div class="wrow"><span>' + X.esc(l[1]) + '</span><input type="range" min="0" max="80" value="' + (+ws[l[0]] || 0) + '" data-w="' + l[0] + '"><span class="wv">' + (+ws[l[0]] || 0) + '</span></div>';
+      }).join('');
+    $('pre').onchange = function () {
+      var v = this.value;
+      X.replan(function () { X.State.set('plan', v === 'custom' ? { preset: 'custom', weights: ws } : { preset: v }); }, 'Re-planning', paint);
+    };
+    $('weights').querySelectorAll('input[data-w]').forEach(function (inp) {
+      inp.oninput = function () { this.parentNode.querySelector('.wv').textContent = this.value; };
+      inp.onchange = function () {
+        var w = {}; $('weights').querySelectorAll('input[data-w]').forEach(function (i2) { w[i2.getAttribute('data-w')] = +i2.value; });
+        w.delayScale = ws.delayScale || 1;
+        X.replan(function () { X.State.set('plan', { preset: 'custom', weights: w }); }, 'Re-planning with custom weights', paint);
+      };
+    });
+  }
+
+  function sacs(C) {
+    var s = C.aware.sacrifices;
+    $('sacmeta').textContent = s.length ? X.n(s.length) + ' deliberate idles · ' + X.n(C.aware.kpi.sacrificeMin / 60, 0) + ' h' : 'none in this plan';
+    // Nine near-identical lines read as a bug repeated; grouped by unit and product they read as what they are — one
+    // constraint biting over and over on the same trains.
+    var grp = {};
+    s.forEach(function (x) {
+      var k = x.unit + '|' + x.productId + '|' + x.nuance;
+      var g = grp[k] || (grp[k] = { unit: x.unit, productId: x.productId, nuance: x.nuance, why: x.why, n: 0, min: 0, max: 0, text: x.text });
+      g.n++; g.min += x.min;
+      if (x.min > g.max) { g.max = x.min; g.text = x.text; }
+    });
+    var rows = Object.keys(grp).map(function (k) { return grp[k]; }).sort(function (a, b) { return b.min - a.min; });
+    $('sacs').innerHTML = (rows.length ? rows.slice(0, 7).map(function (g) {
+      return '<div class="sac">' + X.esc(g.text) +
+        (g.n > 1 ? ' <b>' + g.n + ' times, ' + X.n(g.min / 60, 0) + ' h in all.</b>' : '') +
+        ' <span class="hint">(' + X.nuLabel(g.nuance) + ')</span></div>';
+    }).join('') : '<div class="empty-state">This plan never had to leave a unit idle to protect a hold window.</div>') +
+    '<div class="note"><i class="fa-solid fa-circle-info"></i><div>A conventional plan would have started these batches and counted the output. ' +
+    'The idle time is the honest price of the hold windows — and it is why the aware plan books fewer batches on the left-hand scoreboard.</div></div>';
+  }
+
+  function acts(C) {
+    $('acts').innerHTML =
+      '<button class="btn btn-ghost btn-sm" id="allon"><i class="fa-solid fa-toggle-on"></i>All chemical rules</button>' +
+      '<button class="btn btn-ghost btn-sm" id="alloff"><i class="fa-solid fa-toggle-off"></i>All generic assumptions</button>' +
+      '<a class="btn btn-outline btn-sm" href="home.html"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>';
+    $('allon').onclick = function () { X.replan(function () { X.State.set('assume', D.m.genericAssumptions.map(function (a) { return a.id; })); }, 'Applying every chemical rule', paint); };
+    $('alloff').onclick = function () { X.replan(function () { X.State.set('assume', []); }, 'Back to the generic assumptions', paint); };
+  }
+
+  function paint(C) { fairness(C); board(C, 'naive'); board(C, 'real'); ratchet(C); ledger(C); bars(C); weights(C); sacs(C); acts(C); }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+})();
+</script>
+</body>
+</html>

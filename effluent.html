@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Effluent &amp; Solvent Recovery · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  .days { display:flex; align-items:flex-end; gap:2px; height:150px; border-bottom:1px solid var(--color-border); position:relative; }
+  .days .d { flex:1; min-width:3px; background:var(--color-info); border-radius:2px 2px 0 0; position:relative; }
+  .days .d.at { background:var(--color-warning); } .days .d.over { background:var(--color-danger); }
+  .days .capl { position:absolute; left:0; right:0; border-top:2px dashed var(--color-danger); }
+  .dax { display:flex; gap:2px; margin-top:3px; } .dax span { flex:1; min-width:3px; font-size:8.5px; color:var(--color-text-hint); text-align:center; overflow:hidden; }
+  .flow { display:grid; grid-template-columns:1fr 26px 1fr; gap:6px; align-items:center; font-size:11.5px; }
+  .flow .bx { border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:7px 9px; background:#fff; }
+  .flow .bx b { display:block; font-size:12.5px; } .flow .ar { text-align:center; color:var(--color-text-hint); }
+  .prow { display:grid; grid-template-columns:118px 1fr 1fr 96px; gap:8px; align-items:center; font-size:11.5px; margin-bottom:4px; }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Effluent &amp; Solvent Recovery</h1><div class="crumb">Effluent and solvent recovery are capacity, not afterthoughts</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-droplet"></i>Daily load against the consent
+        <span class="right"><span class="fl">Stream</span>&nbsp;<select id="w"></select></span></div>
+      <div class="card-body">
+        <div class="days" id="days"></div>
+        <div class="dax" id="dax"></div>
+        <div class="legend" style="margin-top:8px" id="wleg"></div>
+        <div class="note"><i class="fa-solid fa-circle-info"></i><div id="wnote"></div></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-arrows-rotate"></i>The solvent loop
+          <span class="right"><span id="rmeta"></span></span></div>
+        <div class="card-body" id="loop"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-weight-hanging"></i>What each product puts down the drain
+          <span class="right">per batch, by stream</span></div>
+        <div class="card-body" id="per"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-triangle-exclamation"></i>Where the generic plan overloaded the plant
+        <span class="right"><span id="gmeta"></span></span></div>
+      <div class="card-body tbl-wrap" style="max-height:340px;overflow:auto"><table class="tbl" id="gen"></table></div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='effluent'; window.CHM_TITLE='Effluent & Solvent Recovery'; window.CHM_ICON='fa-recycle';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D;
+  var $ = function (id) { return document.getElementById(id); };
+  var CUR = null;
+
+  function daily(C, wid) {
+    var m = C.m || X.model(), out = [];
+    var d0 = Math.floor(X.ASOF / 1440), d1 = Math.ceil(m.end / 1440);
+    if (wid === 'RECOVERY') {
+      for (var d = d0; d < d1; d++) out.push({ d: d, v: C.aware.state.recov[d], cap: m.recovery.cap });
+      return out;
+    }
+    var w = m.wastes[m.wix[wid]];
+    for (var d2 = d0; d2 < d1; d2++) out.push({ d: d2, v: C.aware.state.waste[w.ix * m.Dn + d2], cap: w.cap });
+    return out;
+  }
+
+  function kpis(C) {
+    var m = C.m || X.model(), a = C.aware.kpi, cons = C.cons.byNuance.P5 || { rupees: 0, n: 0, hours: 0 };
+    var worst = null;
+    m.wastes.forEach(function (w) {
+      var at = a.wasteAtCap[w.id] || 0, pk = a.wastePeak[w.id] || 0;
+      if (!worst || pk / w.cap > worst.r) worst = { id: w.id, r: pk / w.cap, at: at, pk: pk, cap: w.cap, unit: w.unit };
+    });
+    var rec = C.aware.state.heldInRecovery || [];
+    var em = (C.aware.state.emergency || []);
+    $('kpis').innerHTML = [
+      ['blue', 'Effluent treated', X.m3(a.wasteTotal.ETP), 'over the ' + D.meta.forwardDays + '-day plan'],
+      ['amber', 'Tightest stream', X.esc(worst.id), X.pct(worst.r, 0) + ' of its ' + worst.cap + ' ' + worst.unit + ' consent at the worst day'],
+      ['grey', 'Days at the limit', X.n(Object.keys(a.wasteAtCap).reduce(function (s, k) { return s + a.wasteAtCap[k]; }, 0)), 'across every stream'],
+      ['green', 'Solvent recovered', X.kl((C.aware.state.returns || []).reduce(function (q, r) { return q + (r.at >= X.ASOF ? r.kl : 0); }, 0)),
+        'distilled and returned to the tank farm after QC'],
+      ['red', 'Held back in the train', X.kl(rec.reduce(function (s, r) { return s + r.kl; }, 0)), rec.length + ' returns the tanks or the licence could not take'],
+      ['red', 'What generic\'s overloads cost', X.rs(cons.rupees), cons.n + ' events, ' + X.n(cons.hours, 0) + ' h of batches held']
+    ].map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  function days(C) {
+    var wid = $('w').value, s = daily(C, wid), m = C.m || X.model();
+    var w = wid === 'RECOVERY' ? { name: 'Solvent recovery', unit: 'kL/day', cap: m.recovery.cap, note: m.recovery.note } : m.wastes[m.wix[wid]];
+    var maxV = Math.max.apply(null, s.map(function (x) { return x.v; }).concat([w.cap])) * 1.1 || 1;
+    $('days').innerHTML = s.map(function (x) {
+      var k = x.v > x.cap + 1e-6 ? 'over' : x.v >= x.cap - 1e-6 && x.v > 0 ? 'at' : '';
+      return '<div class="d ' + k + '" style="height:' + (x.v / maxV * 150).toFixed(1) + 'px" title="' +
+        X.esc(X.fmtD(x.d * 1440) + ' — ' + X.n(x.v, 1) + ' of ' + x.cap + ' ' + w.unit) + '"></div>';
+    }).join('') + '<div class="capl" style="bottom:' + (w.cap / maxV * 150).toFixed(1) + 'px"></div>';
+    var every = Math.max(1, Math.ceil(s.length / 14));
+    $('dax').innerHTML = s.map(function (x, i) { return '<span>' + (i % every === 0 ? X.fmtDM(x.d * 1440) : '') + '</span>'; }).join('');
+    var at = s.filter(function (x) { return x.v >= x.cap - 1e-6 && x.v > 0; }).length;
+    var over = s.filter(function (x) { return x.v > x.cap + 1e-6; }).length;
+    $('wleg').innerHTML = '<span><i style="background:var(--color-info)"></i>inside the consent</span>' +
+      '<span><i style="background:var(--color-warning)"></i>at the consent</span>' +
+      '<span><i style="background:var(--color-danger)"></i>over</span>' +
+      '<span><i style="background:transparent;border-top:2px dashed var(--color-danger);height:0"></i>' + w.cap + ' ' + X.esc(w.unit) + '</span>';
+    $('wnote').innerHTML = '<b>' + X.esc(w.name) + '</b> is a daily limit, so it does not average out: a day over the consent is a day the plant ' +
+      'cannot discharge, whatever the month looks like. <b>' + at + '</b> days in this plan sit on the limit and <b>' + over + '</b> go over. ' +
+      'That is why the scheduler interleaves a light-effluent batch between two heavy ones rather than running the heavy campaign straight through. ' +
+      (w.note ? X.esc(w.note) + '.' : '');
+  }
+
+  function loop(C) {
+    var m = C.m || X.model();
+    var drawn = 0, back = 0, held = 0, bought = 0, boughtRs = 0;
+    C.aware.fwd.forEach(function (b) { b.ops.forEach(function (o) { drawn += o.solvKL || 0; }); });
+    (C.aware.state.returns || []).forEach(function (r) { if (r.at >= X.ASOF) back += r.kl; });
+    (C.aware.state.heldInRecovery || []).forEach(function (r) { if (r.at >= X.ASOF) held += r.kl; });
+    (C.aware.state.emergency || []).forEach(function (r) { if (r.at >= X.ASOF) { bought += r.kl; boughtRs += r.rupees; } });
+    $('rmeta').textContent = X.pct(drawn ? back / drawn : 0, 0) + ' of what was drawn came back';
+    $('loop').innerHTML =
+      '<div class="flow">' +
+        '<div class="bx"><b>' + X.kl(drawn) + '</b><span class="hint">drawn from the tank farm into the batches</span></div>' +
+        '<div class="ar"><i class="fa-solid fa-arrow-right"></i></div>' +
+        '<div class="bx"><b>' + X.kl(drawn) + '</b><span class="hint">spent solvent to the recovery train</span></div>' +
+      '</div>' +
+      '<div class="flow" style="margin-top:7px">' +
+        '<div class="bx" style="border-color:var(--color-success)"><b>' + X.kl(back) + '</b><span class="hint">distilled and returned after QC, ' +
+          X.n(m.recovery.turnMin / 60, 0) + ' h later</span></div>' +
+        '<div class="ar"><i class="fa-solid fa-arrow-left"></i></div>' +
+        '<div class="bx" style="border-color:var(--color-warning)"><b>' + X.kl(held) + '</b><span class="hint">held in the train — the tank or the licence had no room</span></div>' +
+      '</div>' +
+      (bought ? '<div class="flow" style="margin-top:7px"><div class="bx" style="border-color:var(--color-danger)"><b>' + X.kl(bought) +
+        '</b><span class="hint">bought in at a premium, ' + X.rs(boughtRs) + ', when a tank could not cover a charge</span></div>' +
+        '<div class="ar"></div><div class="bx" style="visibility:hidden"></div></div>' : '') +
+      '<div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div>Recovery is not a green footnote, it is <b>capacity</b>: ' +
+      'the train takes ' + m.recovery.cap + ' kL a day, and what it cannot take is either incinerated or bought in fresh. The returned solvent is credited ' +
+      'to a later batch of the same family, which is why a campaign is cheaper than the same batches scattered.</div></div>';
+  }
+
+  function per(C) {
+    var m = C.m || X.model();
+    var rows = m.P.map(function (p) {
+      var by = {};
+      p.ops.forEach(function (o) { if (o.wasteCat && o.efflM3) by[o.wasteCat] = (by[o.wasteCat] || 0) + o.efflM3; });
+      return { p: p, by: by, tot: p.efflM3, solv: p.solvKL };
+    }).sort(function (a, b) { return b.tot - a.tot; });
+    var max = Math.max.apply(null, rows.map(function (r) { return r.tot; }).concat([1]));
+    var maxS = Math.max.apply(null, rows.map(function (r) { return r.solv; }).concat([1]));
+    $('per').innerHTML = rows.map(function (r) {
+      return '<div class="prow"><span title="' + X.esc(X.pname(r.p.id)) + '">' + X.esc(r.p.id) + '</span>' +
+        '<span class="pbar"><span class="track" style="width:100%"><span class="fill fill-blue" style="width:' + (r.tot / max * 100).toFixed(0) + '%"></span></span></span>' +
+        '<span class="pbar"><span class="track" style="width:100%"><span class="fill fill-amber" style="width:' + (r.solv / maxS * 100).toFixed(0) + '%"></span></span></span>' +
+        '<span class="hint" style="text-align:right">' + X.n(r.tot, 1) + ' m³ · ' + X.n(r.solv, 1) + ' kL</span></div>';
+    }).join('') +
+    '<div class="legend" style="margin-top:7px"><span><i style="background:var(--color-info)"></i>effluent per batch</span>' +
+    '<span><i style="background:var(--color-warning)"></i>solvent per batch</span></div>' +
+    '<div class="note"><i class="fa-solid fa-circle-info"></i><div>The nitro and azo products put down several times the effluent of an amine. ' +
+    'Two of them back to back is not a sequencing preference — it is a day the treatment plant cannot absorb.</div></div>';
+  }
+
+  function gen(C) {
+    var ev = C.cons.events.filter(function (e) { return e.nuance === 'P5'; }).sort(function (a, b) { return b.cost.rupees - a.cost.rupees; });
+    $('gmeta').textContent = ev.length ? X.n(ev.length) + ' events · ' + X.rs(ev.reduce(function (s, e) { return s + e.cost.rupees; }, 0)) : 'none';
+    if (!ev.length) { $('gen').innerHTML = '<tbody><tr><td class="empty-state">The generic plan happened to stay inside every consent in this run.</td></tr></tbody>'; return; }
+    $('gen').innerHTML = '<thead><tr><th>Stream</th><th>Day</th><th class="num">Load</th><th class="num">Consent</th><th>Batch</th><th>Outcome</th><th class="num">Cost</th></tr></thead><tbody>' +
+      ev.slice(0, 60).map(function (e) {
+        return '<tr><td><span class="badge b-blue">' + X.esc(e.waste) + '</span></td><td>' + X.fmtD((e.day || 0) * 1440) + '</td>' +
+          '<td class="num"><b>' + X.n(e.load, 1) + '</b></td><td class="num">' + X.n(e.cap, 1) + '</td>' +
+          '<td class="mono">' + X.esc(e.batch || '') + '</td><td style="white-space:normal">' + X.esc(e.outcome) + '</td>' +
+          '<td class="num" style="color:var(--color-danger);font-weight:600">' + X.rs(e.cost.rupees) + '</td></tr>';
+      }).join('') + '</tbody>';
+  }
+
+  function acts(C) {
+    $('acts').innerHTML = X.nuOf('effluent').map(function (x) { return X.nuChip(x.id); }).join(' ') +
+      '<button class="btn btn-ghost btn-sm" id="run"><i class="fa-solid fa-play"></i>Run C5</button>' +
+      '<button class="btn btn-outline btn-sm" id="dl"><i class="fa-solid fa-file-excel"></i>Loads to Excel</button>';
+    $('run').onclick = function () { X.runScenario('C5'); };
+    $('dl').onclick = function () {
+      var m = C.m || X.model();
+      X.xlsx(m.wastes.map(function (w) {
+        return { name: w.id, cols: ['Day', 'Date', 'Load ' + w.unit, 'Consent'],
+                 rows: daily(C, w.id).map(function (x) { return [x.d, X.fmtD(x.d * 1440), Math.round(x.v * 10) / 10, x.cap]; }) };
+      }).concat([{ name: 'Per product', cols: ['Product', 'Effluent m3 per batch', 'Solvent kL per batch'],
+                   rows: m.P.map(function (p) { return [p.id, p.efflM3, p.solvKL]; }) }]), 'effluent-and-recovery.xlsx');
+    };
+  }
+
+  function paint(C) {
+    CUR = C;
+    var m = C.m || X.model();
+    if (!$('w').options.length) {
+      $('w').innerHTML = m.wastes.map(function (w) { return '<option value="' + w.id + '">' + X.esc(w.name) + '</option>'; }).join('') +
+        '<option value="RECOVERY">Solvent recovery train</option>';
+      $('w').onchange = function () { days(CUR); };
+    }
+    var h = X.hashParam();
+    if (h && (m.wix[h] != null || h === 'RECOVERY')) $('w').value = h;
+    kpis(C); days(C); loop(C); per(C); gen(C); acts(C);
+  }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+  window.addEventListener('chm:navigate', function () {
+    var h = X.hashParam(), m = CUR && (CUR.m || X.model());
+    if (CUR && h && (m.wix[h] != null || h === 'RECOVERY')) { $('w').value = h; days(CUR); }
+  });
+})();
+</script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+</body>
+</html>

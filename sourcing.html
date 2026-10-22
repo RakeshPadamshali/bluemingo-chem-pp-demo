@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sourcing &amp; Supply · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  .ap { border-collapse:separate; border-spacing:2px; font-size:10px; }
+  .ap th { font:600 9.5px Roboto; color:var(--color-text-muted); padding:2px 5px; background:none; border:none; text-transform:none; white-space:nowrap; }
+  .ap th.rowh { text-align:right; max-width:150px; overflow:hidden; text-overflow:ellipsis; }
+  .ap td { width:84px; height:21px; text-align:center; border-radius:3px; font-weight:600; font-size:9.5px; }
+  .ap td.yes { background:rgba(56,142,60,.16); color:#2e7d32; }
+  .ap td.no { background:rgba(211,47,47,.1); color:#c62828; }
+  .opt { display:grid; grid-template-columns:72px 1fr 96px 86px 1fr; gap:9px; align-items:center; font-size:11.5px; padding:5px 0; border-bottom:1px solid var(--color-border-light); }
+  .opt .bb { height:14px; background:#eef1f4; border-radius:4px; overflow:hidden; }
+  .opt .bf { height:100%; border-radius:4px; }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Sourcing &amp; Supply</h1><div class="crumb">Make, buy or toll is a recurring call — and which site may ship is a planning constraint</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-handshake"></i>Make, buy or toll
+        <span class="right"><span class="fl">Product</span>&nbsp;<select id="prod"></select>&nbsp;<span id="smeta"></span></span></div>
+      <div class="card-body" id="mbt"></div>
+    </div>
+
+    <div class="grid-2-1">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-building-shield"></i>Which site may ship which customer
+          <span class="right">regulated customers only · a cell is a filing, not a preference</span></div>
+        <div class="card-body" style="overflow:auto;max-height:420px" id="appr"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-lock"></i>Locked to this plant <span class="right" id="lmeta"></span></div>
+        <div class="card-body" id="locked"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-truck-ramp-box"></i>Raw materials: blocks, lead times and the price lag
+        <span class="right"><span id="rmeta"></span></span></div>
+      <div class="card-body tbl-wrap"><table class="tbl" id="rm"></table></div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='sourcing'; window.CHM_TITLE='Sourcing & Supply'; window.CHM_ICON='fa-handshake';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D;
+  var $ = function (id) { return document.getElementById(id); };
+  var CUR = null;
+
+  function hourValue(C) { return C.aware.kpi.hourValue; }
+
+  function kpis(C) {
+    var m = C.m || X.model(), s = C.sop;
+    var opts = D.m.sourcing || [];
+    var regs = D.m.customers.filter(function (c) { return c.regulated; });
+    var locked = regs.filter(function (c) { return String(c.sites).split(',').filter(Boolean).length === 1; });
+    var blocks = D.m.rawMaterials || [];
+    var moved = blocks.filter(function (r) { return Math.abs(r.priceMove) > 0.05; });
+    $('kpis').innerHTML = [
+      ['blue', 'Products with an option', X.n(opts.length), 'make here, buy in, or have tolled'],
+      ['grey', 'An hour of the ' + String(s.bottleneck).toLowerCase(), X.rs(hourValue(C)), 'the median product\'s margin per bottleneck hour'],
+      ['blue', 'Regulated customers', X.n(regs.length), 'of ' + X.n(D.m.customers.length) + ' — the rest take product from any site'],
+      ['red', 'Locked to this plant', X.n(locked.length), 'customers with no second approved site'],
+      ['amber', 'Raw materials in blocks', X.n(blocks.length), 'minimum buy quantities with their own lead times'],
+      ['red', 'Price moved over 5%', X.n(moved.length), 'materials whose contract price resets on a lag']
+    ].map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  function mbt(C) {
+    var m = C.m || X.model(), s = C.sop, pid = $('prod').value;
+    var o = (D.m.sourcing || []).filter(function (x) { return x.productId === pid; })[0];
+    var p = m.P[m.pix[pid]];
+    if (!o || !p) { $('mbt').innerHTML = '<div class="empty-state">No sourcing option recorded for this product.</div>'; return; }
+    var rank = s.rank.filter(function (r) { return r.productId === pid; })[0] || { bhHours: 0 };
+    var hv = hourValue(C);
+    // one batch of this product occupies this many hours of the binding class; buying it in frees them
+    var freedPerKg = p.batchKg ? rank.bhHours / p.batchKg : 0;
+    var rows = [
+      { k: 'make', label: 'Make here', cost: o.makeCostKg, lead: 0, frees: 0,
+        note: 'uses ' + X.n(rank.bhHours, 0) + ' h of the ' + String(s.bottleneck).toLowerCase() + ' per batch' },
+      { k: 'buy', label: 'Buy in', cost: o.buyCostKg, lead: o.buyLeadDays, frees: freedPerKg,
+        note: 'from ' + o.buySupplier + ' — frees every hour the product would have taken' },
+      { k: 'toll', label: 'Toll', cost: o.tollCostKg, lead: o.tollLeadDays, frees: freedPerKg * 0.6,
+        note: 'at ' + o.tollSite + ' — frees the reaction hours, the finishing stays here' }
+    ];
+    rows.forEach(function (r) { r.net = r.cost - r.frees * hv; });
+    var best = rows.slice().sort(function (a, b) { return a.net - b.net; })[0];
+    var maxNet = Math.max.apply(null, rows.map(function (r) { return Math.max(r.cost, r.net); }));
+    $('smeta').innerHTML = X.nuChip('S3');
+    $('mbt').innerHTML =
+      '<div class="opt" style="font-weight:600;color:var(--color-text-muted);font-size:10.5px;text-transform:uppercase">' +
+      '<span>Option</span><span>Cost per kg, and what it is really worth</span><span style="text-align:right">Cash cost</span>' +
+      '<span style="text-align:right">Net of the hour</span><span>Lead time and note</span></div>' +
+      rows.map(function (r) {
+        return '<div class="opt"' + (r.k === best.k ? ' style="background:rgba(56,142,60,.08);border-radius:4px"' : '') + '>' +
+          '<span><b>' + X.esc(r.label) + '</b>' + (r.k === best.k ? ' <i class="fa-solid fa-check" style="color:var(--color-success)"></i>' : '') + '</span>' +
+          '<span class="bb"><span class="bf" style="width:' + (r.net / maxNet * 100).toFixed(1) + '%;background:' +
+            (r.k === best.k ? 'var(--color-success)' : 'var(--color-info)') + '"></span></span>' +
+          '<span style="text-align:right">' + X.rs(r.cost) + '</span>' +
+          '<span style="text-align:right"><b>' + X.rs(Math.round(r.net)) + '</b></span>' +
+          '<span class="hint">' + (r.lead ? r.lead + ' days · ' : '') + X.esc(r.note) + '</span></div>';
+      }).join('') +
+      '<div class="note"><i class="fa-solid fa-calculator"></i><div>The cash cost says make it here. The net column values the ' +
+      '<b>' + String(s.bottleneck).toLowerCase() + ' hour</b> the decision frees at ' + X.rs(hv) + ', which is what the median product earns on it. ' +
+      'On that basis the answer is <b>' + X.esc(best.label.toLowerCase()) + '</b>. This is a monthly call, not a policy: when the plant is empty the ' +
+      'hour is worth nothing and making it here always wins; when it is full, buying a cheap intermediate to free the constraint pays for itself.</div></div>';
+  }
+
+  function appr(C) {
+    var sites = D.m.sites, regs = D.m.customers.filter(function (c) { return c.regulated; });
+    var ap = {};
+    (D.m.approvals || []).forEach(function (a) { ap[a.customerId + '|' + a.siteId] = a; });
+    $('appr').innerHTML = '<table class="ap"><thead><tr><th></th>' + sites.map(function (s) {
+      return '<th title="' + X.esc(s.note) + '">' + X.esc(s.name) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      regs.map(function (c) {
+        return '<tr><th class="rowh" title="' + X.esc(c.name) + ' · needs ' + c.minLifeMonths + ' months of life">' + X.esc(c.name) + '</th>' +
+          sites.map(function (s) {
+            var a = ap[c.id + '|' + s.id];
+            var ok = a ? a.approved : false;
+            return '<td class="' + (ok ? 'yes' : 'no') + '" title="' + X.esc((a && a.why) || '') + '">' +
+              (ok ? 'approved' : (a && a.qualWeeks ? a.qualWeeks + ' wk' : 'no')) + '</td>';
+          }).join('') + '</tr>';
+      }).join('') + '</tbody></table>' +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div>A red cell is not a commercial preference — it is a filing that does not ' +
+      'exist. Moving a regulated customer\'s order to another site means qualifying that site first, and the number in the cell is how many weeks ' +
+      'that takes. Until then the order can only be made here, whatever the network optimisation says.</div></div>';
+  }
+
+  function locked(C) {
+    var regs = D.m.customers.filter(function (c) { return c.regulated; });
+    var only = regs.filter(function (c) { return String(c.sites).split(',').filter(Boolean).length === 1; });
+    var lines = C.aware.lines;
+    var rows = only.map(function (c) {
+      var ls = lines.filter(function (l) { return l.cust === c.id; });
+      return { c: c, n: ls.length, kg: ls.reduce(function (a, l) { return a + l.qty; }, 0),
+               late: ls.filter(function (l) { return l.lateDays > 0; }).length };
+    }).sort(function (a, b) { return b.kg - a.kg; });
+    $('lmeta').innerHTML = X.nuChip('S7');
+    $('locked').innerHTML = (rows.length ? '<table class="tbl"><thead><tr><th>Customer</th><th class="num">Lines</th><th class="num">kg</th>' +
+      '<th class="num">Late</th><th class="num">To qualify</th></tr></thead><tbody>' +
+      rows.slice(0, 10).map(function (r) {
+        return '<tr><td>' + X.esc(r.c.name) + '</td><td class="num">' + X.n(r.n) + '</td><td class="num">' + X.n(r.kg) + '</td>' +
+          '<td class="num">' + (r.late ? '<b style="color:var(--color-danger)">' + r.late + '</b>' : '0') + '</td>' +
+          '<td class="num">' + X.n(r.c.qualWeeks) + ' wk</td></tr>';
+      }).join('') + '</tbody></table>' : '<div class="empty-state">Every regulated customer has a second approved site.</div>') +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div>These orders cannot be moved. When this plant is full, their lateness is ' +
+      'not a sourcing problem with a sourcing answer — it is a scheduling problem, and the only levers are sequence, campaign length and ' +
+      'what else gets pushed back.</div></div>';
+  }
+
+  function rm(C) {
+    var rows = D.m.rawMaterials || [];
+    $('rmeta').innerHTML = X.nuChip('S5') + ' ' + X.n(rows.length) + ' materials';
+    $('rm').innerHTML = '<thead><tr><th>Material</th><th class="num">Minimum block</th><th class="num">On hand</th><th class="num">Lead time</th>' +
+      '<th class="num">Price</th><th class="num">Price move</th><th class="num">Resets after</th><th>Used by</th></tr></thead><tbody>' +
+      rows.map(function (r) {
+        var cover = r.minBlock ? r.onHand / r.minBlock : 0;
+        return '<tr><td>' + X.esc(r.name) + ' <span class="hint">' + X.esc(r.id) + '</span></td>' +
+          '<td class="num">' + X.n(r.minBlock, 1) + ' ' + X.esc(r.unit) + '</td>' +
+          '<td class="num" style="color:' + (cover < 1 ? 'var(--color-warning)' : 'inherit') + '">' + X.n(r.onHand, 1) + '</td>' +
+          '<td class="num">' + X.n(r.leadDays) + ' d</td><td class="num">' + X.rs(r.priceUnit) + '</td>' +
+          '<td class="num" style="color:' + (r.priceMove > 0.05 ? 'var(--color-danger)' : r.priceMove < -0.02 ? 'var(--color-success)' : 'inherit') + '">' +
+          (r.priceMove > 0 ? '+' : '') + X.pct(r.priceMove, 1) + '</td>' +
+          '<td class="num">' + X.n(r.priceLagDays) + ' d</td>' +
+          '<td class="hint">' + X.esc(String(r.usedBy).split(',').slice(0, 4).join(', ')) + '</td></tr>';
+      }).join('') + '</tbody>' +
+      '<tfoot><tr><td colspan="8" class="hint" style="white-space:normal;padding-top:8px">' +
+      'A material does not arrive when it is needed; it arrives in a block, after a lead time, at a price that was agreed before the index moved. ' +
+      'The lag column is how long after an index move the contract price follows — which is why a campaign that looked profitable when it was ' +
+      'planned can be marginal when it runs.</td></tr></tfoot>';
+  }
+
+  function acts(C) {
+    $('acts').innerHTML = X.nuOf('sourcing').map(function (x) { return X.nuChip(x.id); }).join(' ') +
+      '<button class="btn btn-ghost btn-sm" id="r12"><i class="fa-solid fa-play"></i>Run C12</button>' +
+      '<button class="btn btn-outline btn-sm" id="dl"><i class="fa-solid fa-file-excel"></i>Sourcing to Excel</button>';
+    $('r12').onclick = function () { X.runScenario('C12'); };
+    $('dl').onclick = function () {
+      X.xlsx([{ name: 'Make buy toll', cols: ['Product', 'Make per kg', 'Buy per kg', 'Toll per kg', 'Buy lead days', 'Toll lead days', 'Toll site', 'Supplier'],
+                rows: (D.m.sourcing || []).map(function (o) { return [o.productId, o.makeCostKg, o.buyCostKg, o.tollCostKg, o.buyLeadDays, o.tollLeadDays, o.tollSite, o.buySupplier]; }) },
+              { name: 'Site approvals', cols: ['Customer', 'Site', 'Approved', 'Weeks to qualify', 'Why'],
+                rows: (D.m.approvals || []).map(function (a) { return [a.customerId, a.siteId, a.approved ? 'yes' : 'no', a.qualWeeks, a.why]; }) },
+              { name: 'Raw materials', cols: ['Id', 'Name', 'Unit', 'Minimum block', 'On hand', 'Lead days', 'Price', 'Price move', 'Price lag days', 'Used by'],
+                rows: (D.m.rawMaterials || []).map(function (r) { return [r.id, r.name, r.unit, r.minBlock, r.onHand, r.leadDays, r.priceUnit, r.priceMove, r.priceLagDays, r.usedBy]; }) }],
+             'sourcing-and-supply.xlsx');
+    };
+  }
+
+  function paint(C) {
+    CUR = C;
+    if (!$('prod').options.length) {
+      $('prod').innerHTML = (D.m.sourcing || []).map(function (o) {
+        return '<option value="' + o.productId + '">' + X.esc(X.pname(o.productId)) + '</option>'; }).join('');
+      $('prod').onchange = function () { mbt(CUR); };
+    }
+    var h = X.hashParam();
+    if (h && (D.m.sourcing || []).some(function (o) { return o.productId === h; })) $('prod').value = h;
+    kpis(C); mbt(C); appr(C); locked(C); rm(C); acts(C);
+  }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+  window.addEventListener('chm:navigate', function () {
+    var h = X.hashParam();
+    if (CUR && h && (D.m.sourcing || []).some(function (o) { return o.productId === h; })) { $('prod').value = h; mbt(CUR); }
+  });
+})();
+</script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+</body>
+</html>

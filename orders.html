@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Order Book &amp; Promise · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  tr.lrow { cursor:pointer; } tr.lrow.open td { background:var(--color-primary-light); }
+  .bind { display:flex; align-items:center; gap:6px; font-size:11.5px; }
+  .bind i { width:14px; text-align:center; color:var(--color-primary); }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Order Book &amp; Promise</h1><div class="crumb">What is promised, what is left to make, and the constraint that sets each date</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-file-invoice"></i>Every order line
+        <span class="right">
+          <span class="fl">Class</span>&nbsp;<select id="fc"><option value="">All</option></select>
+          <span class="fl">Status</span>&nbsp;<select id="fs"><option value="">All</option></select>
+          <span class="fl">Product</span>&nbsp;<select id="fp"><option value="">All</option></select>
+          <input id="q" placeholder="line, order or customer" style="width:190px">
+          <span id="lmeta"></span></span></div>
+      <div class="card-body tbl-wrap" style="max-height:540px;overflow:auto"><table class="tbl" id="ls"></table></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-circle-exclamation"></i>Short shipments, and why
+          <span class="right"><span id="smeta"></span></span></div>
+        <div class="card-body" id="short"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-chart-pie"></i>The book by class
+          <span class="right">delivery penalty per day, and the release window each class gets</span></div>
+        <div class="card-body" id="cls"></div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='orders'; window.CHM_TITLE='Order Book & Promise'; window.CHM_ICON='fa-file-invoice';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D, E = X.E;
+  var $ = function (id) { return document.getElementById(id); };
+  var CUR = null, open = {};
+
+  function kpis(C) {
+    var a = C.aware.kpi, L = C.aware.lines;
+    var book = L.reduce(function (s, x) { return s + x.qty; }, 0);
+    var reg = L.filter(function (x) { return x.cls === 'EXPORT_REG'; });
+    $('kpis').innerHTML = [
+      ['blue', 'Order lines', X.n(L.length), X.n(D.orders.length) + ' orders · ' + X.t(book) + ' in the book'],
+      ['green', 'Shipped', X.t(a.shippedKg), X.pct(book ? a.shippedKg / book : 0) + ' of the book, from released lots'],
+      ['amber', 'Short', X.t(a.shortKg), a.shortLines + ' lines due inside the horizon the plan could not serve in full'],
+      ['blue', 'On time, in full', X.pct(a.otif), a.onTime + ' of ' + a.dueIn + ' committed lines due in the window'],
+      ['red', 'Late', X.n(a.late), 'lines whose ready date is past the promise'],
+      ['grey', 'Regulated export', X.n(reg.length), 'lines needing an approved site, a filed route and a COA']
+    ].map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  /* What sets this line's date. Not a guess: the line's own batches are looked up in the plan, and the longest thing
+     standing between the order and the shipment is named — a shared resource at its cap, a hold window, a clean, QC, or
+     simply that the plant is busy. */
+  function binding(C, L) {
+    var m = C.m || X.model(), out = [];
+    var bs = C.aware.batches.filter(function (b) { return (b.lineIds || []).indexOf(L.id) >= 0; });
+    if (!bs.length) {
+      if (L.status === 'Cancelled') return [{ i: 'fa-ban', t: 'Cancelled.' }];
+      return [{ i: 'fa-hourglass', t: 'No batch of ' + L.productId + ' is planned inside the horizon for this line — the plant is committed ' +
+                 'to work the objective ranks above it.' }];
+    }
+    var last = bs[bs.length - 1];
+    var cleanH = 0, waitH = 0, procH = 0;
+    bs.forEach(function (b) {
+      b.ops.forEach(function (o, i) {
+        procH += (o.e - o.s) / 60; cleanH += (o.clean || 0) / 60;
+        if (i) waitH += (o.s - b.ops[i - 1].e) / 60;
+      });
+    });
+    out.push({ i: 'fa-flask', t: bs.length + ' batch' + (bs.length > 1 ? 'es' : '') + ' of ' + L.productId + ', the last finishing ' + X.fmt(last.e) + '.' });
+    out.push({ i: 'fa-gear', t: X.n(procH, 0) + ' h of processing, ' + X.n(cleanH, 0) + ' h of cleaning the matrix required, and ' +
+               X.n(waitH, 0) + ' h waiting between stages inside the hold windows.' });
+    out.push({ i: 'fa-vial-circle-check', t: 'QC release adds ' + X.n(last.qcMin / 1440, 1) + ' days after drying — the lot cannot ship before ' + X.fmt(last.readyAt) + '.' });
+    // did a shared resource hold this line's batches up?
+    var sac = C.aware.sacrifices.filter(function (s) { return s.lineId === L.id; });
+    if (sac.length) out.push({ i: 'fa-hand', t: 'A unit was held idle ' + X.n(sac.reduce(function (a, s) { return a + s.min; }, 0) / 60, 0) +
+      ' h rather than start this train early and strand its intermediate.' });
+    if (L.minLifeM) out.push({ i: 'fa-clock-rotate-left', t: X.esc(L.custName) + ' needs ' + L.minLifeM + ' months of shelf life left on receipt, ' +
+      'so an older lot cannot be used even if it is on hand.' });
+    if (L.tightSpec) out.push({ i: 'fa-flask', t: 'A tightened spec: assay at least ' + X.assay(L.assayMin) + ', impurity at most ' + L.impMax +
+      '%, d90 at most ' + L.psdMax + ' µm.' });
+    return out;
+  }
+
+  function rows(C) {
+    var fc = $('fc').value, fs = $('fs').value, fp = $('fp').value, q = ($('q').value || '').toLowerCase();
+    return C.aware.lines.filter(function (L) {
+      if (fc && L.cls !== fc) return false;
+      if (fs && L.status !== fs) return false;
+      if (fp && L.productId !== fp) return false;
+      if (q && (L.id + ' ' + L.orderId + ' ' + L.custName + ' ' + L.productId).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    }).sort(function (a, b) { return a.due - b.due || (a.id < b.id ? -1 : 1); });
+  }
+
+  function table(C) {
+    var L = rows(C);
+    $('lmeta').textContent = X.n(L.length) + ' of ' + X.n(C.aware.lines.length) + ' lines';
+    $('ls').innerHTML = '<thead><tr><th>Line</th><th>Class</th><th>Customer</th><th>Product</th><th class="num">Ordered</th>' +
+      '<th class="num">Shipped</th><th class="num">Left</th><th>Due</th><th>Ready</th><th>Status</th><th class="num">Late</th></tr></thead><tbody>' +
+      L.slice(0, 220).map(function (x, i) {
+        var tr = '<tr class="lrow' + (open[x.id] ? ' open' : '') + '" data-id="' + X.esc(x.id) + '">' +
+          '<td class="mono">' + X.esc(x.id) + '</td><td>' + X.cls(x.cls, x.rush) + '</td>' +
+          '<td>' + X.esc(x.custName) + (x.regulated ? ' <span class="chip lock" title="regulated: approved site, filed route, COA">reg</span>' : '') + '</td>' +
+          '<td>' + X.esc(x.productId) + '</td><td class="num">' + X.n(x.qty) + '</td>' +
+          '<td class="num">' + X.n(x.shipped) + '</td><td class="num">' + (x.btp ? X.n(x.btp) : '') + '</td>' +
+          '<td>' + X.fmtD(x.due) + '</td><td>' + (x.ready ? X.fmtD(x.ready) : '—') + '</td>' +
+          '<td>' + X.badge(x.status) + (x.short ? ' <span class="badge b-amber">' + X.n(x.short) + ' kg short</span>' : '') + '</td>' +
+          '<td class="num">' + (x.lateDays ? '<b style="color:var(--color-danger)">' + x.lateDays + ' d</b>' : '') + '</td></tr>';
+        if (open[x.id]) {
+          tr += '<tr class="sub-detail"><td colspan="11"><div class="sub-wrap">' +
+            '<div class="sub-title"><i class="fa-solid fa-stopwatch"></i>What sets this date</div>' +
+            binding(C, x).map(function (r) { return '<div class="bind"><i class="fa-solid ' + r.i + '"></i><span>' + X.esc(r.t) + '</span></div>'; }).join('') +
+            (x.shortWhy ? '<div class="bind" style="margin-top:5px"><i class="fa-solid fa-circle-exclamation" style="color:var(--color-danger)"></i>' +
+              '<span><b>Short:</b> ' + X.esc(x.shortWhy) + '.</span></div>' : '') +
+            allocOf(C, x) + '</div></td></tr>';
+        }
+        return tr;
+      }).join('') + '</tbody>';
+    $('ls').onclick = function (e) {
+      var tr = e.target.closest('tr.lrow'); if (!tr) return;
+      var id = tr.getAttribute('data-id'); open[id] = !open[id]; table(C);
+    };
+  }
+
+  function allocOf(C, L) {
+    var a = C.aware.allocs.filter(function (x) { return x.lineId === L.id; })[0];
+    if (!a) return '';
+    return '<div class="sub-title" style="margin-top:7px"><i class="fa-solid fa-flask"></i>Served from</div>' +
+      '<table class="sub-tbl"><thead><tr><th>Lot</th><th class="num">kg</th><th class="num">Assay</th><th class="num">Impurity</th><th class="num">d90</th></tr></thead><tbody>' +
+      a.lots.map(function (l) {
+        return '<tr><td class="mono">' + X.esc(l.id) + '</td><td class="num">' + X.n(l.kg) + '</td>' +
+          '<td class="num">' + X.assay(l.assay) + '</td><td class="num">' + l.imp + '%</td><td class="num">' + l.psd + '</td></tr>';
+      }).join('') +
+      (a.blended ? '<tr class="total"><td><b>Blend</b></td><td class="num"><b>' + X.n(a.kg) + '</b></td>' +
+        '<td class="num"><b>' + X.assay(a.assay) + '</b></td><td class="num"><b>' + a.imp + '%</b></td><td class="num"><b>' + a.psd + '</b></td></tr>' : '') +
+      '</tbody></table>' +
+      '<div class="hint" style="margin-top:4px">Order spec: assay at least ' + X.assay(L.assayMin) + ', impurity at most ' + L.impMax +
+      '%, d90 at most ' + L.psdMax + ' µm' + (L.minLifeM ? ', ' + L.minLifeM + ' months of life left' : '') + '.' +
+      (a.blended ? ' A blend is weighted on active content, not on volume.' : '') + '</div>';
+  }
+
+  function short(C) {
+    var m = C.m || X.model();
+    var s = C.aware.lines.filter(function (L) { return L.short > 0 && L.due <= m.end; }).sort(function (a, b) { return b.short - a.short; });
+    var by = {};
+    s.forEach(function (L) { var k = L.shortWhy || 'not enough made in the horizon'; by[k] = by[k] || { n: 0, kg: 0 }; by[k].n++; by[k].kg += L.short; });
+    $('smeta').textContent = s.length ? X.n(s.length) + ' lines · ' + X.t(s.reduce(function (a, L) { return a + L.short; }, 0)) : 'none';
+    $('short').innerHTML = (Object.keys(by).length ? '<table class="tbl"><thead><tr><th>Reason</th><th class="num">Lines</th><th class="num">kg</th></tr></thead><tbody>' +
+      Object.keys(by).sort(function (a, b) { return by[b].kg - by[a].kg; }).map(function (k) {
+        return '<tr><td style="white-space:normal">' + X.esc(k.charAt(0).toUpperCase() + k.slice(1)) + '</td>' +
+          '<td class="num">' + by[k].n + '</td><td class="num">' + X.n(by[k].kg) + '</td></tr>';
+      }).join('') + '</tbody></table>' : '<div class="empty-state">Every line was served in full.</div>') +
+      (C.aware.kpi.notDueYetKg ? '<div class="hint" style="margin-top:6px">A further ' + X.t(C.aware.kpi.notDueYetKg) +
+        ' is on lines due after this horizon — not made yet, which is a different thing from short.</div>' : '') +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div>A shortfall carries the reason that caused it, never the word ' +
+      '"infeasible". Stock that exists but cannot be shipped — wrong assay, too much impurity, not enough shelf life left, a site the ' +
+      'customer has not approved — is a different problem from stock that was never made, and it has a different answer.</div></div>';
+  }
+
+  function clsCard(C) {
+    var by = {};
+    C.aware.lines.forEach(function (L) {
+      var g = by[L.cls] = by[L.cls] || { n: 0, kg: 0, ship: 0, late: 0, pen: L.penalty };
+      g.n++; g.kg += L.qty; g.ship += L.shipped; if (L.lateDays) g.late++;
+    });
+    var oc = {}; D.m.orderClasses.forEach(function (c) { oc[c.id] = c; });
+    $('cls').innerHTML = '<table class="tbl"><thead><tr><th>Class</th><th class="num">Lines</th><th class="num">Ordered</th>' +
+      '<th class="num">Shipped</th><th class="num">Late</th><th class="num">Penalty / day</th><th class="num">Release window</th></tr></thead><tbody>' +
+      Object.keys(by).sort(function (a, b) { return (oc[a] ? D.m.orderClasses.indexOf(oc[a]) : 9) - (oc[b] ? D.m.orderClasses.indexOf(oc[b]) : 9); })
+      .map(function (k) {
+        var g = by[k], c = oc[k] || {};
+        return '<tr><td>' + X.cls(k) + '</td><td class="num">' + X.n(g.n) + '</td><td class="num">' + X.t(g.kg) + '</td>' +
+          '<td class="num">' + X.t(g.ship) + '</td><td class="num">' + (g.late ? '<b style="color:var(--color-danger)">' + g.late + '</b>' : '0') + '</td>' +
+          '<td class="num">' + X.rs(c.penaltyPerDay) + '</td><td class="num">' + X.n(c.relWinDays) + ' d</td></tr>';
+      }).join('') + '</tbody></table>' +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div>The release window is how early a class may be started: nobody makes a ' +
+      'regulated export lot three months before it ships, because the customer measures the shelf life left on receipt, not on manufacture.</div></div>';
+  }
+
+  function acts(C) {
+    $('acts').innerHTML = '<button class="btn btn-outline btn-sm" id="dl"><i class="fa-solid fa-file-excel"></i>Order book to Excel</button>';
+    $('dl').onclick = function () {
+      X.xlsx([{ name: 'Order book', cols: ['Line', 'Order', 'Class', 'Customer', 'Regulated', 'Product', 'Ordered kg', 'Shipped kg', 'Short kg',
+                                           'Left kg', 'Due', 'Ready', 'Status', 'Late days', 'Delay cost', 'Assay min', 'Impurity max', 'd90 max', 'Min life months'],
+                rows: C.aware.lines.map(function (L) {
+                  return [L.id, L.orderId, L.cls, L.custName, L.regulated ? 'yes' : 'no', L.productId, L.qty, L.shipped, L.short, L.btp,
+                          X.fmtD(L.due), L.ready ? X.fmtD(L.ready) : '', L.status, L.lateDays, L.delayCost, L.assayMin, L.impMax, L.psdMax, L.minLifeM];
+                }) }], 'order-book.xlsx');
+    };
+  }
+
+  function paint(C) {
+    CUR = C;
+    if (!$('fc').options.length || $('fc').options.length === 1) {
+      $('fc').innerHTML = '<option value="">All</option>' + D.m.orderClasses.map(function (c) {
+        return '<option value="' + c.id + '">' + X.esc(c.name) + '</option>'; }).join('');
+      var st = {}; C.aware.lines.forEach(function (L) { st[L.status] = 1; });
+      $('fs').innerHTML = '<option value="">All</option>' + Object.keys(st).sort().map(function (s) {
+        return '<option value="' + s + '">' + X.esc(s) + '</option>'; }).join('');
+      $('fp').innerHTML = '<option value="">All</option>' + D.m.products.map(function (p) {
+        return '<option value="' + p.id + '">' + X.esc(p.id) + '</option>'; }).join('');
+      ['fc', 'fs', 'fp'].forEach(function (id) { $(id).onchange = function () { table(CUR); }; });
+      $('q').oninput = function () { table(CUR); };
+    }
+    var h = X.hashParam();
+    if (h && C.aware.byId[h]) { open[h] = true; $('q').value = h; }
+    kpis(C); table(C); short(C); clsCard(C); acts(C);
+  }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+  window.addEventListener('chm:navigate', function () {
+    var h = X.hashParam();
+    if (CUR && h && CUR.aware.byId[h]) { open[h] = true; $('q').value = h; table(CUR); }
+  });
+})();
+</script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+</body>
+</html>

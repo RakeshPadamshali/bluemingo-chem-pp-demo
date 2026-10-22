@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cleaning &amp; Campaigns · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  .mwrap { overflow:auto; }
+  .cmcell { font-size:9px; }
+  .ladder { display:flex; align-items:center; gap:0; height:20px; }
+  .ladder .seg { height:20px; position:relative; }
+  .ladder .seg.cl { background:repeating-linear-gradient(45deg,#8a93a0 0 3px,#c9ced4 3px 6px); }
+  .lrow { display:grid; grid-template-columns:88px 1fr 128px; gap:9px; align-items:center; margin-bottom:5px; font-size:11.5px; }
+  .lrow .un { font-weight:600; } .lrow .mt { text-align:right; font-variant-numeric:tabular-nums; color:var(--color-text-secondary); }
+  .colkey { display:flex; gap:10px; font-size:11px; align-items:center; flex-wrap:wrap; }
+  .colkey i { width:14px; height:11px; border-radius:2px; display:inline-block; vertical-align:-1px; margin-right:4px; }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Cleaning &amp; Campaigns</h1><div class="crumb">Sequence is set by the cleaning matrix, not by setup time</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="grid-2-1">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-table-cells"></i>The cleaning matrix
+          <span class="right"><span id="mmeta"></span> · a view of the rule, not a table someone types</span></div>
+        <div class="card-body">
+          <div class="filters">
+            <span class="fl">Train</span><select id="train"></select>
+            <span class="gradekey" id="key"></span>
+          </div>
+          <div class="mwrap" id="mx"></div>
+          <div class="note"><i class="fa-solid fa-circle-info"></i><div>Rows are what ran before, columns what follows. A cell marked
+            <b>*</b> is an override — what this plant's own validation data says, instead of what the attributes imply. Every other cell is
+            derived from family, solvent class, colour load and potency, so a product uploaded from Excel gets a whole row and column for free.</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-circle-question"></i>This pair</div>
+        <div class="card-body" id="cell"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-layer-group"></i>Campaign ladder
+        <span class="right">colour load along each unit, and the cleans between — pale to deep inside a family, then a break</span></div>
+      <div class="card-body">
+        <div class="colkey" id="ckey" style="margin-bottom:9px"></div>
+        <div id="ladder"></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-soap"></i>Cleaning hours, by grade
+          <span class="right"><span id="gmeta"></span></span></div>
+        <div class="card-body" id="grades"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-triangle-exclamation"></i>What the generic plan did instead
+          <span class="right"><span id="cmeta"></span></span></div>
+        <div class="card-body" id="gen"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-list"></i>Every clean in this plan
+        <span class="right"><span id="lmeta"></span></span></div>
+      <div class="card-body tbl-wrap" style="max-height:420px;overflow:auto"><table class="tbl" id="cl"></table></div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='cleaning'; window.CHM_TITLE='Cleaning & Campaigns'; window.CHM_ICON='fa-soap';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D, E = X.E;
+  var $ = function (id) { return document.getElementById(id); };
+  var sel = null, CUR = null;
+
+  function trains(C) {
+    var m = C.m || X.model(), out = {};
+    m.P.forEach(function (p) { out[p.potency >= 3 ? 'B' : 'A'] = 1; });
+    return Object.keys(out).sort();
+  }
+  function productsOf(C, train) {
+    var m = C.m || X.model();
+    return m.P.filter(function (p) { return (p.potency >= 3 ? 'B' : 'A') === train; });
+  }
+
+  function kpis(C) {
+    var a = C.aware.kpi, cons = C.cons.byNuance.P1 || { rupees: 0, n: 0, hours: 0 };
+    var mx = D.m.cleanMatrix;
+    var forb = mx.filter(function (r) { return r.grade === 'FORBIDDEN' && r.frm !== r.to; }).length;
+    var ded = mx.filter(function (r) { return r.grade === 'DEDICATE'; }).length;
+    $('kpis').innerHTML = [
+      ['blue', 'Cleaning hours', X.n(a.cleanHours), a.cleanCount + ' cleans across ' + D.m.units.length + ' units'],
+      ['grey', 'Share of plant time', X.pct(a.cleanHours * 60 / Math.max(1, a.availMin)), 'of the hours the plant is scheduled for'],
+      ['amber', 'Boil-outs and clean-downs', X.n((a.cleanByGrade.BOILOUT || 0) + (a.cleanByGrade.DEDICATE || 0)), 'the long ones: 16 h and 24 h'],
+      ['red', 'Pairs the plan may never run', X.n(forb + ded), forb + ' not permitted, ' + ded + ' only after a validated clean-down'],
+      ['green', 'Forbidden pairs run', '0', 'in ' + X.n((C.proof.byNuance.P1 || {}).checks) + ' sequencing checks'],
+      ['red', 'What generic saved on paper', X.rs(cons.rupees), X.n(cons.hours, 0) + ' h of cleaning it never booked']
+    ].map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  function matrix(C) {
+    var train = $('train').value, ps = productsOf(C, train);
+    var m = C.m || X.model(), nP = m.P.length;
+    var ran = {};
+    C.aware.cleans.forEach(function (c) { if (c.frm && c.to) ran[c.frm + '>' + c.to] = (ran[c.frm + '>' + c.to] || 0) + 1; });
+    var ovr = {}; D.m.cleanOverrides.forEach(function (o) { ovr[o.frm + '>' + o.to] = o; });
+    var cells = {}; D.m.cleanMatrix.forEach(function (r) { cells[r.frm + '>' + r.to] = r; });
+    var html = '<table class="cm"><thead><tr><th></th>' + ps.map(function (p) {
+      return '<th title="' + X.esc(X.pname(p.id)) + '">' + X.esc(p.id.split('-')[0]) + '<br>' + X.esc(p.id.split('-')[1] || '') + '</th>';
+    }).join('') + '</tr></thead><tbody>' +
+      ps.map(function (a) {
+        return '<tr><th class="rowh" title="' + X.esc(X.pname(a.id)) + '">' + X.esc(a.id) + '</th>' + ps.map(function (b) {
+          var k = a.id + '>' + b.id, r = cells[k];
+          if (!r) return '<td class="na" title="These two never meet on a unit — different train">·</td>';
+          var h = r.hours == null ? '×' : (r.hours === 0 ? '—' : r.hours);
+          return '<td class="g-' + r.grade + (ovr[k] ? ' ovr' : '') + (sel === k ? ' sel' : '') + '" data-k="' + k + '" title="' +
+            X.esc(a.id + ' then ' + b.id + ': ' + X.gradeName(r.grade) + (r.hours ? ' (' + r.hours + ' h)' : '') + ' — ' + r.why) + '">' + h + '</td>';
+        }).join('') + '</tr>';
+      }).join('') + '</tbody></table>';
+    $('mx').innerHTML = html;
+    $('mmeta').textContent = ps.length + ' products on train ' + train + ' · ' + Object.keys(ran).length + ' pairs this plan actually ran';
+    $('mx').onclick = function (e) {
+      var td = e.target.closest('td[data-k]'); if (!td) return;
+      sel = td.getAttribute('data-k'); matrix(C); cell(C);
+    };
+  }
+
+  function cell(C) {
+    if (!sel) { $('cell').innerHTML = '<div class="empty-state">Pick a cell in the matrix to see the rule behind it, and whether this plan ran that pair.</div>'; return; }
+    var parts = sel.split('>'), a = X.product(parts[0]), b = X.product(parts[1]);
+    var r = D.m.cleanMatrix.filter(function (x) { return x.frm === parts[0] && x.to === parts[1]; })[0];
+    if (!r) { $('cell').innerHTML = '<div class="empty-state">These two never meet on a unit.</div>'; return; }
+    var ran = C.aware.cleans.filter(function (c) { return c.frm === parts[0] && c.to === parts[1]; });
+    var genEv = C.cons.events.filter(function (e2) { return (e2.code === 'CLEAN_SHORT' || e2.code === 'CLEAN_FORBIDDEN') && e2.frm === parts[0] && e2.to === parts[1]; });
+    $('cell').innerHTML =
+      '<div class="kv" style="margin-bottom:9px">' +
+        '<div class="k">Runs</div><div class="v">' + X.esc(a.id) + ' <span class="hint">' + X.esc(a.name) + '</span></div>' +
+        '<div class="k">Then</div><div class="v">' + X.esc(b.id) + ' <span class="hint">' + X.esc(b.name) + '</span></div>' +
+        '<div class="k">Clean grade</div><div class="v"><b>' + X.esc(X.gradeName(r.grade)) + '</b>' + (r.hours ? ' · ' + r.hours + ' h' : r.hours === 0 ? ' · no clean' : '') + '</div>' +
+        '<div class="k">Source</div><div class="v">' + (r.source === 'override' ? 'Override — the plant\'s own validation data' : 'Derived from the attributes') + '</div>' +
+      '</div>' +
+      '<div class="note" style="margin-top:0"><i class="fa-solid fa-flask"></i><div>' + X.esc(r.why) + '.</div></div>' +
+      '<div class="kv" style="margin-top:9px">' +
+        '<div class="k">Family</div><div class="v">' + X.esc(X.famName(a.family)) + ' &rarr; ' + X.esc(X.famName(b.family)) + '</div>' +
+        '<div class="k">Solvent class</div><div class="v">' + X.esc(a.solvClass) + ' &rarr; ' + X.esc(b.solvClass) + '</div>' +
+        '<div class="k">Colour load</div><div class="v">' + a.colour + ' &rarr; ' + b.colour + '</div>' +
+        '<div class="k">Potency</div><div class="v">' + a.potency + ' &rarr; ' + b.potency + '</div>' +
+      '</div>' +
+      '<div style="margin-top:10px;font-size:11.5px">' +
+        (ran.length ? '<b>' + ran.length + '</b> clean' + (ran.length > 1 ? 's' : '') + ' of this pair in the plan, on ' +
+          X.esc(Array.from(new Set(ran.map(function (c) { return c.unit; }))).join(', ')) + '.'
+          : 'This plan never had to make this changeover.') +
+        (genEv.length ? '<div style="margin-top:6px;color:var(--color-danger)"><b>' + genEv.length + '</b> time' + (genEv.length > 1 ? 's' : '') +
+          ' the generic plan ran this pair on a flat changeover — ' + X.rs(genEv.reduce(function (s2, e2) { return s2 + e2.cost.rupees; }, 0)) + '.</div>' : '') +
+      '</div>';
+  }
+
+  function ladder(C) {
+    var m = C.m || X.model(), byUnit = {};
+    C.aware.fwd.forEach(function (b) { b.ops.forEach(function (o) { (byUnit[o.unit] = byUnit[o.unit] || []).push({ b: b, o: o }); }); });
+    var cleans = {};
+    C.aware.cleans.filter(function (c) { return c.s >= X.ASOF; }).forEach(function (c) { (cleans[c.unit] = cleans[c.unit] || []).push(c); });
+    var units = m.U.filter(function (u) { return (byUnit[u.id] || []).length; });
+    var s0 = X.ASOF, e0 = X.END, span = e0 - s0;
+    $('ladder').innerHTML = units.map(function (u) {
+      var seq = (byUnit[u.id] || []).sort(function (a, b) { return a.o.s - b.o.s; });
+      var cl = (cleans[u.id] || []), ch = cl.reduce(function (a, c) { return a + c.min; }, 0);
+      var segs = seq.map(function (x) {
+        var p = m.P[x.b.pix], w = (x.o.e - x.o.s) / span * 100;
+        var shade = ['#dbe9f8', '#a9cbef', '#6ba4e3', '#3b7fd1', '#1c5cab'][Math.max(0, Math.min(4, p.colour - 1))];
+        return '<div class="seg" style="width:' + w.toFixed(3) + '%;background:' + shade + '" title="' +
+          X.esc(x.b.id + ' · ' + X.pname(p.id) + ' · colour load ' + p.colour + ' · ' + X.fmtD(x.o.s)) + '"></div>';
+      }).join('');
+      var cls = cl.map(function (c) {
+        return '<div class="seg cl" style="position:absolute;left:' + ((c.s - s0) / span * 100).toFixed(3) + '%;width:' +
+          Math.max(0.12, c.min / span * 100).toFixed(3) + '%" title="' + X.esc(X.gradeName(c.grade) + ' · ' + X.n(c.min / 60, 1) + ' h · ' +
+          (c.frm ? c.frm + ' then ' + c.to : c.to) + (c.ahead ? ' (cleaned ahead)' : '') + ' · ' + X.fmtD(c.s)) + '"></div>';
+      }).join('');
+      return '<div class="lrow"><div class="un" title="' + X.esc(u.name) + '">' + X.esc(u.id) + '</div>' +
+        '<div class="ladder" style="position:relative;background:#f4f5f7;border-radius:3px">' + segs + cls + '</div>' +
+        '<div class="mt">' + seq.length + ' ops · ' + X.n(ch / 60, 0) + ' h clean</div></div>';
+    }).join('');
+    $('ckey').innerHTML = [1, 2, 3, 4, 5].map(function (c) {
+      return '<span><i style="background:' + ['#dbe9f8', '#a9cbef', '#6ba4e3', '#3b7fd1', '#1c5cab'][c - 1] + '"></i>colour load ' + c + '</span>';
+    }).join('') + '<span><i style="background:repeating-linear-gradient(45deg,#8a93a0 0 3px,#c9ced4 3px 6px)"></i>cleaning</span>';
+  }
+
+  function grades(C) {
+    var a = C.aware.kpi, by = {};
+    C.aware.cleans.filter(function (c) { return c.s >= X.ASOF; }).forEach(function (c) {
+      var g = by[c.grade] = by[c.grade] || { n: 0, min: 0, ahead: 0 };
+      g.n++; g.min += c.min; if (c.ahead) g.ahead++;
+    });
+    var order = ['NONE', 'RINSE', 'WASH', 'BOILOUT', 'DEDICATE', 'FLAT'];
+    var tot = Object.keys(by).reduce(function (s, k) { return s + by[k].min; }, 0) || 1;
+    $('gmeta').textContent = X.n(tot / 60, 0) + ' h in the plan window';
+    $('grades').innerHTML = '<table class="tbl"><thead><tr><th>Grade</th><th>Hours each</th><th class="num">Cleans</th><th class="num">Scheduled ahead</th><th class="num">Hours</th><th>Share</th></tr></thead><tbody>' +
+      order.filter(function (g) { return by[g]; }).map(function (g) {
+        var r = by[g], gh = X.gradeHours(g);
+        return '<tr><td><span class="badge" style="background:' + (X.COLOR.grade[g] || '#9e9e9e') + ';color:' + X.textOn(X.COLOR.grade[g] || '#9e9e9e') + '">' +
+          X.esc(g === 'FLAT' ? 'Flat changeover' : X.gradeName(g)) + '</span></td>' +
+          '<td>' + (g === 'FLAT' ? X.n(D.cfg.generic.flatChangeoverH, 1) : (gh == null ? '—' : X.n(gh, 1))) + ' h</td>' +
+          '<td class="num">' + X.n(r.n) + '</td><td class="num">' + X.n(r.ahead) + '</td><td class="num">' + X.n(r.min / 60, 0) + '</td>' +
+          '<td><div class="pbar"><span class="track"><span class="fill fill-blue" style="width:' + (r.min / tot * 100).toFixed(0) + '%"></span></span>' +
+          '<span class="pct">' + (r.min / tot * 100).toFixed(0) + '%</span></div></td></tr>';
+      }).join('') + '</tbody></table>' +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div><b>Scheduled ahead</b> means the clean was put into a unit\'s idle window ' +
+      'for the campaign that was waiting, instead of being charged to the batch. That is not tidiness: a 16 h boil-out cannot fit inside a ' +
+      '12 h hold window, so attaching it to the batch would make the link impossible.</div></div>';
+  }
+
+  function gen(C) {
+    var ev = C.cons.events.filter(function (e2) { return e2.nuance === 'P1'; });
+    var short = ev.filter(function (e2) { return e2.code === 'CLEAN_SHORT'; });
+    var forb = ev.filter(function (e2) { return e2.code === 'CLEAN_FORBIDDEN'; });
+    $('cmeta').textContent = ev.length + ' events · ' + X.rs(ev.reduce(function (s, e2) { return s + e2.cost.rupees; }, 0));
+    var owed = short.reduce(function (s, e2) { return s + (e2.needMin - e2.gotMin) / 60; }, 0);
+    $('gen').innerHTML =
+      '<div class="grid2" style="margin-bottom:9px">' +
+      '<div><div class="mini"><span class="mk">Cleaning still owed</span><span class="mv">' + X.n(owed, 0) + ' h</span></div>' +
+      '<div class="hint" style="margin-top:3px">across ' + short.length + ' changeovers the generic plan booked at a flat ' + X.n(D.cfg.generic.flatChangeoverH, 1) + ' h</div></div>' +
+      '<div><div class="mini"><span class="mk">Pairs it was not allowed to run</span><span class="mv">' + forb.length + '</span></div>' +
+      '<div class="hint" style="margin-top:3px">' + (forb.length ? 'each one a rejected batch and a full clean-down' : 'none in this plan') + '</div></div>' +
+      '</div>' +
+      (forb.length ? '<table class="tbl"><thead><tr><th>Pair</th><th>Unit</th><th>Batch</th><th class="num">Cost</th></tr></thead><tbody>' +
+        forb.slice(0, 6).map(function (e2) {
+          return '<tr><td>' + X.esc(e2.frm) + ' &rarr; ' + X.esc(e2.to) + '</td><td>' + X.esc(e2.unit || '') + '</td>' +
+            '<td class="mono">' + X.esc(e2.batch || '') + '</td><td class="num" style="color:var(--color-danger);font-weight:600">' + X.rs(e2.cost.rupees) + '</td></tr>';
+        }).join('') + '</tbody></table>' : '') +
+      '<div class="note"><i class="fa-solid fa-arrow-right"></i><div>The whole ledger, with what the aware plan did instead for each row, ' +
+      'is in the <a href="studio.html">Plan Studio</a>.</div></div>';
+  }
+
+  function cleanTable(C) {
+    var cl = C.aware.cleans.filter(function (c) { return c.s >= X.ASOF; }).sort(function (a, b) { return a.s - b.s; });
+    $('lmeta').textContent = X.n(cl.length) + ' cleans · ' + X.n(cl.reduce(function (a, c) { return a + c.min; }, 0) / 60, 0) + ' h';
+    $('cl').innerHTML = '<thead><tr><th>Starts</th><th>Unit</th><th>From</th><th>To</th><th>Grade</th><th class="num">Hours</th><th>Why</th></tr></thead><tbody>' +
+      cl.slice(0, 220).map(function (c) {
+        return '<tr><td>' + X.fmt(c.s) + '</td><td>' + X.esc(c.unit) + '</td><td>' + X.esc(c.frm || '—') + '</td><td>' + X.esc(c.to) + '</td>' +
+          '<td><span class="badge" style="background:' + (X.COLOR.grade[c.grade] || '#9e9e9e') + ';color:' + X.textOn(X.COLOR.grade[c.grade] || '#9e9e9e') + '">' +
+          X.esc(c.grade === 'FLAT' ? 'Flat' : X.gradeName(c.grade)) + '</span>' + (c.ahead ? ' <span class="chip">ahead</span>' : '') + '</td>' +
+          '<td class="num">' + X.n(c.min / 60, 1) + '</td><td style="white-space:normal">' + X.esc(c.why || '') + '</td></tr>';
+      }).join('') + '</tbody>';
+  }
+
+  function acts(C) {
+    $('acts').innerHTML = X.nuOf('cleaning').map(function (x) { return X.nuChip(x.id); }).join(' ') +
+      '<button class="btn btn-outline btn-sm" id="dl"><i class="fa-solid fa-file-excel"></i>Matrix to Excel</button>';
+    $('dl').onclick = function () {
+      X.xlsx([{ name: 'Cleaning matrix', cols: ['From', 'To', 'Grade', 'Hours', 'Source', 'Why', 'Train'],
+                rows: D.m.cleanMatrix.map(function (r) { return [r.frm, r.to, r.grade, r.hours, r.source, r.why, r.train]; }) },
+              { name: 'Cleans in the plan', cols: ['Starts', 'Unit', 'From', 'To', 'Grade', 'Minutes', 'Scheduled ahead', 'Why'],
+                rows: C.aware.cleans.filter(function (c) { return c.s >= X.ASOF; }).map(function (c) {
+                  return [X.fmt(c.s), c.unit, c.frm || '', c.to, c.grade, c.min, c.ahead ? 'yes' : 'no', c.why || '']; }) }],
+             'cleaning-matrix.xlsx');
+    };
+  }
+
+  function paint(C) {
+    CUR = C;
+    if (!$('train').options.length) {
+      $('train').innerHTML = trains(C).map(function (t) {
+        return '<option value="' + t + '">Block ' + t + (t === 'B' ? ' — high-potency suite' : ' — general plant') + '</option>';
+      }).join('');
+      $('train').onchange = function () { sel = null; matrix(CUR); cell(CUR); };
+    }
+    $('key').innerHTML = D.m.cleanGrades.map(function (g) {
+      return '<span title="' + X.esc(g.note) + '"><i style="background:' + (X.COLOR.grade[g.id] || '#9e9e9e') + '"></i>' +
+        X.esc(g.name) + (g.hours != null ? ' ' + g.hours + ' h' : '') + '</span>';
+    }).join('');
+    kpis(C); matrix(C); cell(C); ladder(C); grades(C); gen(C); cleanTable(C); acts(C);
+    var h = X.hashParam();
+    if (h && h.indexOf('>') > 0) { sel = h; matrix(C); cell(C); }
+  }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+  window.addEventListener('chm:navigate', function () { var h = X.hashParam(); if (h && h.indexOf('>') > 0 && CUR) { sel = h; matrix(CUR); cell(CUR); } });
+})();
+</script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+window.CHM_META = {"asOf": "2026-10-22T09:30:00", "asOfLabel": "Thu 22 Oct 2026 9:30", "site": "API Site \u00b7 Unit 2", "presets": {"balanced": "Balanced", "otif": "Delivery first", "campaign": "Campaign first", "margin": "Margin first"}};

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PP Dashboard · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  .hero { display:grid; grid-template-columns:1fr 300px; gap:12px; }
+  @media (max-width:1100px){ .hero { grid-template-columns:1fr; } }
+  .hero .big { font-size:30px; font-weight:700; line-height:1.1; font-variant-numeric:tabular-nums; }
+  .hero .big.bad { color:var(--color-danger); }
+  .hero .sub { font-size:12.5px; color:var(--color-text-secondary); line-height:1.5; margin-top:6px; }
+  .strip { display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:8px; }
+  .strip .c { border:1px solid var(--color-border); border-radius:var(--radius-md); background:#fff; padding:8px 10px; }
+  .strip .c .k { font-size:10px; text-transform:uppercase; letter-spacing:.4px; color:var(--color-text-muted); font-weight:600; }
+  .strip .c .v { font-size:15px; font-weight:700; margin-top:2px; font-variant-numeric:tabular-nums; }
+  .strip .c .s { font-size:10.5px; color:var(--color-text-hint); margin-top:1px; }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>PP Dashboard</h1><div class="crumb">Is this plan honest, and what does the conventional plan cost?</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="hero">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-code-compare"></i>Same order book, same plant, same objective weights — two rule sets
+          <span class="right" id="rulemeta"></span></div>
+        <div class="card-body" id="hero"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-clipboard-check"></i>Proof, not claim</div>
+        <div class="card-body" id="proof"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-map"></i>The sixteen nuances, and what each one costs a plan that does not see it
+        <span class="right"><span id="nucount"></span> · click a nuance to open the page that owns it</span></div>
+      <div class="card-body"><div class="deckmap" id="deck"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-play"></i>Scenarios
+        <span class="right"><span class="tour" id="tours"></span></span></div>
+      <div class="card-body">
+        <div id="tournote" class="hint" style="margin-bottom:10px;display:none"></div>
+        <div class="scen" id="scen"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-industry"></i>The plant at the as-of moment</div>
+      <div class="card-body"><div class="strip" id="plant"></div>
+        <div class="needs"><i class="fa-solid fa-circle-info"></i><div id="needs"></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='home'; window.CHM_TITLE='PP Dashboard'; window.CHM_ICON='fa-gauge-high';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D, NU = window.CHM_NUANCES;
+  var $ = function (id) { return document.getElementById(id); };
+
+  function kpiRow(C) {
+    var a = C.aware.kpi, g = C.generic.kpi, cons = C.cons;
+    var cells = [
+      ['blue', 'OTIF, chemical-aware', X.pct(a.otif), a.onTime + ' of ' + a.dueIn + ' committed lines due in the window'],
+      ['green', 'Output, actual', X.t(a.madeKg), X.pct(a.yieldRealisation) + ' of nameplate — yield is physics, not a plan'],
+      ['amber', 'Cleaning hours', X.n(a.cleanHours), a.cleanCount + ' cleans the matrix actually requires'],
+      ['grey', (a.utilClass ? X.clsName(a.utilClass) : 'Unit') + ' time used', X.pct(a.utilBusiest),
+       'the busiest class: ' + X.pct(a.utilByClass[a.utilClass].run) + ' running, ' +
+       X.pct(a.utilByClass[a.utilClass].clean) + ' cleaning. A plant mean would average it with a mill that runs an hour a batch'],
+      ['red', 'What the generic plan costs', X.rs(cons.total.rupees), cons.total.n + ' priced events across all seven plant nuances'],
+      ['brand', 'Constraints honoured', X.n(C.proof.total.checks), C.proof.total.violations === 0 ? 'checked, zero broken' : C.proof.total.violations + ' broken']
+    ];
+    $('kpis').innerHTML = cells.map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  function hero(C) {
+    var cons = C.cons, nk = C.naive, a = C.aware.kpi, g = C.generic.kpi;
+    var rows = [
+      ['Batches planned', X.n(g.batches), X.n(a.batches)],
+      ['Cleaning hours booked', X.n(g.cleanHours), X.n(a.cleanHours)],
+      ['On time, in full (as each plan reports itself)', X.pct(nk.generic.otif), X.pct(nk.aware.otif)],
+      ['Constraints broken', X.n(C.proofGeneric.total.violations), X.n(C.proof.total.violations)]
+    ];
+    $('hero').innerHTML =
+      '<div class="grid2" style="margin-bottom:10px">' +
+        '<div><div class="big bad">' + X.rs(cons.total.rupees) + '</div>' +
+          '<div class="sub">is what the generic plan\'s seven assumptions cost once the plan is replayed against the chemistry — ' +
+          X.n(cons.total.kg) + ' kg of product, ' + X.n(cons.total.hours, 0) + ' hours of plant, across ' + cons.total.n + ' priced events. ' +
+          '<b>' + cons.statusChanging + '</b> of them change a batch\'s status; ' + cons.unmodelled + ' more are priced but not propagated, and that count is shown rather than hidden.</div></div>' +
+        '<div><div class="big">' + X.n(C.proof.total.checks) + '</div>' +
+          '<div class="sub">constraint checks over the chemical-aware plan, with <b>' + C.proof.total.violations + '</b> broken. ' +
+          'It gives up ' + X.n(a.sacrifices) + ' starts on purpose (' + X.n(C.aware.kpi.sacrificeMin / 60, 0) + ' hours of deliberate idle) rather than strand an intermediate.</div></div>' +
+      '</div>' +
+      '<table class="score"><thead><tr><th>Measure</th><th>Generic</th><th>Chemical-aware</th></tr></thead><tbody>' +
+      rows.map(function (r, i) {
+        var better = i === 3 ? 'aware' : null;
+        return '<tr><td>' + X.esc(r[0]) + '</td><td class="' + (i === 3 ? 'lose' : '') + '">' + r[1] + '</td><td class="' + (i === 3 ? 'win' : '') + '">' + r[2] + '</td></tr>';
+      }).join('') + '</tbody></table>' +
+      '<div class="note"><i class="fa-solid fa-scale-balanced"></i><div>Both plans run the same scheduler with the same objective weights. The only difference is the seven rules in the deck: ' +
+      'a clean grade from the matrix instead of a flat changeover, yield from assay instead of nameplate, hold windows, utility concurrency, effluent limits, ' +
+      'a hazard licence instead of tank space, and allocation on spec rather than quantity. ' +
+      '<a href="studio.html">Open Plan Studio</a> to switch them on one at a time.</div></div>';
+    $('rulemeta').innerHTML = 'computed in ' + X.n(C.ms) + ' ms · ' + X.esc(D.meta.forwardDays) + '-day plan from a ' + X.esc(D.meta.historyDays) + '-day frozen history';
+  }
+
+  function proof(C) {
+    var p = C.proof.byNuance, order = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'base'];
+    var html = order.filter(function (k) { return p[k]; }).map(function (k) {
+      var r = p[k], label = k === 'base' ? 'Equipment and block times' : X.nu(k).name;
+      return '<div class="proofline"><span style="flex:1">' + X.esc(label) + '</span><span class="n">' + X.n(r.checks) + '</span>' +
+             '<span class="v ' + (r.violations ? 'bad' : 'zero') + '">' + (r.violations ? r.violations + ' broken' : 'none broken') + '</span></div>';
+    }).join('');
+    html += '<div class="note"><i class="fa-solid fa-circle-check"></i><div>Every constraint re-checked over the committed plan. ' +
+            'The generic plan, checked the same way, breaks <b>' + X.n(C.proofGeneric.total.violations) + '</b>.</div></div>';
+    $('proof').innerHTML = html;
+  }
+
+  function deck(C) {
+    var byNu = C.cons.byNuance;
+    $('nucount').textContent = NU.length + ' of ' + NU.length + ' carried by a page';
+    $('deck').innerHTML = NU.map(function (x) {
+      var cost = (byNu[x.id] || {}).rupees || 0, nEv = (byNu[x.id] || {}).n || 0;
+      var pg = window.CHM_PAGES[x.page];
+      return '<div class="nu' + (cost ? '' : ' clean') + '" data-page="' + x.page + '" data-nu="' + x.id + '" title="' + X.esc(x.claim) + '">' +
+        '<div class="t"><i class="fa-solid ' + x.icon + '"></i>' + X.esc((x.grp === 'plant' ? 'Plant ' : 'S&OP ') + x.no + ' · ' + x.name) + '</div>' +
+        '<div class="c">' + X.esc(x.claim) + '</div>' +
+        '<div class="f"><span>' + X.esc(pg ? pg.label : x.page) + '</span><span style="margin-left:auto" class="cost">' +
+        (cost ? X.rs(cost) + ' <span class="hint" style="font-weight:400">· ' + nEv + '</span>' : (x.grp === 'sop' ? 'S&OP horizon' : 'no cost in this plan')) + '</span></div></div>';
+    }).join('');
+    $('deck').onclick = function (e) {
+      var d = e.target.closest('.nu[data-page]'); if (!d) return;
+      X.go(d.getAttribute('data-page'), d.getAttribute('data-nu'));
+    };
+  }
+
+  function scen(C) {
+    var tour = X.State.get('tour', null), last = X.State.get('lastScenario', null);
+    $('tours').innerHTML = X.TOURS.map(function (t) {
+      return '<span class="step' + (tour === t.id ? ' on' : '') + '" data-tour="' + t.id + '"><i class="fa-solid fa-route" style="margin-right:5px"></i>' + X.esc(t.label) + '</span>';
+    }).join('') + (tour ? '<span class="step" data-tour="">Clear tour</span>' : '');
+    var cards = X.SCENARIOS.filter(function (s) { return !s.follow; });
+    if (tour) { var t = X.TOURS.filter(function (x) { return x.id === tour; })[0]; cards = t.cards.map(X.scen); $('tournote').style.display = ''; $('tournote').innerHTML = '<i class="fa-solid fa-route"></i> ' + X.esc(t.note); }
+    else $('tournote').style.display = 'none';
+    $('scen').innerHTML = cards.map(function (s, i) {
+      var cost = (C.cons.byNuance[s.nuance] || {}).rupees || 0;
+      return '<div class="sc' + (last === s.id ? ' on' : '') + '">' +
+        '<div class="st"><span class="n">' + s.id + '</span><i class="fa-solid ' + s.icon + '" style="color:var(--color-primary)"></i>' + X.esc(s.title) + '</div>' +
+        '<div class="sd">' + X.esc(X.scenText(s, 'desc')) + '</div>' +
+        '<div class="sf">' + X.nuChip(s.nuance) +
+        (cost ? '<span class="chip" title="what this nuance costs the generic plan">' + X.rs(cost) + '</span>' : '') +
+        '<button class="btn btn-primary btn-sm" data-run="' + s.id + '" style="margin-left:auto"><i class="fa-solid fa-play"></i>Run</button>' +
+        (s.next ? s.next.map(function (nx) { var f = X.scen(nx); return '<button class="btn btn-ghost btn-sm" data-run="' + nx + '" title="' + X.esc(X.scenText(f, 'title')) + '">then ' + nx + '</button>'; }).join('') : '') +
+        '</div></div>';
+    }).join('');
+    $('scen').onclick = function (e) {
+      var b = e.target.closest('[data-run]'); if (!b) return;
+      X.runScenario(b.getAttribute('data-run'));
+    };
+    $('tours').onclick = function (e) {
+      var s = e.target.closest('[data-tour]'); if (!s) return;
+      var v = s.getAttribute('data-tour');
+      X.State.set('tour', v || null); scen(C);
+    };
+  }
+
+  function plant(C) {
+    var a = C.aware, m = C.m || X.model();
+    var mass = 0, lots = 0;
+    a.batches.forEach(function (b) { mass += b.kg; });
+    a.lots.forEach(function (l) { if (!l.opening) lots += l.kg; });
+    var lic = Object.keys(a.kpi.licenceMin).map(function (k) { return k + ' ' + X.pct(a.kpi.licenceMin[k], 0); }).join(' · ');
+    var peaks = Object.keys(a.kpi.utilPeak).map(function (k) { return k + ' ' + X.n(a.kpi.utilPeak[k], 0) + (a.kpi.utilAtCap[k] ? ' (' + a.kpi.utilAtCap[k] + ' h at cap)' : ''); }).join(' · ');
+    var cells = [
+      ['Units', D.m.units.length + ' in ' + Object.keys(D.m.units.reduce(function (o, u) { o[u.cls] = 1; return o; }, {})).length + ' classes', D.m.units.filter(function (u) { return u.block === 'B'; }).length + ' in the segregated high-potency suite'],
+      ['Products', D.m.products.length + ' in ' + D.m.families.length + ' families', D.m.products.filter(function (p) { return p.regulated; }).length + ' on a filed route'],
+      ['Order book', X.n(D.lines.length) + ' lines', X.n(D.orders.length) + ' orders · ' + X.t(D.meta.stats.kg)],
+      ['Mass balance', X.t(mass), Math.abs(mass - lots) < 1 ? 'made equals lots, to the kilogram' : 'OUT BY ' + X.n(Math.abs(mass - lots)) + ' kg'],
+      ['Batches made', X.n(a.kpi.batches) + ' forward', X.n(a.nHist) + ' in the frozen history'],
+      ['Utility peaks', peaks || '—', 'against the derated cap, hour by hour'],
+      ['Licence headroom', lic || '—', 'least headroom any hazard class has over the plan'],
+      ['Lots released', X.n(a.kpi.lots), a.kpi.blended + ' of ' + a.kpi.allocs + ' allocations needed a blend']
+    ];
+    $('plant').innerHTML = cells.map(function (c) {
+      return '<div class="c"><div class="k">' + X.esc(c[0]) + '</div><div class="v">' + c[1] + '</div><div class="s">' + X.esc(c[2]) + '</div></div>';
+    }).join('');
+    $('needs').innerHTML = 'Everything on this screen is a <b>generated</b> demo plant — the site, the products, the customers and the volumes are fictional. ' +
+      'What is not invented is the shape of the rules. To make this your plant we need: your product attributes and routes, your cleaning matrix (or the residue classes it is derived from), ' +
+      'your hold windows, your utility and effluent capacities, your licensed quantities, and your customers\' spec and site approvals. ' +
+      'Every one of those is an upload on <a href="masters.html">Master Data</a>.';
+  }
+
+  function acts(C) {
+    $('acts').innerHTML =
+      '<a class="btn btn-ghost btn-sm" href="studio.html"><i class="fa-solid fa-code-compare"></i>Plan Studio</a>' +
+      '<a class="btn btn-ghost btn-sm" href="masters.html"><i class="fa-solid fa-database"></i>Master Data</a>' +
+      '<button class="btn btn-outline btn-sm" id="dl"><i class="fa-solid fa-file-excel"></i>Ledger to Excel</button>';
+    $('dl').onclick = function () {
+      var rows = C.cons.events.map(function (e) {
+        return [e.code, e.nuance, X.nuLabel(e.nuance), e.batch || '', e.productId || '', e.unit || '', X.fmt(e.at),
+                e.cause, e.outcome, e.fix || '', e.cost.kg, e.cost.hours, e.cost.rupees, e.statusChanging ? 'yes' : 'no'];
+      });
+      X.xlsx([{ name: 'Consequence ledger', cols: ['Code', 'Nuance', 'Nuance name', 'Batch', 'Product', 'Unit', 'When', 'Cause', 'Outcome', 'What the aware plan did instead', 'kg', 'Hours', 'Rupees', 'Changes a status'], rows: rows }],
+             'generic-plan-consequences.xlsx');
+    };
+  }
+
+  function paint(C) { kpiRow(C); hero(C); proof(C); deck(C); scen(C); plant(C); acts(C); }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+  window.addEventListener('chm:rolechanged', function () { X.withPlan(paint); });
+})();
+</script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+</body>
+</html>

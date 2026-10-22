@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Batch Record &amp; Yield · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  .yrow { display:grid; grid-template-columns:108px 1fr 150px; gap:9px; align-items:center; font-size:11.5px; margin-bottom:5px; }
+  .yrow .yb { position:relative; height:17px; background:#eef1f4; border-radius:4px; }
+  .yrow .ya { position:absolute; left:0; top:0; bottom:0; background:var(--color-info); border-radius:4px 0 0 4px; }
+  .yrow .yn { position:absolute; top:-2px; bottom:-2px; width:2px; background:var(--color-text-primary); }
+  .yrow .ysd { position:absolute; top:5px; height:7px; background:rgba(37,169,224,.28); }
+  .yrow .yv { text-align:right; font-variant-numeric:tabular-nums; }
+  .dots { position:relative; height:88px; border-bottom:1px solid var(--color-border); border-left:1px solid var(--color-border); }
+  .dots .pt { position:absolute; width:7px; height:7px; border-radius:50%; background:var(--color-info); transform:translate(-50%,50%); }
+  .dots .pt.low { background:var(--color-danger); } .dots .pt.off { background:var(--color-warning); }
+  .dots .mean { position:absolute; left:0; right:0; border-top:1px dashed var(--color-text-secondary); }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Batch Record &amp; Yield</h1><div class="crumb">The batch count is an estimate, because every batch yields differently</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-percent"></i>Realised against nameplate, per product
+          <span class="right">the bar is what came out; the tick is the theoretical yield a generic plan books</span></div>
+        <div class="card-body" id="yields"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-chart-scatter"></i>Every batch of one product
+          <span class="right"><span class="fl">Product</span>&nbsp;<select id="prod"></select></span></div>
+        <div class="card-body" id="scatter"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-circle-exclamation"></i>Campaigns that ended short
+        <span class="right"><span id="cmeta"></span> · what the top-up batch costs once the train has been broken down</span></div>
+      <div class="card-body tbl-wrap" style="max-height:330px;overflow:auto"><table class="tbl" id="shorts"></table></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-clipboard-list"></i>The batch register
+        <span class="right">
+          <span class="fl">Product</span>&nbsp;<select id="fp"><option value="">All</option></select>
+          <span class="fl">Show</span>&nbsp;<select id="fw"><option value="P">The plan</option><option value="H">The frozen history</option><option value="">Both</option></select>
+          <span id="bmeta"></span></span></div>
+      <div class="card-body tbl-wrap" style="max-height:460px;overflow:auto"><table class="tbl" id="reg"></table></div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='batches'; window.CHM_TITLE='Batch Record & Yield'; window.CHM_ICON='fa-flask-vial';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D;
+  var $ = function (id) { return document.getElementById(id); };
+  var CUR = null;
+
+  function kpis(C) {
+    var a = C.aware.kpi, cons = C.cons.byNuance.P2 || { rupees: 0, n: 0, kg: 0, hours: 0 };
+    var off = C.aware.fwd.filter(function (b) { return b.offSpec; });
+    var m = C.m || X.model();
+    var spread = m.P.reduce(function (s, p) { return s + p.yieldSd; }, 0) / m.P.length;
+    $('kpis').innerHTML = [
+      ['blue', 'Batches made', X.n(a.batches), X.n(a.histBatches) + ' more in the frozen history'],
+      ['green', 'Actual output', X.t(a.madeKg), 'what the reactors gave'],
+      ['grey', 'Nameplate output', X.t(a.nominalKg), 'what the charges would give at theoretical yield'],
+      ['amber', 'Realisation', X.pct(a.yieldRealisation), 'the gap is not noise — it is where the batch count goes wrong'],
+      ['red', 'Off spec', X.n(off.length), off.length ? 'batches that failed outright and were re-worked' : 'none in this plan'],
+      ['red', 'Cost of planning at nameplate', X.rs(cons.rupees), cons.n + ' campaigns short, ' + X.n(cons.hours, 0) + ' h of top-up and re-cleaning']
+    ].map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  function yields(C) {
+    var m = C.m || X.model(), by = {};
+    C.aware.fwd.forEach(function (b) {
+      var g = by[b.productId] = by[b.productId] || { n: 0, act: 0, nom: 0, min: 9, max: 0 };
+      g.n++; g.act += b.actualKg; g.nom += b.nominalKg;
+      var r = b.actualKg / b.nominalKg;
+      if (r < g.min) g.min = r; if (r > g.max) g.max = r;
+    });
+    var ids = Object.keys(by).sort(function (a, b) { return by[a].act / by[a].nom - by[b].act / by[b].nom; });
+    if (!ids.length) { $('yields').innerHTML = '<div class="empty-state">No batches in the plan window.</div>'; return; }
+    $('yields').innerHTML = ids.map(function (id) {
+      var g = by[id], r = g.act / g.nom, p = m.P[m.pix[id]];
+      var lo = Math.max(0, g.min), hi = Math.min(1.15, g.max);
+      return '<div class="yrow"><span title="' + X.esc(X.pname(id)) + '">' + X.esc(id) + '</span>' +
+        '<span class="yb"><span class="ysd" style="left:' + (lo * 100).toFixed(1) + '%;width:' + ((hi - lo) * 100).toFixed(1) + '%" title="' +
+        X.esc('spread across ' + g.n + ' batches: ' + X.pct(lo) + ' to ' + X.pct(hi)) + '"></span>' +
+        '<span class="ya" style="width:' + Math.min(100, r * 100).toFixed(1) + '%"></span>' +
+        '<span class="yn" style="left:100%" title="nameplate"></span></span>' +
+        '<span class="yv">' + X.pct(r) + ' · ' + g.n + ' batches</span></div>';
+    }).join('') +
+    '<div class="legend" style="margin-top:8px"><span><i style="background:var(--color-info)"></i>realised</span>' +
+    '<span><i style="background:rgba(37,169,224,.28)"></i>spread across the batches</span>' +
+    '<span><i style="background:var(--color-text-primary);width:3px"></i>nameplate, 100%</span></div>' +
+    '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Nameplate is the output of the charge at theoretical yield — the number a ' +
+    'generic planner divides the order by to get a batch count. The plant gives the bar. Plan from the tick and every campaign of any length ' +
+    'ends short; plan from the bar, with its spread, and the count is right first time.</div></div>';
+  }
+
+  function scatter(C) {
+    var m = C.m || X.model(), pid = $('prod').value, p = m.P[m.pix[pid]];
+    var bs = C.aware.batches.filter(function (b) { return b.productId === pid; }).sort(function (a, b) { return a.s - b.s; });
+    if (!bs.length) { $('scatter').innerHTML = '<div class="empty-state">No batches of this product.</div>'; return; }
+    var rs = bs.map(function (b) { return b.actualKg / b.nominalKg; });
+    var lo = Math.min.apply(null, rs) * 0.97, hi = Math.max.apply(null, rs) * 1.03, rng = Math.max(0.02, hi - lo);
+    var mean = rs.reduce(function (a, x) { return a + x; }, 0) / rs.length;
+    $('scatter').innerHTML =
+      '<div class="dots" id="dts">' + bs.map(function (b, i) {
+        var r = b.actualKg / b.nominalKg, y = (r - lo) / rng * 88;
+        var k = b.offSpec ? 'off' : (r < mean - p.yieldSd / p.yieldMean ? 'low' : '');
+        return '<span class="pt ' + k + '" style="left:' + (bs.length > 1 ? i / (bs.length - 1) * 98 + 1 : 50).toFixed(2) + '%;bottom:' + y.toFixed(1) + 'px" title="' +
+          X.esc(b.id + ' · ' + X.n(b.actualKg) + ' kg of a nameplate ' + X.n(b.nominalKg) + ' (' + X.pct(r) + ') · assay ' + X.assay(b.assay) +
+                ' · impurity ' + b.imp + '% · ' + X.fmtD(b.s) + (b.phase === 'H' ? ' · frozen history' : '')) + '"></span>';
+      }).join('') + '<span class="mean" style="bottom:' + ((mean - lo) / rng * 88).toFixed(1) + 'px"></span></div>' +
+      '<div class="hint" style="display:flex;justify-content:space-between;margin-top:3px"><span>' + X.fmtDM(bs[0].s) + '</span>' +
+      '<span>realisation ' + X.pct(lo) + ' to ' + X.pct(hi) + ', mean ' + X.pct(mean) + '</span><span>' + X.fmtDM(bs[bs.length - 1].s) + '</span></div>' +
+      '<div class="kv" style="margin-top:9px">' +
+        '<div class="k">Charge</div><div class="v">' + p.chargeKL + ' kL · nameplate ' + X.kg(p.nameplateKg || Math.round(p.batchKg / p.yieldMean)) + ' at theoretical yield</div>' +
+        '<div class="k">Expected yield</div><div class="v">' + X.pct(p.yieldMean) + ' with a spread of ' + X.pct(p.yieldSd, 1) + '</div>' +
+        '<div class="k">Assay</div><div class="v">' + X.assay(p.assayMean) + ' ± ' + p.assaySd + ', impurity limit ' + p.impMax + '%, d90 ' + p.psdMean + ' µm</div>' +
+        '<div class="k">Retest</div><div class="v">' + p.retestM + ' months from manufacture</div>' +
+      '</div>' +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Each batch of a product faces the same draw in both plans — the yield is ' +
+      'keyed on the product and which batch of it this is, never on the order the scheduler happened to choose. Only the <b>reaction</b> to the ' +
+      'assay differs, which is what makes the two plans comparable at all.</div></div>';
+  }
+
+  function shorts(C) {
+    var ev = C.cons.events.filter(function (e) { return e.code === 'YIELD'; }).sort(function (a, b) { return b.cost.rupees - a.cost.rupees; });
+    $('cmeta').textContent = ev.length ? X.n(ev.length) + ' campaigns · ' + X.rs(ev.reduce(function (s, e) { return s + e.cost.rupees; }, 0)) : 'none in this run';
+    if (!ev.length) {
+      $('shorts').innerHTML = '<tbody><tr><td class="empty-state">No campaign in the generic plan came up short enough to need a top-up in this run. ' +
+        'Run scenario C2 from the dashboard to force one.</td></tr></tbody>';
+      return;
+    }
+    $('shorts').innerHTML = '<thead><tr><th>Line</th><th>Product</th><th class="num">Booked</th><th class="num">Came out</th>' +
+      '<th class="num">Short</th><th class="num">Top-up batches</th><th class="num">Re-clean</th><th class="num">Cost</th></tr></thead><tbody>' +
+      ev.slice(0, 60).map(function (e) {
+        return '<tr><td class="mono">' + X.esc(e.lineId || '') + '</td><td>' + X.esc(e.productId) + '</td>' +
+          '<td class="num">' + X.n(e.bookedKg) + '</td><td class="num">' + X.n(e.actualKg) + '</td>' +
+          '<td class="num"><b style="color:var(--color-danger)">' + X.n(e.shortKg) + '</b></td>' +
+          '<td class="num">' + X.n(e.extraBatches) + '</td><td class="num">' + X.n(e.recleanH, 1) + ' h</td>' +
+          '<td class="num" style="color:var(--color-danger);font-weight:600">' + X.rs(e.cost.rupees) + '</td></tr>';
+      }).join('') + '</tbody>';
+  }
+
+  function reg(C) {
+    var fp = $('fp').value, fw = $('fw').value;
+    var bs = C.aware.batches.filter(function (b) {
+      if (fp && b.productId !== fp) return false;
+      if (fw && b.phase !== fw) return false;
+      return true;
+    }).sort(function (a, b) { return b.s - a.s; });
+    $('bmeta').textContent = X.n(bs.length) + ' batches';
+    $('reg').innerHTML = '<thead><tr><th>Batch</th><th>Product</th><th>Started</th><th class="num">kg</th><th class="num">of nameplate</th>' +
+      '<th class="num">Assay</th><th class="num">Impurity</th><th class="num">d90</th><th>QC release</th><th>Units</th></tr></thead><tbody>' +
+      bs.slice(0, 240).map(function (b) {
+        var r = b.actualKg / b.nominalKg;
+        return '<tr><td class="mono">' + X.esc(b.id) + (b.phase === 'H' ? ' <span class="chip">history</span>' : '') +
+          (b.repair ? ' <span class="chip">replacement</span>' : '') + '</td>' +
+          '<td>' + X.esc(b.productId) + '</td><td>' + X.fmtD(b.s) + '</td>' +
+          '<td class="num">' + X.n(b.kg) + '</td>' +
+          '<td class="num" style="color:' + (r < 0.9 ? 'var(--color-danger)' : r < 0.97 ? 'var(--color-warning)' : 'inherit') + '">' + X.pct(r) + '</td>' +
+          '<td class="num">' + X.assay(b.assay) + '</td><td class="num">' + b.imp + '%</td><td class="num">' + b.psd + '</td>' +
+          '<td>' + X.fmtD(b.readyAt) + (b.offSpec ? ' <span class="badge b-red">off spec</span>' : '') + '</td>' +
+          '<td class="hint">' + X.esc(b.ops.map(function (o) { return o.unit; }).join(' ')) + '</td></tr>';
+      }).join('') + '</tbody>';
+  }
+
+  function acts(C) {
+    $('acts').innerHTML = X.nuOf('batches').map(function (x) { return X.nuChip(x.id); }).join(' ') +
+      '<button class="btn btn-ghost btn-sm" id="run"><i class="fa-solid fa-play"></i>Run C2</button>' +
+      '<button class="btn btn-outline btn-sm" id="dl"><i class="fa-solid fa-file-excel"></i>Register to Excel</button>';
+    $('run').onclick = function () { X.runScenario('C2'); };
+    $('dl').onclick = function () {
+      X.xlsx([{ name: 'Batch register', cols: ['Batch', 'Product', 'Phase', 'Start', 'End', 'kg', 'Nameplate kg', 'Realisation', 'Assay %',
+                                               'Impurity %', 'd90 um', 'QC release', 'Off spec', 'Units', 'Order lines'],
+                rows: C.aware.batches.map(function (b) {
+                  return [b.id, b.productId, b.phase, X.fmt(b.s), X.fmt(b.e), b.kg, b.nominalKg,
+                          Math.round(b.actualKg / b.nominalKg * 1000) / 1000, b.assay, b.imp, b.psd, X.fmt(b.readyAt),
+                          b.offSpec ? 'yes' : 'no', b.ops.map(function (o) { return o.unit; }).join(' '), (b.lineIds || []).join(' ')];
+                }) }], 'batch-register.xlsx');
+    };
+  }
+
+  function paint(C) {
+    CUR = C;
+    var m = C.m || X.model();
+    if (!$('prod').options.length) {
+      var opts = m.P.map(function (p) { return '<option value="' + p.id + '">' + X.esc(X.pname(p.id)) + '</option>'; }).join('');
+      $('prod').innerHTML = opts;
+      $('fp').innerHTML = '<option value="">All</option>' + m.P.map(function (p) { return '<option value="' + p.id + '">' + X.esc(p.id) + '</option>'; }).join('');
+      $('prod').onchange = function () { scatter(CUR); };
+      $('fp').onchange = function () { reg(CUR); };
+      $('fw').onchange = function () { reg(CUR); };
+    }
+    var h = X.hashParam();
+    if (h && m.pix[h] != null) { $('prod').value = h; $('fp').value = h; }
+    kpis(C); yields(C); scatter(C); shorts(C); reg(C); acts(C);
+  }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+  window.addEventListener('chm:navigate', function () {
+    var h = X.hashParam(), m = CUR && (CUR.m || X.model());
+    if (CUR && h && m.pix[h] != null) { $('prod').value = h; $('fp').value = h; scatter(CUR); reg(CUR); }
+  });
+})();
+</script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+</body>
+</html>

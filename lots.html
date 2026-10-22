@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lots, Blending &amp; Allocation · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  tr.arow { cursor:pointer; } tr.arow.open td { background:var(--color-primary-light); }
+  .gen { display:grid; grid-template-columns:1fr 24px 1fr 24px 1fr; gap:6px; align-items:center; font-size:11.5px; }
+  .gen .bx { border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:7px 9px; background:#fff; }
+  .gen .bx b { display:block; font-size:12px; } .gen .ar { text-align:center; color:var(--color-text-hint); }
+  .rejrow { display:grid; grid-template-columns:120px 92px 1fr; gap:8px; font-size:11.5px; padding:3px 0; border-bottom:1px solid var(--color-border-light); }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Lots, Blending &amp; Allocation</h1><div class="crumb">Orders match on specification, route and approval, not only quantity</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="grid-2-1">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-table-list"></i>Allocation
+          <span class="right">
+            <span class="fl">Show</span>&nbsp;<select id="f"><option value="blend">Blended lots only</option><option value="all">Every allocation</option><option value="short">Short lines</option></select>
+            <span id="ameta"></span></span></div>
+        <div class="card-body tbl-wrap" style="max-height:430px;overflow:auto"><table class="tbl" id="al"></table></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-flask"></i>The blend, against the spec
+          <span class="right" id="bmeta"></span></div>
+        <div class="card-body" id="blend"></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-ban"></i>Why a lot was turned down
+          <span class="right"><span id="rmeta"></span></span></div>
+        <div class="card-body" id="rej"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-sitemap"></i>Genealogy and recall scope
+          <span class="right"><span class="fl">Lot</span>&nbsp;<select id="lot"></select></span></div>
+        <div class="card-body" id="genl"></div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='lots'; window.CHM_TITLE='Lots, Blending & Allocation'; window.CHM_ICON='fa-flask';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D;
+  var $ = function (id) { return document.getElementById(id); };
+  var CUR = null, selLine = null, open = {};
+
+  function kpis(C) {
+    var a = C.aware.kpi, cons = C.cons.byNuance.P7 || { rupees: 0, n: 0, kg: 0 };
+    var made = C.aware.lots.filter(function (l) { return !l.opening; });
+    var coa = C.aware.allocs.filter(function (x) { return x.coa; }).length;
+    $('kpis').innerHTML = [
+      ['blue', 'Lots made', X.n(made.length), X.t(made.reduce(function (s, l) { return s + l.kg; }, 0)) + ' released after QC'],
+      ['green', 'Allocations', X.n(a.allocs), coa + ' of them need a certificate of analysis'],
+      ['amber', 'Needed a blend', X.n(a.blended), X.pct(a.allocs ? a.blended / a.allocs : 0, 0) + ' of allocations — one lot would not do'],
+      ['grey', 'Lot refusals', X.n(C.aware.rejects.length), X.n(Object.keys(C.aware.rejects.reduce(function (o, r) { o[r.lotId] = 1; return o; }, {})).length) +
+        ' distinct lots offered and turned down on spec, route, approval or remaining life'],
+      ['red', 'Short', X.t(a.shortKg), a.shortLines + ' lines due inside the horizon'],
+      ['red', 'Allocating on quantity alone', X.rs(cons.rupees), cons.n + ' consignments the customer would reject']
+    ].map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  function rows(C) {
+    var f = $('f').value;
+    if (f === 'short') {
+      var mm = C.m || X.model();
+      return C.aware.lines.filter(function (L) { return L.short > 0 && L.due <= mm.end; }).map(function (L) {
+        return { lineId: L.id, short: true, L: L, lots: [], kg: 0 };
+      }).sort(function (a, b) { return b.L.short - a.L.short; });
+    }
+    var a = C.aware.allocs.filter(function (x) { return f === 'all' || x.blended; });
+    return a.map(function (x) { return Object.assign({ L: C.aware.byId[x.lineId] }, x); })
+      .sort(function (p, q) { return q.kg - p.kg; });
+  }
+
+  function table(C) {
+    var rs = rows(C);
+    $('ameta').textContent = X.n(rs.length) + ' rows';
+    $('al').innerHTML = '<thead><tr><th>Line</th><th>Customer</th><th>Product</th><th class="num">kg</th><th class="num">Lots</th>' +
+      '<th class="num">Assay</th><th class="num">Impurity</th><th class="num">d90</th><th>Spec</th></tr></thead><tbody>' +
+      rs.slice(0, 180).map(function (r) {
+        var L = r.L;
+        if (!L) return '';
+        if (r.short) {
+          return '<tr class="arow" data-id="' + X.esc(r.lineId) + '"><td class="mono">' + X.esc(r.lineId) + '</td>' +
+            '<td>' + X.esc(L.custName) + '</td><td>' + X.esc(L.productId) + '</td>' +
+            '<td class="num" style="color:var(--color-danger)"><b>' + X.n(L.short) + ' short</b></td>' +
+            '<td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td>' +
+            '<td style="white-space:normal" class="hint">' + X.esc(L.shortWhy || '') + '</td></tr>';
+        }
+        var okA = r.assay >= L.assayMin, okI = r.imp <= L.impMax, okP = r.psd <= L.psdMax;
+        return '<tr class="arow' + (open[r.lineId] ? ' open' : '') + '" data-id="' + X.esc(r.lineId) + '">' +
+          '<td class="mono">' + X.esc(r.lineId) + '</td><td>' + X.esc(L.custName) +
+          (L.regulated ? ' <span class="chip lock">reg</span>' : '') + '</td>' +
+          '<td>' + X.esc(r.productId) + '</td><td class="num">' + X.n(r.kg) + '</td>' +
+          '<td class="num">' + r.lots.length + (r.blended ? ' <span class="chip">blend</span>' : '') + '</td>' +
+          '<td class="num" style="color:' + (okA ? 'inherit' : 'var(--color-danger)') + '">' + X.assay(r.assay) + '</td>' +
+          '<td class="num" style="color:' + (okI ? 'inherit' : 'var(--color-danger)') + '">' + r.imp + '%</td>' +
+          '<td class="num" style="color:' + (okP ? 'inherit' : 'var(--color-danger)') + '">' + r.psd + '</td>' +
+          '<td class="hint">&ge;' + X.assay(L.assayMin) + ' · &le;' + L.impMax + '% · &le;' + L.psdMax + (L.minLifeM ? ' · ' + L.minLifeM + ' mo' : '') + '</td></tr>';
+      }).join('') + '</tbody>';
+    $('al').onclick = function (e) {
+      var tr = e.target.closest('tr.arow'); if (!tr) return;
+      selLine = tr.getAttribute('data-id'); blend(C);
+    };
+  }
+
+  function bar(label, lo, hi, limit, pts, fmtv) {
+    // one attribute: the allowed window, the lots in it, and where the blend lands
+    var rng = Math.max(1e-6, hi - lo);
+    var at = function (v) { return Math.max(0, Math.min(100, (v - lo) / rng * 100)); };
+    return '<div class="spec"><span>' + X.esc(label) + '</span><span class="sb">' +
+      '<span class="win" style="left:' + at(limit[0]) + '%;width:' + (at(limit[1]) - at(limit[0])) + '%"></span>' +
+      pts.map(function (p) {
+        return '<span class="pt ' + (p.bad ? 'bad' : p.blend ? 'blend' : '') + '" style="left:' + at(p.v) + '%" title="' +
+          X.esc(p.label + ': ' + fmtv(p.v)) + '"></span>';
+      }).join('') + '</span><span class="hint" style="text-align:right">' + X.esc(fmtv(limit[0]) + ' – ' + fmtv(limit[1])) + '</span></div>';
+  }
+
+  function blend(C) {
+    if (!selLine) {
+      $('blend').innerHTML = '<div class="empty-state">Pick a line to see the arithmetic: each lot against the order\'s window, and where the blend lands.</div>';
+      $('bmeta').textContent = '';
+      return;
+    }
+    var L = C.aware.byId[selLine], a = C.aware.allocs.filter(function (x) { return x.lineId === selLine; })[0];
+    if (!L) { selLine = null; return blend(C); }
+    $('bmeta').innerHTML = X.esc(L.id) + ' · ' + X.esc(L.custName);
+    if (!a) {
+      $('blend').innerHTML = '<div class="kv"><div class="k">Ordered</div><div class="v">' + X.kg(L.qty) + ' of ' + X.esc(L.productId) + '</div>' +
+        '<div class="k">Shipped</div><div class="v">nothing yet</div>' +
+        '<div class="k">Why</div><div class="v">' + X.esc(L.shortWhy || 'no lot of this product was available inside the horizon') + '</div></div>' +
+        '<div class="note"><i class="fa-solid fa-circle-info"></i><div>A line with no allocation is not necessarily unmade — it may be stock ' +
+        'that exists and cannot ship. The reason is on the row, and it decides what to do about it.</div></div>';
+      return;
+    }
+    var m = C.m || X.model(), p = m.P[m.pix[L.productId]];
+    var assays = a.lots.map(function (l) { return { v: l.assay, label: l.id, bad: l.assay < L.assayMin }; });
+    assays.push({ v: a.assay, label: 'the blend', blend: true });
+    var imps = a.lots.map(function (l) { return { v: l.imp, label: l.id, bad: l.imp > L.impMax }; });
+    imps.push({ v: a.imp, label: 'the blend', blend: true });
+    var psds = a.lots.map(function (l) { return { v: l.psd, label: l.id, bad: l.psd > L.psdMax }; });
+    psds.push({ v: a.psd, label: 'the blend', blend: true });
+    var aLo = Math.min.apply(null, assays.map(function (x) { return x.v; }).concat([L.assayMin])) - 0.3;
+    var aHi = Math.max.apply(null, assays.map(function (x) { return x.v; }).concat([L.assayMin])) + 0.3;
+    var iHi = Math.max.apply(null, imps.map(function (x) { return x.v; }).concat([L.impMax])) * 1.15;
+    var pHi = Math.max.apply(null, psds.map(function (x) { return x.v; }).concat([L.psdMax])) * 1.12;
+    var active = a.lots.reduce(function (s, l) { return s + l.kg * l.assay / 100; }, 0);
+    $('blend').innerHTML =
+      bar('Assay', aLo, aHi, [L.assayMin, aHi], assays, function (v) { return X.assay(v); }) +
+      bar('Impurity', 0, iHi, [0, L.impMax], imps, function (v) { return v + '%'; }) +
+      bar('Particle size d90', 0, pHi, [0, L.psdMax], psds, function (v) { return Math.round(v) + ' µm'; }) +
+      '<table class="sub-tbl" style="margin-top:9px"><thead><tr><th>Lot</th><th class="num">kg</th><th class="num">Assay</th>' +
+      '<th class="num">kg active</th><th class="num">Impurity</th></tr></thead><tbody>' +
+      a.lots.map(function (l) {
+        return '<tr><td class="mono">' + X.esc(l.id) + '</td><td class="num">' + X.n(l.kg) + '</td>' +
+          '<td class="num">' + X.assay(l.assay) + '</td><td class="num">' + X.n(l.kg * l.assay / 100, 1) + '</td>' +
+          '<td class="num">' + l.imp + '%</td></tr>';
+      }).join('') +
+      '<tr class="total" style="font-weight:700"><td>Blend</td><td class="num">' + X.n(a.kg) + '</td>' +
+      '<td class="num">' + X.assay(a.assay) + '</td><td class="num">' + X.n(active, 1) + '</td><td class="num">' + a.imp + '%</td></tr>' +
+      '</tbody></table>' +
+      '<div class="note"><i class="fa-solid fa-calculator"></i><div>The blend assay is <b>' + X.n(active, 1) + ' kg of active over ' +
+      X.n(a.kg) + ' kg of material</b> — weighted on active content, not on volume. Impurity averages the same way, which is why blending can ' +
+      'bring an impurity down but can never lift an assay above the best lot in the pool. ' +
+      (L.minLifeM ? 'Remaining life is the <b>shortest</b> of the lots, ' + X.n((a.retestAt - X.ASOF) / (30.4 * 1440), 1) + ' months against a ' +
+        L.minLifeM + '-month minimum, because the customer measures the whole consignment by its worst lot. ' : '') +
+      'One consignment is one certificate of analysis, which is why the blend is capped at three lots.</div></div>';
+  }
+
+  function rej(C) {
+    var by = {};
+    C.aware.rejects.forEach(function (r) { by[r.why] = by[r.why] || { n: 0, lots: {} }; by[r.why].n++; by[r.why].lots[r.lotId] = 1; });
+    var LABEL = { assay: 'assays below the order minimum', impurity: 'impurity above the order limit',
+                  psd: 'particle size outside the order spec', life: 'not enough shelf life left for this customer',
+                  site: 'made at a site this customer has not approved', qc: 'still awaiting QC release' };
+    $('rmeta').textContent = X.n(C.aware.rejects.length) + ' refusals';
+    $('rej').innerHTML = (Object.keys(by).length ? Object.keys(by).sort(function (a, b) { return by[b].n - by[a].n; }).map(function (k) {
+      return '<div class="rejrow"><span><b>' + X.n(by[k].n) + '</b> refusals</span>' +
+        '<span class="hint">' + X.n(Object.keys(by[k].lots).length) + ' lots</span>' +
+        '<span>' + X.esc(LABEL[k] || k) + '</span></div>';
+    }).join('') : '<div class="empty-state">Every lot offered passed.</div>') +
+    '<div class="note"><i class="fa-solid fa-circle-info"></i><div>This is the part a quantity-and-date allocator cannot do. The stock is on ' +
+    'hand; it is the wrong stock for this customer. Naming which attribute failed is what turns "short" into something a planner can act on.</div></div>';
+  }
+
+  function genealogy(C) {
+    var m = C.m || X.model(), lid = $('lot').value;
+    var lot = C.aware.lots.filter(function (l) { return l.id === lid; })[0];
+    if (!lot) { $('genl').innerHTML = '<div class="empty-state">—</div>'; return; }
+    var b = lot.batchId ? C.aware.batches.filter(function (x) { return x.id === lot.batchId; })[0] : null;
+    var served = C.aware.allocs.filter(function (a) { return a.lots.some(function (z) { return z.id === lid; }); });
+    var p = m.P[lot.pix];
+    var sameCampaign = b ? C.aware.batches.filter(function (x) {
+      return x.pix === b.pix && x.ops[0].unit === b.ops[0].unit && Math.abs(x.s - b.s) < 14 * 1440;
+    }) : [];
+    $('genl').innerHTML =
+      '<div class="gen">' +
+        '<div class="bx"><b>' + X.esc(b ? b.ops.map(function (o) { return o.unit; }).join(' → ') : 'opening stock') + '</b>' +
+          '<span class="hint">' + (b ? X.esc(p.id) + ' · ' + X.fmtD(b.s) : 'before the history window') + '</span></div>' +
+        '<div class="ar"><i class="fa-solid fa-arrow-right"></i></div>' +
+        '<div class="bx"><b>' + X.esc(lot.id) + '</b><span class="hint">' + X.kg(lot.kg) + ' · ' + X.assay(lot.assay) +
+          ' · retest ' + X.fmtD(lot.retestAt) + '</span></div>' +
+        '<div class="ar"><i class="fa-solid fa-arrow-right"></i></div>' +
+        '<div class="bx"><b>' + served.length + ' consignment' + (served.length === 1 ? '' : 's') + '</b>' +
+          '<span class="hint">' + X.esc(served.map(function (a) { return (C.aware.byId[a.lineId] || {}).custName; }).filter(Boolean).slice(0, 3).join(', ') || 'not yet allocated') + '</span></div>' +
+      '</div>' +
+      '<div class="sub-title" style="margin-top:9px"><i class="fa-solid fa-triangle-exclamation"></i>If this lot had to be recalled</div>' +
+      '<table class="sub-tbl"><thead><tr><th>Line</th><th>Customer</th><th class="num">kg</th><th>Blended with</th></tr></thead><tbody>' +
+      (served.length ? served.map(function (a) {
+        var L = C.aware.byId[a.lineId] || {};
+        return '<tr><td class="mono">' + X.esc(a.lineId) + '</td><td>' + X.esc(L.custName || '') + '</td>' +
+          '<td class="num">' + X.n((a.lots.filter(function (z) { return z.id === lid; })[0] || {}).kg) + '</td>' +
+          '<td class="hint">' + X.esc(a.lots.filter(function (z) { return z.id !== lid; }).map(function (z) { return z.id; }).join(', ') || '—') + '</td></tr>';
+      }).join('') : '<tr><td colspan="4" class="empty-state">Not shipped to anyone yet.</td></tr>') + '</tbody></table>' +
+      (b ? '<div class="hint" style="margin-top:7px">The same train made <b>' + sameCampaign.length + '</b> batch' + (sameCampaign.length === 1 ? '' : 'es') +
+        ' of ' + X.esc(p.id) + ' within a fortnight on ' + X.esc(b.ops[0].unit) + '. If the cause were the equipment rather than the batch, ' +
+        'that is the scope — the recall follows the campaign and the unit, not the lot number alone.</div>' : '');
+  }
+
+  function acts(C) {
+    $('acts').innerHTML = X.nuOf('lots').map(function (x) { return X.nuChip(x.id); }).join(' ') +
+      '<button class="btn btn-ghost btn-sm" id="run"><i class="fa-solid fa-play"></i>Run C7</button>' +
+      '<button class="btn btn-outline btn-sm" id="dl"><i class="fa-solid fa-file-excel"></i>Allocations to Excel</button>';
+    $('run').onclick = function () { X.runScenario('C7'); };
+    $('dl').onclick = function () {
+      X.xlsx([{ name: 'Allocations', cols: ['Line', 'Customer', 'Product', 'kg', 'Lots', 'Blended', 'Blend assay', 'Blend impurity', 'Blend d90',
+                                            'Spec assay min', 'Spec impurity max', 'Spec d90 max', 'Min life months', 'COA'],
+                rows: C.aware.allocs.map(function (a) {
+                  var L = C.aware.byId[a.lineId] || {};
+                  return [a.lineId, L.custName, a.productId, a.kg, a.lots.map(function (z) { return z.id + '(' + z.kg + ')'; }).join(' '),
+                          a.blended ? 'yes' : 'no', a.assay, a.imp, a.psd, a.spec.assayMin, a.spec.impMax, a.spec.psdMax, a.spec.minLifeM,
+                          a.coa ? 'yes' : 'no']; }) },
+              { name: 'Refusals', cols: ['Line', 'Lot', 'Why'], rows: C.aware.rejects.map(function (r) { return [r.lineId, r.lotId, r.why]; }) }],
+             'allocations.xlsx');
+    };
+  }
+
+  function paint(C) {
+    CUR = C;
+    if (!$('f')._w) {
+      $('f')._w = 1;
+      $('f').onchange = function () { table(CUR); };
+      $('lot').onchange = function () { genealogy(CUR); };
+    }
+    var used = {};
+    C.aware.allocs.forEach(function (a) { a.lots.forEach(function (z) { used[z.id] = 1; }); });
+    // a lot nobody was served from has no recall scope to show, so put the allocated ones first
+    var made = C.aware.lots.filter(function (l) { return !l.opening; })
+      .sort(function (a, b) { return (used[b.id] ? 1 : 0) - (used[a.id] ? 1 : 0) || b.madeAt - a.madeAt; });
+    var cur = $('lot').value;
+    $('lot').innerHTML = made.slice(0, 120).map(function (l) {
+      return '<option value="' + X.esc(l.id) + '">' + X.esc(l.id) + ' · ' + X.esc(l.productId) + '</option>';
+    }).join('');
+    if (cur && made.some(function (l) { return l.id === cur; })) $('lot').value = cur;
+    var h = X.hashParam();
+    if (h && C.aware.byId[h]) selLine = h;
+    else if (h && made.some(function (l) { return l.id === h; })) $('lot').value = h;
+    if (!selLine) {
+      var bl = C.aware.allocs.filter(function (a) { return a.blended; }).sort(function (a, b) { return b.kg - a.kg; })[0];
+      if (bl) selLine = bl.lineId;
+    }
+    kpis(C); table(C); blend(C); rej(C); genealogy(C); acts(C);
+  }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+  window.addEventListener('chm:navigate', function () {
+    var h = X.hashParam();
+    if (!CUR || !h) return;
+    if (CUR.aware.byId[h]) { selLine = h; blend(CUR); }
+    else { $('lot').value = h; genealogy(CUR); }
+  });
+})();
+</script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+</body>
+</html>

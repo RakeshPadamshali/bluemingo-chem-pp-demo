@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Utilities &amp; Thermal Duty · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  .duty { position:relative; height:190px; border:1px solid var(--color-border); border-radius:var(--radius-sm); background:#fff; overflow:hidden; }
+  .duty .capline { position:absolute; left:0; right:0; border-top:2px dashed var(--color-danger); }
+  .duty .caplbl { position:absolute; right:4px; font-size:10px; color:var(--color-danger); font-weight:600; background:rgba(255,255,255,.85); padding:0 3px; }
+  .duty .col { position:absolute; bottom:0; background:var(--color-info); }
+  .duty .col.at { background:var(--color-warning); } .duty .col.over { background:var(--color-danger); }
+  .duty .col.inherit { background:repeating-linear-gradient(45deg,#bdbdbd 0 3px,#e0e0e0 3px 6px); }
+  .duty .day { position:absolute; top:0; bottom:0; border-left:1px dashed #eef0f2; }
+  .duty .dlbl { position:absolute; bottom:1px; font-size:9px; color:var(--color-text-hint); transform:translateX(-50%); }
+  .segbar { display:flex; height:16px; border-radius:3px; overflow:hidden; border:1px solid rgba(0,0,0,.1); }
+  .segbar div { display:flex; align-items:center; justify-content:center; font-size:9px; color:#fff; font-weight:600; }
+  .conc { display:grid; grid-template-columns:118px 1fr 92px; gap:8px; align-items:center; font-size:11.5px; margin-bottom:4px; }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Utilities &amp; Thermal Duty</h1><div class="crumb">Reactors cannot all run at once, because utilities set the limit</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-chart-area"></i>Duty against cap, hour by hour
+        <span class="right"><span class="fl">Utility</span>&nbsp;<select id="util"></select>&nbsp;<span class="filters" style="margin:0" id="pg"></span></span></div>
+      <div class="card-body">
+        <div class="duty" id="duty"></div>
+        <div class="legend" style="margin-top:8px" id="dleg"></div>
+        <div class="note"><i class="fa-solid fa-circle-info"></i><div id="dnote"></div></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-wave-square"></i>What a batch draws, minute by minute
+          <span class="right"><span class="fl">Operation</span>&nbsp;<select id="arch"></select></span></div>
+        <div class="card-body" id="prof"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-layer-group"></i>The hour it was tightest
+          <span class="right"><span id="tmeta"></span></span></div>
+        <div class="card-body" id="peak"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-triangle-exclamation"></i>Where the generic plan went over
+        <span class="right"><span id="gmeta"></span></span></div>
+      <div class="card-body tbl-wrap" style="max-height:360px;overflow:auto"><table class="tbl" id="gen"></table></div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='utilities'; window.CHM_TITLE='Utilities & Thermal Duty'; window.CHM_ICON='fa-bolt';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D, E = X.E;
+  var $ = function (id) { return document.getElementById(id); };
+  var CUR = null, pager = null;
+
+  /* The duty in each hour, with the part the frozen history left behind separated out.
+
+     History was planned the generic way, so the first hours of the plan can inherit a draw that is already over the cap.
+     The aware plan cannot undo that, and it never ADDS to such an hour — so those hours are marked as inherited rather
+     than shown as a breach the plan committed. */
+  var INH = {};
+  function inherited(C, uid) {
+    var m = C.m || X.model(), key = uid + '|' + C.aware.rulesId;
+    if (INH[key]) return INH[key];
+    var u = m.utils[m.utix[uid]], arr = new Float64Array(m.H);
+    C.aware.hist.batches.forEach(function (b) {
+      var p = m.P[b.pix];
+      b.ops.forEach(function (o) {
+        var op = p.ops[o.seq - 1], dur = o.e - o.s, t = o.s, peak = {};
+        op.duty.forEach(function (sg, g) {
+          var segEnd = g === op.duty.length - 1 ? o.e : t + dur * sg.frac;
+          var d = sg.draw[uid];
+          if (d) for (var h = Math.floor(t / 60); h < Math.ceil(segEnd / 60); h++) if (h >= 0 && h < m.H && !(peak[h] >= d)) peak[h] = d;
+          t = segEnd;
+        });
+        for (var h2 in peak) arr[+h2] += peak[h2];
+      });
+    });
+    return (INH[key] = arr);
+  }
+  function series(C, uid) {
+    var m = C.m || X.model(), u = m.utils[m.utix[uid]], inh = inherited(C, uid), out = [];
+    for (var h = Math.floor(X.ASOF / 60); h < Math.ceil(m.end / 60); h++) {
+      out.push({ h: h, v: C.aware.state.util[u.ix * m.H + h], cap: m.utilCap[u.ix * m.H + h], inh: inh[h] });
+    }
+    return out;
+  }
+
+  function kpis(C) {
+    var m = C.m || X.model(), a = C.aware.kpi, cons = C.cons.byNuance.P4 || { rupees: 0, n: 0, kg: 0 };
+    var tight = null;
+    m.utils.forEach(function (u) {
+      var at = a.utilAtCap[u.id] || 0;
+      if (!tight || at > tight.at) tight = { id: u.id, at: at, peak: a.utilPeak[u.id], cap: u.cap, unit: u.unit };
+    });
+    var der = m.utils.filter(function (u) { return u.derate; })[0];
+    $('kpis').innerHTML = [
+      ['blue', 'Shared resources', X.n(m.utils.length), m.utils.map(function (u) { return u.id; }).join(' · ')],
+      ['amber', 'Tightest resource', X.esc(tight.id), X.n(tight.at) + ' hours at its cap of ' + tight.cap + ' ' + tight.unit],
+      ['green', 'Hours inside the cap', X.n((C.proof.byNuance.P4 || {}).checks), (C.proof.byNuance.P4 || {}).violations === 0 ? 'checked, none over' : 'some over'],
+      ['grey', 'Seasonal derate', der ? der.derate.cap + ' ' + der.unit : '—', der ? der.id + ' in months ' + der.derate.months.join(', ') : 'none'],
+      ['red', 'Generic\'s peak against cap', X.n(Math.max.apply(null, m.utils.map(function (u) { return (C.generic.kpi.utilPeak[u.id] || 0) / u.cap; })) * 100, 0) + '%', 'at its worst hour, on the resource it overran most'],
+      ['red', 'What that cost', X.rs(cons.rupees), cons.n + ' trips, ' + X.n(cons.kg) + ' kg quenched']
+    ].map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  function duty(C, win) {
+    var m = C.m || X.model(), uid = $('util').value, u = m.utils[m.utix[uid]];
+    var s = series(C, uid).filter(function (x) { return x.h * 60 >= win.startMin && x.h * 60 < win.endMin; });
+    if (!s.length) { $('duty').innerHTML = '<div class="empty-state">No hours in this window.</div>'; return; }
+    var maxV = Math.max.apply(null, s.map(function (x) { return x.v; }).concat(s.map(function (x) { return x.cap; })));
+    var top = maxV * 1.12 || 1, W = $('duty').clientWidth || 1200, bw = Math.max(1, W / s.length);
+    var html = '';
+    var capY = 190 - (u.cap / top * 190);
+    s.forEach(function (x, i) {
+      var hgt = Math.max(0, x.v / top * 190);
+      var carried = x.inh > x.cap + 1e-6;
+      var k = carried ? 'inherit' : x.v > x.cap + 1e-6 ? 'over' : x.v >= x.cap - 1e-6 && x.v > 0 ? 'at' : '';
+      if (hgt > 0) html += '<div class="col ' + k + '" style="left:' + (i * bw).toFixed(2) + 'px;width:' + Math.max(1, bw - 0.4).toFixed(2) + 'px;height:' + hgt.toFixed(1) + 'px" title="' +
+        X.esc(X.fmt(x.h * 60) + ' — ' + X.n(x.v, 1) + ' of ' + x.cap + ' ' + u.unit +
+              (carried ? ' (' + X.n(x.inh, 1) + ' of it still running from the frozen history, which was planned the generic way)' : '')) + '"></div>';
+      if (x.h % 24 === 0) {
+        html += '<div class="day" style="left:' + (i * bw).toFixed(2) + 'px"></div>' +
+                '<div class="dlbl" style="left:' + (i * bw + bw * 12).toFixed(2) + 'px">' + X.fmtDM(x.h * 60) + '</div>';
+      }
+    });
+    // the cap can move mid-window when the derate starts, so draw it as a step
+    var segs = [], cur = null;
+    s.forEach(function (x, i) { if (!cur || cur.cap !== x.cap) { cur = { cap: x.cap, a: i, b: i }; segs.push(cur); } else cur.b = i; });
+    segs.forEach(function (g) {
+      var y = 190 - (g.cap / top * 190);
+      html += '<div class="capline" style="top:' + y.toFixed(1) + 'px;left:' + (g.a * bw).toFixed(2) + 'px;width:' + ((g.b - g.a + 1) * bw).toFixed(2) + 'px"></div>';
+    });
+    html += '<div class="caplbl" style="top:' + Math.max(0, capY - 12).toFixed(1) + 'px">cap ' + u.cap + ' ' + X.esc(u.unit) + '</div>';
+    $('duty').innerHTML = html;
+    var at = s.filter(function (x) { return x.v >= x.cap - 1e-9 && x.v > 0; }).length;
+    var pk = Math.max.apply(null, s.map(function (x) { return x.v; }));
+    $('dleg').innerHTML = '<span><i style="background:var(--color-info)"></i>inside the cap</span>' +
+      '<span><i style="background:var(--color-warning)"></i>at the cap</span>' +
+      '<span><i style="background:var(--color-danger)"></i>over</span>' +
+      '<span><i style="background:repeating-linear-gradient(45deg,#bdbdbd 0 3px,#e0e0e0 3px 6px)"></i>carried in from the frozen history</span>' +
+      '<span><i style="background:transparent;border-top:2px dashed var(--color-danger);height:0"></i>the cap, including the seasonal derate</span>';
+    $('dnote').innerHTML = '<b>' + X.esc(u.name) + '</b> peaks at ' + X.n(pk, 1) + ' ' + X.esc(u.unit) + ' in this window, against a cap of ' + u.cap +
+      '. <b>' + at + '</b> hours sit right on it' + (at ? ' — those are the hours where one more batch could not start' : '') + '. ' +
+      (u.derate ? 'The cap steps down to ' + u.derate.cap + ' in months ' + u.derate.months.join(', ') + ': ' + X.esc(u.derate.why) + '. ' : '') +
+      'What binds is the PEAK of the batches running together, not an average — which is why a batch carries a duty profile rather than one number.' +
+      (s.some(function (x) { return x.inh > x.cap + 1e-6; }) ? ' A few hours just after the as-of moment are hatched: that draw was already ' +
+        'committed by the frozen history, which was planned the generic way. The plan cannot undo it, and it never adds to such an hour.' : '');
+  }
+
+  function prof(C) {
+    var m = C.m || X.model(), key = $('arch').value, a = (D.cfg.archetypes || {})[key];
+    if (!a) { $('prof').innerHTML = ''; return; }
+    var users = m.P.filter(function (p) { return p.ops.some(function (o) { return o.arch === key; }); });
+    var rows = users.slice(0, 7).map(function (p) {
+      var op = p.ops.filter(function (o) { return o.arch === key; })[0];
+      var segs = op.duty.map(function (sg, i) {
+        var tot = Object.keys(sg.draw).map(function (k) { return k + ' ' + X.n(sg.draw[k], 1); }).join(', ') || 'no draw';
+        var col = ['#86b6ef', '#2a78d6', '#1c5cab'][i];
+        return '<div style="width:' + (sg.frac * 100).toFixed(1) + '%;background:' + col + '" title="' +
+          X.esc(['charge and heat', 'reaction and hold', 'quench and strip'][i] + ' — ' + tot) + '">' + (sg.frac > 0.15 ? X.esc(tot.split(',')[0]) : '') + '</div>';
+      }).join('');
+      return '<div class="conc"><span title="' + X.esc(X.pname(p.id)) + '">' + X.esc(p.id) + '</span>' +
+        '<span class="segbar">' + segs + '</span><span class="hint">' + X.n(op.hours, 0) + ' h · ' + p.chargeKL + ' kL</span></div>';
+    }).join('');
+    $('prof').innerHTML = rows +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div><b>' + X.esc(a.label) + '</b> on a ' + X.esc(String(a.cls).toLowerCase()) +
+      '. The three segments are charge and heat, reaction and hold, then quench and strip; the draw is per kL of charge, so a bigger batch draws ' +
+      'proportionally more without anyone typing a second table. The scheduler admits a batch only if every hour of every segment stays inside ' +
+      'the cap, counting the rest of the train that is already committed.</div></div>';
+  }
+
+  function peak(C) {
+    var m = C.m || X.model(), uid = $('util').value, u = m.utils[m.utix[uid]];
+    var s = series(C, uid), worst = s.reduce(function (a, x) { return (x.cap && x.v / x.cap > (a.cap ? a.v / a.cap : 0)) ? x : a; }, s[0]);
+    if (!worst) { $('peak').innerHTML = ''; return; }
+    var s0 = worst.h * 60, e0 = s0 + 60, rows = [];
+    C.aware.batches.forEach(function (b) {
+      b.ops.forEach(function (o) {
+        if (o.e <= s0 || o.s >= e0) return;
+        var op = m.P[b.pix].ops[o.seq - 1], d = 0;
+        op.duty.forEach(function (sg) { if (sg.draw[uid] > d) d = sg.draw[uid]; });
+        if (d > 0) rows.push({ b: b, o: o, d: d });
+      });
+    });
+    rows.sort(function (a, b) { return b.d - a.d; });
+    $('tmeta').textContent = X.fmt(s0) + ' · ' + X.n(worst.v, 1) + ' of ' + worst.cap + ' ' + u.unit;
+    $('peak').innerHTML = (rows.length ? '<table class="tbl"><thead><tr><th>Batch</th><th>Operation</th><th>Unit</th><th class="num">Draw</th></tr></thead><tbody>' +
+      rows.map(function (r) {
+        return '<tr><td class="mono">' + X.esc(r.b.id) + '</td><td>' + X.esc(r.o.label) + '</td><td>' + X.esc(r.o.unit) + '</td>' +
+          '<td class="num">' + X.n(r.d, 1) + ' ' + X.esc(u.unit) + '</td></tr>';
+      }).join('') + '<tr class="total"><td colspan="3"><b>Together</b></td><td class="num"><b>' + X.n(worst.v, 1) + ' of ' + worst.cap + '</b></td></tr></tbody></table>'
+      : '<div class="empty-state">Nothing drew on this resource in the plan window.</div>') +
+      '<div class="cap" style="margin-top:9px"><span class="hint" style="min-width:60px">headroom</span>' +
+      '<span class="track"><span class="fill ' + (worst.v > worst.cap ? 'over' : worst.v > worst.cap * 0.9 ? 'warn' : '') + '" style="width:' +
+      Math.min(100, worst.v / worst.cap * 100).toFixed(0) + '%"></span></span>' +
+      '<span class="v">' + X.pct(Math.max(0, 1 - worst.v / worst.cap), 0) + ' left</span></div>' +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div>This is the hour the scheduler had least room in. The next batch that wanted ' +
+      X.esc(u.name.toLowerCase()) + ' waited for the following hour instead — a stagger, not a stop.</div></div>';
+  }
+
+  function gen(C) {
+    var ev = C.cons.events.filter(function (e) { return e.nuance === 'P4'; }).sort(function (a, b) { return b.cost.rupees - a.cost.rupees; });
+    $('gmeta').textContent = ev.length ? X.n(ev.length) + ' events · ' + X.rs(ev.reduce(function (s, e) { return s + e.cost.rupees; }, 0)) : 'none';
+    if (!ev.length) { $('gen').innerHTML = '<tbody><tr><td class="empty-state">The generic plan happened to stay inside every cap in this run.</td></tr></tbody>'; return; }
+    $('gen').innerHTML = '<thead><tr><th>Resource</th><th>Batch</th><th>Unit</th><th>When</th><th class="num">Demanded</th><th class="num">Available</th><th class="num">Hours</th><th class="num">Cost</th></tr></thead><tbody>' +
+      ev.slice(0, 80).map(function (e) {
+        return '<tr><td><span class="badge" style="background:' + (X.COLOR.util[e.utility] || '#9e9e9e') + '22;color:' + (X.COLOR.util[e.utility] || '#555') + '">' +
+          X.esc(e.utility) + '</span></td><td class="mono">' + X.esc(e.batch || '') + '</td><td>' + X.esc(e.unit || '') + '</td>' +
+          '<td>' + X.fmtD(e.at) + '</td><td class="num"><b>' + X.n(e.peak, 1) + '</b></td><td class="num">' + X.n(e.cap, 1) + '</td>' +
+          '<td class="num">' + X.n(e.hours) + '</td><td class="num" style="color:var(--color-danger);font-weight:600">' + X.rs(e.cost.rupees) + '</td></tr>';
+      }).join('') + '</tbody>';
+  }
+
+  function acts(C) {
+    $('acts').innerHTML = X.nuOf('utilities').map(function (x) { return X.nuChip(x.id); }).join(' ') +
+      '<button class="btn btn-ghost btn-sm" id="run"><i class="fa-solid fa-play"></i>Run C4</button>' +
+      '<button class="btn btn-outline btn-sm" id="dl"><i class="fa-solid fa-file-excel"></i>Duty to Excel</button>';
+    $('run').onclick = function () { X.runScenario('C4'); };
+    $('dl').onclick = function () {
+      var m = C.m || X.model();
+      X.xlsx(m.utils.map(function (u) {
+        return { name: u.id, cols: ['Hour', 'When', 'Demand ' + u.unit, 'Cap'],
+                 rows: series(C, u.id).map(function (x) { return [x.h, X.fmt(x.h * 60), Math.round(x.v * 10) / 10, x.cap]; }) };
+      }), 'utility-duty.xlsx');
+    };
+  }
+
+  function paint(C) {
+    CUR = C;
+    var m = C.m || X.model();
+    if (!$('util').options.length) {
+      $('util').innerHTML = m.utils.map(function (u) { return '<option value="' + u.id + '">' + X.esc(u.name) + '</option>'; }).join('');
+      $('arch').innerHTML = Object.keys(D.cfg.archetypes || {}).sort().map(function (k) {
+        return '<option value="' + k + '">' + X.esc(D.cfg.archetypes[k].label) + '</option>';
+      }).join('');
+      $('util').onchange = function () { duty(CUR, pager.win()); peak(CUR); };
+      $('arch').onchange = function () { prof(CUR); };
+    }
+    var h = X.hashParam();
+    if (h && m.utix[h] != null) $('util').value = h;
+    kpis(C); acts(C); prof(C); peak(C); gen(C);
+    if (!pager) pager = X.pager($('pg'), function (win) { if (CUR) duty(CUR, win); }, { from: X.ASOF, to: X.END, days: 14 });
+    else duty(C, pager.win());
+  }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+  window.addEventListener('chm:activated', function () { if (CUR && pager) duty(CUR, pager.win()); });
+  window.addEventListener('chm:navigate', function () {
+    var h = X.hashParam(), m = CUR && (CUR.m || X.model());
+    if (CUR && h && m.utix[h] != null) { $('util').value = h; duty(CUR, pager.win()); peak(CUR); }
+  });
+})();
+</script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+</body>
+</html>

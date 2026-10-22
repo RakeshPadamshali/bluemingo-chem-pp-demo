@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Block Schedule · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  .why2 .r { display:grid; grid-template-columns:96px 1fr; gap:8px; font-size:11.5px; padding:4px 0; border-bottom:1px solid var(--color-border-light); }
+  .why2 .r:last-child { border-bottom:none; }
+  .why2 .r .u { font-weight:600; } .why2 .r .d { color:var(--color-text-secondary); }
+  .why2 .r.no .d { color:var(--color-danger); } .why2 .r.yes .d { color:var(--color-success); }
+  .why2 .r.pick { background:var(--color-primary-light); border-radius:var(--radius-sm); padding-left:6px; }
+  .oprow { display:grid; grid-template-columns:120px 86px 1fr; gap:8px; font-size:11.5px; padding:3px 0; }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Block Schedule</h1><div class="crumb">What runs where, and why this slot</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-chart-gantt"></i>Every unit
+        <span class="right"><span class="filters" style="margin:0" id="pg"></span>
+          <span class="fl">Colour</span><select id="mode">
+            <option value="family">By product family</option>
+            <option value="product">By product</option>
+            <option value="rules">By rule set</option>
+          </select></span></div>
+      <div class="card-body">
+        <div class="gantt" id="g"></div>
+        <div class="legend" id="leg" style="margin-top:9px"></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-flask"></i>This batch <span class="right" id="bmeta"></span></div>
+        <div class="card-body" id="batch"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-circle-question"></i>Why this slot
+          <span class="right">the same test the scheduler applied, unit by unit</span></div>
+        <div class="card-body" id="why"></div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='schedule'; window.CHM_TITLE='Block Schedule'; window.CHM_ICON='fa-chart-gantt';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D, E = X.E;
+  var $ = function (id) { return document.getElementById(id); };
+  var CUR = null, pager = null, sel = null;
+
+  function colOf(b, m) {
+    var mode = $('mode').value, p = m.P[b.pix];
+    if (mode === 'family') return X.famColor(p.family);
+    if (mode === 'rules') return X.COLOR.rules.aware;
+    var i = p.ix % 8;
+    return ['#2a78d6', '#eb6834', '#1baf7a', '#8e44ad', '#5598e7', '#e65100', '#0f7a54', '#5e35b1'][i];
+  }
+
+  function kpis(C) {
+    var m = C.m || X.model(), a = C.aware.kpi;
+    var blockH = 0;
+    m.U.forEach(function (u) { (m.blocks[u.ix] || []).forEach(function (bl) { if (bl[1] > X.ASOF && bl[0] < m.end) blockH += (Math.min(bl[1], m.end) - Math.max(bl[0], X.ASOF)) / 60; }); });
+    var camp = a.campaigns;        // counted once, in the KPI basis, so every page that shows it shows the same number
+    $('kpis').innerHTML = [
+      ['blue', 'Batches in the plan', X.n(a.batches), X.n(C.aware.fwd.reduce(function (s, b) { return s + b.ops.length; }, 0)) + ' operations across ' + m.U.length + ' units'],
+      ['green', 'Campaigns', X.n(camp), X.n(a.batchesPerCampaign, 2) + ' batches per campaign' +
+       (a.pulledForCampaign ? ', ' + a.pulledForCampaign + ' pulled forward to reach the minimum' : '')],
+      ['grey', (a.utilClass ? X.clsName(a.utilClass) : 'Unit') + ' time used', X.pct(a.utilBusiest),
+       X.pct(a.utilByClass[a.utilClass].run) + ' running + ' + X.pct(a.utilByClass[a.utilClass].clean) + ' cleaning'],
+      ['amber', 'Cleaning', X.n(a.cleanHours) + ' h', a.cleanCount + ' cleans'],
+      ['grey', 'Planned block time', X.n(blockH, 0) + ' h', 'maintenance and service windows the plan works around'],
+      ['brand', 'Idle, on purpose', X.n(a.sacrificeMin / 60, 0) + ' h', a.sacrifices + ' starts held back to protect a hold window']
+    ].map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  function draw(C, win) {
+    var m = C.m || X.model();
+    var lanes = m.U.map(function (u) { return { id: u.id, label: u.id, sub: u.cls.toLowerCase().slice(0, 3) + (u.block === 'B' ? ' · B' : '') }; });
+    var bars = [];
+    C.aware.batches.forEach(function (b) {
+      var p = m.P[b.pix], hist = b.phase === 'H';
+      b.ops.forEach(function (o) {
+        bars.push({ lane: o.unit, s: o.s, e: o.e, color: hist ? X.COLOR.status.hist : colOf(b, m),
+                    cls: (hist ? 'hist ' : '') + (sel === b.id ? 'hl' : ''), id: b.id, label: b.id.split('-B')[0],
+                    tip: b.id + ' · ' + X.pname(p.id) + '\n' + o.label + ' on ' + o.unit + '\n' + X.fmt(o.s) + ' to ' + X.fmt(o.e) +
+                         '\n' + X.n(b.kg) + ' kg at ' + X.assay(b.assay) + (hist ? '\n(frozen history)' : '') });
+      });
+    });
+    C.aware.cleans.forEach(function (c) {
+      bars.push({ lane: c.unit, s: c.s, e: c.e, color: '#8a93a0', cls: 'chg', id: null,
+                  tip: X.gradeName(c.grade) + ' · ' + X.n(c.min / 60, 1) + ' h' + (c.frm ? '\n' + c.frm + ' then ' + c.to : '') +
+                       (c.ahead ? '\nscheduled ahead, in the idle window' : '') + '\n' + (c.why || '') });
+    });
+    m.U.forEach(function (u) {
+      (m.blocks[u.ix] || []).forEach(function (bl) {
+        bars.push({ lane: u.id, s: bl[0], e: bl[1], color: '#d32f2f', cls: 'down', id: null,
+                    tip: bl[2] + (bl[3] === 'breakdown' ? ' (unplanned)' : ' (planned)') + '\n' + X.fmt(bl[0]) + ' to ' + X.fmt(bl[1]) });
+      });
+    });
+    X.gantt($('g'), lanes, bars, {
+      startMin: win.startMin, endMin: win.endMin, laneW: 118, laneTitle: 'Unit',
+      onClick: function (id) { sel = id; detail(CUR); draw(CUR, pager.win()); }
+    });
+    var mode = $('mode').value;
+    $('leg').innerHTML = (mode === 'family'
+      ? D.m.families.map(function (f) { return '<span><i style="background:' + X.famColor(f.id) + '"></i>' + X.esc(f.name) + '</span>'; }).join('')
+      : '<span><i style="background:' + X.COLOR.rules.aware + '"></i>chemical-aware plan</span>') +
+      '<span><i style="background:repeating-linear-gradient(45deg,#8a93a0 0 3px,#c9ced4 3px 6px)"></i>cleaning</span>' +
+      '<span><i style="background:repeating-linear-gradient(45deg,#d32f2f 0 3px,#f3b7b7 3px 6px)"></i>block time</span>' +
+      '<span><i style="background:' + X.COLOR.status.hist + '"></i>frozen history</span>';
+  }
+
+  function detail(C) {
+    var m = C.m || X.model();
+    if (!sel) {
+      $('batch').innerHTML = '<div class="empty-state">Click a batch on the Gantt to see its route, its assay and why it sits where it does.</div>';
+      $('why').innerHTML = '<div class="empty-state">—</div>';
+      $('bmeta').textContent = '';
+      return;
+    }
+    var b = C.aware.batches.filter(function (x) { return x.id === sel; })[0];
+    if (!b) { sel = null; return detail(C); }
+    var p = m.P[b.pix];
+    $('bmeta').innerHTML = X.nuChip('P1') + ' ' + X.nuChip('P3');
+    var ops = b.ops.map(function (o, i) {
+      var lag = i ? o.s - b.ops[i - 1].e : null, win = i ? p.ops[i].maxLag : null;
+      return '<div class="oprow"><span>' + X.esc(o.label) + '</span><span class="mono">' + X.esc(o.unit) + '</span>' +
+        '<span class="hint">' + X.fmt(o.s) + ' &rarr; ' + X.fmtT(o.e) +
+        (o.clean ? ' · after ' + X.n(o.clean / 60, 1) + ' h clean' : '') +
+        (lag != null ? ' · waited ' + X.n(lag / 60, 1) + ' h of a ' + X.n(win / 60, 0) + ' h window' : '') + '</span></div>';
+    }).join('');
+    var lines = (b.lineIds || []).map(function (id) {
+      var L = C.aware.byId[id];
+      return L ? '<div class="oprow"><span class="mono">' + X.esc(id) + '</span><span>' + X.esc(L.custName) + '</span>' +
+        '<span class="hint">' + X.kg(L.qty) + ' due ' + X.fmtD(L.due) + ' · ' + X.badge(L.status) + '</span></div>' : '';
+    }).join('');
+    $('batch').innerHTML =
+      '<div class="kv" style="margin-bottom:8px">' +
+        '<div class="k">Batch</div><div class="v mono">' + X.esc(b.id) + (b.phase === 'H' ? ' <span class="chip">frozen history</span>' : '') +
+          (b.repair ? ' <span class="chip">replacement batch</span>' : '') + '</div>' +
+        '<div class="k">Product</div><div class="v">' + X.esc(X.pname(p.id)) + ' <span class="chip">' + X.esc(X.famName(p.family)) + '</span></div>' +
+        '<div class="k">Output</div><div class="v">' + X.kg(b.kg) + ' <span class="hint">against a nameplate ' + X.kg(b.nominalKg) + ' — ' + X.pct(b.kg / b.nominalKg) + '</span></div>' +
+        '<div class="k">Assay</div><div class="v">' + X.assay(b.assay) + ' · impurity ' + b.imp + '% · d90 ' + b.psd + ' µm' + (b.offSpec ? ' <span class="badge b-red">off spec</span>' : '') + '</div>' +
+        '<div class="k">QC release</div><div class="v">' + X.fmt(b.readyAt) + ' <span class="hint">' + X.n(b.qcMin / 1440, 1) + ' days after drying</span></div>' +
+      '</div>' +
+      '<div class="sub-title">Route</div>' + ops +
+      (lines ? '<div class="sub-title" style="margin-top:8px">Serving</div>' + lines : '');
+    whyPanel(C, b);
+  }
+
+  function whyPanel(C, b) {
+    var m = C.m || X.model(), p = m.P[b.pix];
+    // re-ask the scheduler the same question at the moment this batch started, on the state as it stands
+    var W = Object.assign({}, E.weightsFor(m, X.settings()), E.RULES.aware);
+    var r;
+    try { r = E.explainChain(m, C.aware.state, p, b.s, W, b.ops[0].uix); } catch (e) { r = null; }
+    if (!r) { $('why').innerHTML = '<div class="empty-state">—</div>'; return; }
+    $('why').innerHTML = r.rows.map(function (row) {
+      var chosen = b.ops[row.seq - 1] ? b.ops[row.seq - 1].unit : row.chosen;
+      return '<div class="sub-title" style="margin-top:8px">' + X.esc(row.label) +
+        (row.hi === Infinity ? '' : ' <span class="hint" style="font-weight:400;text-transform:none">· window closes ' + X.n((row.hi - row.lo) / 60, 0) + ' h after the earliest start</span>') + '</div>' +
+        '<div class="why2">' + row.units.map(function (u) {
+          var isPick = u.id === chosen;
+          return '<div class="r ' + (u.ok ? 'yes' : 'no') + (isPick ? ' pick' : '') + '"><span class="u">' + X.esc(u.id) +
+            (isPick ? ' <i class="fa-solid fa-check" style="color:var(--color-success)"></i>' : '') + '</span>' +
+            '<span class="d">' + X.esc(u.reason === 'not the unit being filled' ? 'not the unit this train was being built on' : u.reason) +
+            (u.last ? ' <span class="hint">(last ran ' + X.esc(u.last) + (u.cleanMin > 0 ? ', ' + X.n(u.cleanMin / 60, 1) + ' h ' + String(u.grade || '').toLowerCase() + ' needed' : '') + ')</span>' : '') +
+            '</span></div>';
+        }).join('') + '</div>';
+    }).join('') +
+    '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Read in the planner\'s own terms: eligibility, block times, the link\'s ' +
+    'minimum and maximum lag, the changeover the matrix requires, and the shared-resource capacity at that hour. A unit marked in red failed one ' +
+    'of those tests at this moment — not a preference, a rule.</div></div>';
+  }
+
+  function acts(C) {
+    $('acts').innerHTML = '<button class="btn btn-outline btn-sm" id="dl"><i class="fa-solid fa-file-excel"></i>Schedule to Excel</button>';
+    $('dl').onclick = function () {
+      var m = C.m || X.model(), rows = [];
+      C.aware.fwd.forEach(function (b) {
+        b.ops.forEach(function (o) {
+          rows.push([b.id, b.productId, o.seq, o.label, o.unit, X.fmt(o.s), X.fmt(o.e), Math.round((o.e - o.s) / 60 * 10) / 10,
+                     Math.round(o.clean / 60 * 10) / 10, b.kg, b.assay, (b.lineIds || []).join(' ')]);
+        });
+      });
+      X.xlsx([{ name: 'Block schedule', cols: ['Batch', 'Product', 'Seq', 'Operation', 'Unit', 'Start', 'End', 'Hours', 'Clean h', 'kg', 'Assay %', 'Order lines'], rows: rows }],
+             'block-schedule.xlsx');
+    };
+  }
+
+  function paint(C) {
+    CUR = C;
+    kpis(C); acts(C);
+    if (!pager) {
+      pager = X.pager($('pg'), function (win) { if (CUR) draw(CUR, win); }, { from: X.ASOF - 1440 * 3, to: X.END, days: 14 });
+      $('mode').onchange = function () { draw(CUR, pager.win()); };
+    } else pager.repaint();
+    var h = X.hashParam();
+    if (h && C.aware.batches.some(function (b) { return b.id === h; })) sel = h;
+    detail(C);
+  }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+  window.addEventListener('chm:activated', function () { if (CUR && pager) draw(CUR, pager.win()); });
+})();
+</script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+</body>
+</html>
