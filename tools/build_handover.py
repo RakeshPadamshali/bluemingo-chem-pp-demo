@@ -36,6 +36,7 @@ SHOTS = [
     ("home", 1, "The deck map, priced — click a nuance and it opens the page that carries it"),
     ("studio", 0, "Plan Studio: the two scoreboards, and the assumption ratchet beneath them"),
     ("studio", 1, "The consequence ledger, and what the chemical-aware plan did instead"),
+    ("schedule", 0, "The block schedule: one row per unit, every operation of a batch, and the cleans between them"),
     ("cleaning", 0, "The cleaning matrix as a view of the rule, with the campaign ladder below it"),
     ("stages", 0, "Hold times: the route as links with a minimum and a maximum lag, and the hold clock"),
     ("utilities", 0, "Duty against cap, hour by hour, and the hour the plan had least room in"),
@@ -91,16 +92,136 @@ def facts():
       const r = C.cons.byNuance[k] || {};
       out.byNuance[k] = { n: r.n || 0, rupees: r.rupees || 0, kg: Math.round(r.kg || 0), hours: Math.round(r.hours || 0) };
     });
+    // ---- the plant as modelled: processes, operations, equipment, and the configuration behind them ----------------
+    const A = C.aware, kpi = A.kpi, cfg = m.cfg, now = m.asOf, span = m.end - now;
+    const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const bt = {};
+    (D.m.blockTimes || []).forEach(function (b) {
+      bt[b.unit] = (+b.every > 7 ? 'every ' + (+b.every / 7) + ' weeks' : 'weekly') + ', ' + DOW[+b.dow] + ' ' +
+        ('0' + b.start).slice(-2) + ':00, ' + b.hours + ' h (' + b.reason + ')';
+    });
+    const eOps = {}, eProd = {}, busyU = {}, clnU = {}, archUse = {};
+    m.P.forEach(function (p) {
+      p.ops.forEach(function (op) {
+        archUse[op.arch] = (archUse[op.arch] || 0) + 1;
+        op.units.forEach(function (ui) { eOps[ui] = (eOps[ui] || 0) + 1; (eProd[ui] = eProd[ui] || {})[p.id] = 1; });
+      });
+    });
+    A.fwd.forEach(function (b) {
+      b.ops.forEach(function (o) { busyU[o.uix] = (busyU[o.uix] || 0) + Math.max(0, Math.min(o.e, m.end) - Math.max(o.s, now)); });
+    });
+    (A.cleans || []).filter(function (c) { return c.s >= now; })
+      .forEach(function (c) { clnU[c.uix] = (clnU[c.uix] || 0) + c.min; });
+    const nP = m.P.length, gradeN = {};
+    for (let a = 0; a < nP; a++) {
+      for (let b = 0; b < nP; b++) {
+        if (a === b) continue;
+        const g = m.cleanGrade[a * nP + b]; gradeN[g] = (gradeN[g] || 0) + 1;
+      }
+    }
+    /* Eligibility is DERIVED from attributes, so prove it on the reaction step whose refusals are the most varied. */
+    let ex = null;
+    m.P.forEach(function (p) {
+      p.ops.forEach(function (op) {
+        if (op.cls !== 'REACTOR') return;
+        const no = (m.unitsByCls[op.cls] || []).filter(function (u) { return op.units.indexOf(u.ix) < 0; })
+          .map(function (u) { return { id: u.id, vol: u.vol, why: (E.whyNot(m, p, op, u) || [])[0] || '' }; });
+        const kinds = {}; no.forEach(function (r) { kinds[r.why] = 1; });
+        const score = Object.keys(kinds).length * 100 - op.units.length;
+        if (!ex || score > ex.score) ex = { score: score, p: p, op: op, no: no };
+      });
+    });
+    out.plant = {
+      classes: m.clsList.map(function (c) {
+        const k = kpi.utilByClass[c] || {};
+        return { cls: c, units: m.unitsByCls[c].length, share: (cfg.opVolShare || {})[c],
+                 oversize: (cfg.oversizeClasses || []).indexOf(c) >= 0,
+                 ops: m.P.reduce(function (q, p) { return q + p.ops.filter(function (o) { return o.cls === c; }).length; }, 0),
+                 products: m.P.filter(function (p) { return p.ops.some(function (o) { return o.cls === c; }); }).length,
+                 busy: k.busy || 0, run: k.run || 0, clean: k.clean || 0 };
+      }),
+      units: m.U.map(function (u) {
+        return { id: u.id, name: u.name, cls: u.cls, block: u.block, vol: u.vol, mat: u.mat, cryo: !!u.cryo,
+                 note: u.note || '', uptime: u.uptime, blockTime: bt[u.id] || '',
+                 eligOps: eOps[u.ix] || 0, eligProducts: Object.keys(eProd[u.ix] || {}).length,
+                 runH: Math.round((busyU[u.ix] || 0) / 60), cleanH: Math.round((clnU[u.ix] || 0) / 60),
+                 busy: ((busyU[u.ix] || 0) + (clnU[u.ix] || 0)) / Math.max(1, span * u.uptime) };
+      }),
+      archetypes: (D.m.dutyProfiles || []).map(function (a2) {
+        return { id: a2.id, label: a2.label, cls: a2.cls, clean: a2.clean !== false,
+                 seg1: a2.seg1, seg2: a2.seg2, seg3: a2.seg3, ops: archUse[a2.id] || 0 };
+      }),
+      routes: m.P.map(function (p) {
+        const lags = p.ops.slice(1).map(function (o) { return o.maxLagH; });
+        return { id: p.id, name: p.name, family: p.family, regulated: !!p.regulated, intermediate: !!p.intermediate,
+                 solv: p.solv, solvClass: p.solvClass, colour: p.colour, potency: p.potency,
+                 chargeKL: p.chargeKL, batchKg: p.batchKg, nameplateKg: p.nameplateKg, yieldMean: p.yieldMean,
+                 cycleH: p.cycleH, stages: p.ops.filter(function (o) { return o.cls === 'REACTOR'; }).length,
+                 tightest: lags.length ? Math.min.apply(null, lags) : null,
+                 ops: p.ops.map(function (o) {
+                   return { seq: o.seq, label: o.label, arch: o.arch, cls: o.cls, hours: o.hours,
+                            minLagH: o.minLagH, maxLagH: o.maxLagH, needKL: E.opVolume(m, p, o.cls),
+                            units: o.units.map(function (ui) { return m.U[ui].id; }),
+                            efflM3: o.efflM3, wasteCat: o.wasteCat, solvKL: o.solvKL };
+                 }) };
+      }),
+      elig: { product: ex.p.id, productName: ex.p.name, op: ex.op.label, seq: ex.op.seq, cls: ex.op.cls,
+              arch: ex.op.arch, chargeKL: ex.p.chargeKL, needKL: E.opVolume(m, ex.p, ex.op.cls),
+              solv: ex.p.solv, solvClass: ex.p.solvClass, potency: ex.p.potency,
+              ok: ex.op.units.map(function (ui) { return m.U[ui].id + ' (' + m.U[ui].vol + ' kL)'; }), no: ex.no },
+      limits: []
+        .concat(m.utils.map(function (u) {
+          return { group: 'Utility', id: u.id, name: u.name, basis: 'per hour', cap: u.cap, unit: u.unit,
+                   derate: u.derate ? { cap: u.derate.cap, why: u.derate.why } : null, note: '',
+                   peak: kpi.utilPeak[u.id], atCap: kpi.utilAtCap[u.id], of: Math.round(span / 60), ofUnit: 'hours' };
+        }))
+        .concat(m.wastes.map(function (w) {
+          return { group: 'Waste', id: w.id, name: w.name, basis: 'per day', cap: w.cap, unit: w.unit, derate: null,
+                   peak: kpi.wastePeak[w.id], atCap: kpi.wasteAtCap[w.id], of: Math.round(span / 1440), ofUnit: 'days',
+                   note: w.note || '' };
+        }))
+        .concat([{ group: 'Recovery', id: 'SOLV', name: 'Solvent recovery (distillation train)', basis: 'per day',
+                   cap: m.recovery.cap, unit: 'kL/day', derate: null, peak: null, atCap: null, of: null, ofUnit: '',
+                   note: 'returns ' + Math.round(m.recovery.min * 100) + '-' + Math.round(m.recovery.max * 100) +
+                         '% of the solvent after ' + Math.round(m.recovery.turnMin / 60) + ' h' }])
+        .concat(m.hazs.map(function (h) {
+          return { group: 'Licence', id: h.id, name: h.name, basis: 'licensed quantity', cap: h.licensedKL, unit: 'kL',
+                   derate: null, peak: (kpi.licencePeak || {})[h.id], atCap: null, of: null, ofUnit: '',
+                   headroom: kpi.licenceMin[h.id], note: h.note || '' };
+        })),
+      cleanGrades: (D.m.cleanGrades || []).map(function (g) {
+        return { id: g.id, name: g.name, hours: g.hours, note: g.note, pairs: gradeN[g.id] || 0 };
+      }),
+      overrides: (D.m.cleanOverrides || []).map(function (o) {
+        return { frm: o.frm, to: o.to, grade: o.grade, why: o.why };
+      }),
+      campaign: (D.m.campaignRule || [])[0] || {},
+      families: (D.m.families || []), presets: (D.m.weights || []),
+      generic: cfg.generic, aware: cfg.aware,
+      uptime: cfg.unitUptime, oversize: cfg.oversize, oversizeClasses: cfg.oversizeClasses, opVolShare: cfg.opVolShare,
+      demandLoad: cfg.demandLoad, blockRules: (D.m.blockTimes || []).length, sopMonths: D.meta.sopMonths,
+      pairs: nP * (nP - 1), horizonH: Math.round(span / 60)
+    };
     console.log(JSON.stringify(out));
     """
     f = os.path.join(TMP, "facts.js")
     io.open(f, "w", encoding="utf-8").write(js)
-    r = subprocess.run(["node", f, ROOT], capture_output=True, text=True, timeout=600)
+    # node writes UTF-8; without saying so, Windows decodes it as cp1252 and every en dash arrives as mojibake
+    r = subprocess.run(["node", f, ROOT], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=600)
     if r.returncode:
         print(r.stderr[-2000:])
         raise SystemExit("could not read the facts from the engine")
     import json
-    return json.loads(r.stdout.strip().splitlines()[-1])
+    out = json.loads(r.stdout.strip().splitlines()[-1])
+    # two calibration knobs are the generator's own and never reach the dataset; read them from the file it used
+    try:
+        sys.path.insert(0, ROOT)
+        from tools.gen import config as gcfg
+        out["plant"]["friction"] = gcfg.SCHEDULE_FRICTION
+        out["plant"]["minLineBatches"] = gcfg.MIN_LINE_BATCHES
+    except Exception:
+        out["plant"]["friction"] = out["plant"]["minLineBatches"] = None
+    return out
 
 
 def capture():

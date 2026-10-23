@@ -11,12 +11,14 @@ body { font-family: Roboto, 'Segoe UI', sans-serif; font-size: 10.2pt; line-heig
 h1 { font-size: 23pt; margin: 0 0 4px; color: #12121f; letter-spacing: -0.3px; }
 h2 { font-size: 14pt; margin: 22px 0 7px; color: #1E8FBF; border-bottom: 2px solid #E1F5FE; padding-bottom: 4px; }
 h3 { font-size: 11.4pt; margin: 15px 0 5px; color: #12121f; }
+h2, h3 { page-break-after: avoid; }
 p { margin: 0 0 8px; }
 ul, ol { margin: 0 0 9px; padding-left: 18px; } li { margin-bottom: 4px; }
 table { width: 100%; border-collapse: collapse; font-size: 8.8pt; margin: 7px 0 11px; }
 th { text-align: left; background: #f5f5f5; border-bottom: 1.5px solid #e0e0e0; padding: 5px 7px; font-size: 7.8pt;
      text-transform: uppercase; letter-spacing: .4px; color: #666; }
 td { padding: 4px 7px; border-bottom: 1px solid #eee; vertical-align: top; }
+tbody tr { page-break-inside: avoid; }
 td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
 .cover { background: linear-gradient(120deg, #1a1a2e, #12121f); color: #fff; padding: 26px 28px; border-radius: 10px; margin-bottom: 16px; }
 .cover h1 { color: #fff; } .cover .sub { color: #8fd4f0; font-size: 12pt; margin-top: 2px; }
@@ -130,6 +132,313 @@ EQ = {"REACTOR": "the reactors", "ISOLATION": "the isolation train — the filte
 def rs(x):
     a = abs(x)
     return ("-" if x < 0 else "") + ("Rs %.2f Cr" % (a / 1e7) if a >= 1e7 else "Rs %.1f L" % (a / 1e5) if a >= 1e5 else "Rs %d" % a)
+
+
+def num(x):
+    """a quantity with no trailing zeros, because a route of '16.0 h' reads like a measurement it is not"""
+    if x is None:
+        return "&mdash;"
+    v = float(x)
+    return "%d" % round(v) if abs(v - round(v)) < 1e-9 else ("%.2f" % v).rstrip("0").rstrip(".")
+
+
+# short names for the route chain: the archetype table prints each one in full, so the chain can be terse
+OPSHORT = {"RXN_EXO": "Exothermic reaction", "RXN_HOT": "Reflux", "RXN_CRYO": "Cryogenic reaction",
+           "RXN_HYD": "Hydrogenation", "ISO_CFG": "Centrifugation", "ISO_ANFD": "Filtration",
+           "DRY_VTD": "Tray drying", "DRY_SFD": "Spin-flash drying", "MILL": "Micronizing", "PACK": "Pack"}
+
+CLS_ROLE = {
+    "REACTOR": "Make up the charge, react it, quench it. The batch&rsquo;s identity &mdash; and therefore the clean the "
+               "next batch will need &mdash; is set here.",
+    "ISOLATION": "Filter or centrifuge the slurry and wash the cake. This is the step the plan is short of, and the "
+                 "hold window into it is what limits the plant.",
+    "DRYER": "Dry the wet cake to its loss-on-drying limit. The longest operation in most routes.",
+    "MILL": "Micronize to the particle-size distribution the specification names. One route needs it.",
+    "PACK": "Pack and label, contained for high-potency product. Late enough in the route to be postponed.",
+}
+MOC = {"GL": "glass-lined", "SS": "stainless"}
+
+
+def plant_section(f, fig):
+    """Processes, operations, equipment and shared resources — the dataset printed in full, all read from the engine."""
+    p = f["plant"]
+    fam = {x["id"]: x["name"] for x in p.get("families", [])}
+    nops = sum(len(r["ops"]) for r in p["routes"])
+    h = ["<h2 class='pb'>The plant: processes, operations and equipment</h2>"]
+    h.append(
+        "<p>This chapter prints the dataset the demo plans, in full, so the structure can be checked against a real "
+        "plant without opening the application. Five layers, in the Production Planner&rsquo;s own vocabulary:</p>"
+        "<ul>"
+        "<li><b>Product</b> &mdash; what is made, and the attributes <i>every</i> rule is read off: family, dominant "
+        "solvent and its class, colour load, potency, charge volume, batch size, assay and impurity specification, "
+        "retest period, price and cost. %d products in %d families.</li>"
+        "<li><b>Route</b> &mdash; the process: that product&rsquo;s operations, in order. A filed API route has three "
+        "reaction stages with an isolation after each; an intermediate that is also sold stops at its isolation.</li>"
+        "<li><b>Operation</b> &mdash; one scheduled step on one unit. It carries its duration, the equipment class it "
+        "needs, the utility duty it draws as a three-segment profile, the effluent it makes and the stream that takes "
+        "it, and the solvent it consumes. %d operations across the %d routes.</li>"
+        "<li><b>Link</b> &mdash; what sits between two consecutive operations: a <b>minimum and a maximum lag</b>. The "
+        "minimum is the cool-down, sampling or transfer the step needs before the next one may begin. The maximum is "
+        "the <b>hold window</b> &mdash; how long that intermediate may wait before it is no longer the same material. "
+        "That is nuance 3, and on this plant it is the binding constraint.</li>"
+        "<li><b>Equipment</b> &mdash; the unit an operation runs on, chosen at plan time from the units that are "
+        "<i>eligible</i>; and eligibility is derived from the attributes above rather than typed into a mapping "
+        "table. %d units in %d classes, each with its own planned block times.</li>"
+        "</ul>" % (len(p["routes"]), len(p.get("families", [])), nops, len(p["routes"]),
+                   len(p["units"]), len(p["classes"])))
+
+    # ---- equipment classes
+    h.append("<h3>The five equipment classes</h3>")
+    h.append("<table><thead><tr><th>Class</th><th>What it does</th><th class='n'>Units</th><th class='n'>Operations</th>"
+             "<th class='n'>Products</th><th class='n'>Vessel needed</th><th class='n'>Calendar used</th></tr></thead><tbody>")
+    for c in sorted(p["classes"], key=lambda x: -x["busy"]):
+        h.append("<tr><td><b>%s</b></td><td>%s</td><td class='n'>%d</td><td class='n'>%d</td><td class='n'>%d</td>"
+                 "<td class='n'>%s&times; charge</td><td class='n'>%.0f%% <span style='color:#888'>(%.0f%% run, %.0f%% clean)</span></td></tr>"
+                 % (c["cls"].title(), CLS_ROLE.get(c["cls"], ""), c["units"], c["ops"], c["products"],
+                    num(c["share"]), c["busy"] * 100, c["run"] * 100, c["clean"] * 100))
+    h.append("</tbody></table>")
+    h.append(
+        "<div class='box'><b>&ldquo;Vessel needed&rdquo; is why there is no equipment-to-product table.</b> An operation "
+        "needs a vessel sized for what it actually holds: a filter takes the whole slurry, a dryer only the wet cake, a "
+        "mill and a pack line only the dry solid. The share of the reaction charge is set once per class, so a product "
+        "added tomorrow gets its eligible units from its charge volume and nothing else. The last column is per class "
+        "deliberately &mdash; a plant-wide average would put the reactors and a mill that runs an hour a batch in the "
+        "same number, and would read as idle capacity that does not exist.</div>")
+
+    # ---- equipment register
+    h.append("<h3>Equipment register</h3>")
+    h.append("<table><thead><tr><th>Unit</th><th>Class</th><th>Block</th><th class='n'>Working vol</th><th>Material</th>"
+             "<th>Service, and the planned block time</th><th class='n'>Eligible for</th><th class='n'>Run + clean</th>"
+             "</tr></thead><tbody>")
+    for u in p["units"]:
+        h.append("<tr><td style='white-space:nowrap'><b>%s</b></td><td>%s</td><td>%s</td><td class='n'>%s kL</td><td>%s%s</td><td>%s<br>"
+                 "<span style='color:#888'>%s</span></td><td class='n'>%d op%s<br><span style='color:#888'>%d product%s</span></td>"
+                 "<td class='n' style='white-space:nowrap'>%d + %d h<br><span style='color:#888'>%.0f%%</span></td></tr>"
+                 % (u["id"], u["cls"].title(), u["block"], num(u["vol"]), MOC.get(u["mat"], u["mat"]),
+                    " &middot; cryo" if u["cryo"] else "", u["note"], u["blockTime"],
+                    u["eligOps"], "" if u["eligOps"] == 1 else "s",
+                    u["eligProducts"], "" if u["eligProducts"] == 1 else "s",
+                    u["runH"], u["cleanH"], u["busy"] * 100))
+    h.append("</tbody></table>")
+    h.append("<p style='font-size:8.8pt;color:#666'>Block A is the general plant; Block B is the segregated "
+             "high-potency suite. <b>Eligible for</b> counts the product-operations this unit can take, out of %d. "
+             "<b>Run + clean</b> is processing hours plus cleaning hours over the %d-day plan, and then the share of "
+             "the unit&rsquo;s own calendar at %.0f%% uptime &mdash; the rest of it is block time.</p>"
+             % (nops, f["forwardDays"], p["uptime"] * 100))
+    h.append(fig("schedule-0", "The block schedule: one row per unit, every operation of a batch in sequence, and the "
+                               "cleans between campaigns in their own colour. Click any bar for the rules that put it there."))
+
+    # ---- operation archetypes
+    h.append("<h3>Operation archetypes, and the duty each one draws</h3>")
+    h.append(
+        "<p>An operation does not carry a utility number of its own. It carries an <b>archetype</b>, and the archetype "
+        "carries a three-segment duty profile <i>per kL of charge</i> &mdash; so a bigger batch draws more, without the "
+        "duty being retyped per product. The segments are what the deck&rsquo;s nuance 4 is about: a reaction that is "
+        "cooling hard in its middle segment and pulling vacuum in its last one does not clash with itself, but three of "
+        "them starting together do. The plan tests the <b>peak</b> of the segments that overlap in an hour, never an "
+        "average over the batch.</p>")
+    h.append("<table><thead><tr><th>Archetype</th><th>What it is</th><th>Class</th><th>Clean</th>"
+             "<th>Charge and heat-up</th><th>Reaction or hold</th><th>Quench, strip, cool</th><th class='n'>Ops</th>"
+             "</tr></thead><tbody>")
+    for a in sorted(p["archetypes"], key=lambda x: (x["cls"], x["id"])):
+        h.append("<tr><td><b>%s</b></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"
+                 "<td class='n'>%d</td></tr>"
+                 % (a["id"], a["label"], a["cls"].title(), "yes" if a["clean"] else "no",
+                    a["seg1"], a["seg2"], a["seg3"], a["ops"]))
+    h.append("</tbody></table>")
+
+    # ---- routes
+    h.append("<h3>Routes: the operations in order, and the lag on every link</h3>")
+    h.append("<table><thead><tr><th style='width:16%'>Product</th><th class='n'>Charge</th><th class='n'>Batch</th>"
+             "<th class='n'>Yield</th><th class='n'>Cycle</th>"
+             "<th style='width:46%'>The route, with [minimum&ndash;maximum lag] on each link</th>"
+             "<th class='n'>Tightest</th></tr></thead><tbody>")
+    for r in p["routes"]:
+        chain = []
+        for i, o in enumerate(r["ops"]):
+            if i:
+                chain.append("<span style='color:#999;white-space:nowrap'>&mdash;[%s&ndash;%s h]&rarr;</span>"
+                             % (num(o["minLagH"]), num(o["maxLagH"])))
+            chain.append("<span style='white-space:nowrap'><b>%s</b> %s h</span>"
+                         % (OPSHORT.get(o["arch"], o["label"]), num(o["hours"])))
+        marks = [fam.get(r["family"], r["family"])]
+        if r["regulated"]:
+            marks.append("filed route")
+        if r["intermediate"]:
+            marks.append("sold as an intermediate")
+        if r["potency"] >= 3:
+            marks.append("Block B")
+        h.append("<tr><td><b>%s</b><br><span style='color:#888'>%s<br>%s</span></td>"
+                 "<td class='n' style='white-space:nowrap'>%s kL</td>"
+                 "<td class='n' style='white-space:nowrap'>%s kg</td><td class='n'>%.0f%%</td>"
+                 "<td class='n' style='white-space:nowrap'>%s h</td><td>%s</td>"
+                 "<td class='n' style='white-space:nowrap'>%s h</td></tr>"
+                 % (r["id"], r["name"], ", ".join(marks), num(r["chargeKL"]), num(r["batchKg"]),
+                    r["yieldMean"] * 100, num(r["cycleH"]), " ".join(chain), num(r["tightest"])))
+    h.append("</tbody></table>")
+    h.append("<p style='font-size:8.8pt;color:#666'>Hours are the operation&rsquo;s own duration; the bracket on each "
+             "arrow is the minimum and the maximum lag <i>before</i> that operation, measured from the end of the one "
+             "before it. <b>Batch</b> is the expected output at mean yield, which is the number a campaign is sized on "
+             "&mdash; a generic plan books the charge at nameplate yield instead, and that is nuance 2. <b>Tightest</b> "
+             "is the shortest hold window in the route.</p>")
+
+    # ---- eligibility, derived
+    e = p["elig"]
+    h.append("<h3>How an operation finds its equipment</h3>")
+    h.append(
+        "<p>Eligibility is computed from the attributes, every time the model is prepared. There is no routing-to-"
+        "equipment table to maintain, which is the whole reason a product uploaded in the room can be planned "
+        "immediately. Five tests, in order: the unit is of the class the operation needs; high-potency work is in Block "
+        "B and nothing else is; a halogenated solvent needs a glass-lined vessel; a cryogenic step needs brine or cryo "
+        "service; the load fits, and &mdash; for reactors only &mdash; is not lost in a vessel more than %s&times; its "
+        "size, because a charge that small does not agitate.</p>" % num(p["oversize"]))
+    h.append(
+        "<div class='box'><b>Worked, from this dataset.</b> %s (%s), operation %d, %s &mdash; a %s kL charge of %s, "
+        "solvent class %s. Of the %d units of that class, <b>%s</b> %s eligible:<br><br>%s<br><br>"
+        "and the rest are refused, each for a stated reason:<ul>%s</ul>"
+        "The demo shows this on screen for any batch, and the same sentences are what the planner would print.</div>"
+        % (e["product"], e["productName"], e["seq"], e["op"].lower(), num(e["chargeKL"]), e["solv"], e["solvClass"],
+           len(e["ok"]) + len(e["no"]), len(e["ok"]), "is" if len(e["ok"]) == 1 else "are",
+           ", ".join(e["ok"]),
+           "".join("<li><b>%s</b> &mdash; %s</li>" % (x["id"], x["why"]) for x in e["no"])))
+
+    # ---- shared resources and the limits they impose
+    h.append("<h3>Shared resources, waste streams and licensed quantities</h3>")
+    tightU = max((L for L in p["limits"] if L["group"] == "Utility"), key=lambda L: L["atCap"] or 0)
+    tightH = min((L for L in p["limits"] if L["group"] == "Licence"), key=lambda L: L.get("headroom", 1))
+    h.append(
+        "<p>These are the secondary resources: nothing is scheduled on them, but every one of them can stop a batch "
+        "the equipment was free to take. The right-hand columns are what the recommended plan actually reaches, so a "
+        "limit that never binds is visible as such. In this plan the two that are pressed hardest are <b>%s</b>, which "
+        "sits exactly at its ceiling for %d of the %d hours in the horizon, and the <b>%s</b> licence, which at its "
+        "worst moment has %.1f%% of its licensed quantity left. Neither is ever exceeded &mdash; that is the point: "
+        "the plan is shaped by them.</p>"
+        % (tightU["name"], tightU["atCap"], tightU["of"], tightH["name"].lower(), tightH["headroom"] * 100))
+    h.append("<table><thead><tr><th>Resource</th><th>Kind</th><th class='n'>Limit</th><th class='n'>Peak this plan</th>"
+             "<th>At the limit, or least headroom</th><th>Note</th></tr></thead><tbody>")
+    for L in p["limits"]:
+        cap = "%s %s" % (num(L["cap"]), L["unit"])
+        if L.get("derate"):
+            cap += "<br><span style='color:#e65100'>%s in Apr&ndash;Jun</span>" % num(L["derate"]["cap"])
+        peak = num(L["peak"]) if L["peak"] is not None else "&mdash;"
+        if L["atCap"] is not None:
+            at = ("%d of %d %s" % (L["atCap"], L["of"], L["ofUnit"])) if L["atCap"] else "never"
+        elif L.get("headroom") is not None:
+            at = "least headroom %.1f%%" % (L["headroom"] * 100)
+        else:
+            at = "&mdash;"
+        note = L.get("note") or (L["derate"]["why"] if L.get("derate") else "")
+        h.append("<tr><td><b>%s</b> %s</td><td>%s, %s</td><td class='n'>%s</td><td class='n'>%s</td><td>%s</td>"
+                 "<td>%s</td></tr>"
+                 % (L["id"], L["name"], L["group"], L["basis"], cap, peak, at, note))
+    h.append("</tbody></table>")
+    h.append("<p style='font-size:8.8pt;color:#666'>Utility draw in an hour is the <b>maximum</b> of the segments "
+             "touching that hour, never their sum. A waste stream is a daily consented load, and it does not average "
+             "out over a week. A licensed quantity is checked across time, counts recovered solvent, and is the ceiling "
+             "that refuses a tanker &mdash; the steel is almost never the binding one.</p>")
+    return "".join(h)
+
+
+def config_section(f):
+    """Every configured rule and calibration the plan reads, with its current value."""
+    p = f["plant"]
+    c = p["campaign"]
+    h = ["<h2 class='pb'>Configuration: every setting the plan reads</h2>"]
+    h.append(
+        "<p>Nothing in the engine is hard-coded to this plant. These are the rules and the calibrations as they stand "
+        "today; each one is a master row or a single value, and each one changes the plan when it changes. The eight "
+        "masters the demonstration leans on are an Excel round trip in the product, so all of this is editable in the "
+        "room.</p>")
+
+    # ---- cleaning
+    h.append("<h3>Clean grades, and how many product pairs land on each</h3>")
+    h.append("<table><thead><tr><th>Grade</th><th>Name</th><th class='n'>Hours</th><th>When the rule gives it</th>"
+             "<th class='n'>Pairs</th></tr></thead><tbody>")
+    for g in p["cleanGrades"]:
+        h.append("<tr><td><b>%s</b></td><td>%s</td><td class='n'>%s</td><td>%s</td><td class='n'>%d</td></tr>"
+                 % (g["id"], g["name"], num(g["hours"]) if g["hours"] is not None else "&mdash;",
+                    g["note"], g["pairs"]))
+    h.append("</tbody></table>")
+    forb = next((g["pairs"] for g in p["cleanGrades"] if g["id"] == "FORBIDDEN"), 0)
+    h.append(
+        "<div class='box'><b>Read the last column before the hours.</b> The grid is %d ordered pairs, and the grade on "
+        "each is <i>derived</i> from family, solvent class, colour load and potency &mdash; which is why a new product "
+        "arrives with a whole row and column already filled in. Of the %d pairs that are not permitted at all, %d are "
+        "the high-potency suite, where the answer is segregated equipment rather than a longer clean; exactly one is a "
+        "sequencing refusal the plant validated itself. The plant&rsquo;s own overrides sit on top of the rule, %d of "
+        "them here, and the matrix marks them:<ul>%s</ul></div>"
+        % (p["pairs"], forb, forb - 1, len(p["overrides"]),
+           "".join("<li><b>%s &rarr; %s</b> is %s &mdash; %s</li>" % (o["frm"], o["to"], o["grade"], o["why"])
+                   for o in p["overrides"])))
+
+    # ---- the settings
+    h.append("<h3>Rules and calibrations</h3>")
+    rows = [
+        ("Planning calendar", "%d days of frozen history &middot; a %d-day detailed plan &middot; %d monthly buckets"
+                              % (f["historyDays"], f["forwardDays"], p["sopMonths"]),
+         "The as-of moment is %s. Months 1&ndash;3 of the S&amp;OP horizon are the detailed plan aggregated, which is "
+         "what makes the two horizons reconcile." % f["asOf"][:10]),
+        ("Campaign rule", "minimum %s batches &middot; maximum %s &middot; forced break after %s &middot; build-ahead "
+                          "%s days &middot; sorted by %s, %s"
+                          % (c.get("minBatches"), c.get("maxBatches"), c.get("forcedBreakAfter"),
+                             c.get("pullAheadDays"), c.get("sortAttr"), "ascending" if c.get("sortDir") == "asc" else "descending"),
+         "<b>The minimum is the load-bearing half.</b> Only demand inside its release window is visible &mdash; about "
+         "one line per product at any instant &mdash; so without a minimum the plan never starts a campaign and pays a "
+         "clean-down per batch. The build-ahead window is how far forward it may pull the next line of the same product "
+         "to reach that minimum; it pulled %d lines in this plan. Both rule sets get this rule: it is a planning "
+         "policy, not a chemistry one." % f["pulled"]),
+        ("Equipment uptime and block time", "%.0f%% uptime &middot; %d planned block-time rules"
+                                            % (p["uptime"] * 100, p["blockRules"]),
+         "Maintenance, utility shutdowns and shift gaps are concrete intervals on the unit, not a capacity haircut, so "
+         "a batch cannot be planned across one. Unplanned breakdowns are in the history as events."),
+        ("Agitation limit", "%s&times; the charge, on %s only" % (num(p["oversize"]), ", ".join(x.lower() for x in p["oversizeClasses"])),
+         "A vessel more than this many times the charge leaves the load unagitated, so an oversized reactor is refused "
+         "even when it is standing free. Filters, dryers, the mill and the pack lines take a part load happily and are "
+         "not tested against it."),
+        ("Vessel volume per class", " &middot; ".join("%s %s&times;" % (k.title(), num(v)) for k, v in
+                                                      sorted(p["opVolShare"].items(), key=lambda x: -x[1])),
+         "What each class of operation actually holds, as a share of the reaction charge. This is the whole "
+         "equipment-to-product mapping."),
+        ("The generic rule set", "a flat %s h changeover between any two products &middot; yield at nameplate"
+                                 % num(p["generic"]["flatChangeoverH"]),
+         "The deck&rsquo;s own words, made numeric. Everything else about the generic plan &mdash; non-overlap, "
+         "eligibility, block times, due-date order, campaign grouping &mdash; is kept."),
+        ("The chemical-aware rule set", "campaigns sized %s standard deviation below mean yield, then re-costed per assay"
+                                        % num(p["aware"]["yieldConfidenceSd"]),
+         "A campaign that is sized on the mean ends short half the time, and the top-up arrives after the train has "
+         "been broken down."),
+        ("Demand calibration", "the book asks for %.0f%% of <i>realisable</i> capacity &middot; realisable is %s of "
+                               "nameplate unit-hours" % (p["demandLoad"] * 100,
+                                                         ("%.0f%%" % (p["friction"] * 100)) if p.get("friction") else "measured from the plan"),
+         "Calibrating against nameplate instead is how a plant ends up with an order book it was never going to serve. "
+         "Raising the load does not raise output here: the plant is limited by the hold window into isolation, so extra "
+         "demand only adds short lines."),
+        ("Minimum line size", "%s of a batch" % (num(p["minLineBatches"]) if p.get("minLineBatches") else "&mdash;"),
+         "A line consumes a whole batch however small it is, so there is a floor below which an order line is not worth "
+         "a campaign slot."),
+    ]
+    h.append("<table><thead><tr><th>Setting</th><th>Value today</th><th>What it drives</th></tr></thead><tbody>")
+    for name, val, why in rows:
+        h.append("<tr><td><b>%s</b></td><td>%s</td><td>%s</td></tr>" % (name, val, why))
+    h.append("</tbody></table>")
+
+    # ---- objective weights
+    h.append("<h3>Objective weights</h3>")
+    h.append("<p>The same five levers for both rule sets, so the comparison is about rules and never about priorities. "
+             "Plan Studio switches between these presets and lets the weights be dragged.</p>")
+    h.append("<table><thead><tr><th>Preset</th><th class='n'>Dates</th><th class='n'>Margin</th>"
+             "<th class='n'>Cleaning</th><th class='n'>Utilisation</th><th class='n'>Waste</th>"
+             "<th class='n'>Delay penalty</th></tr></thead><tbody>")
+    for w in p["presets"]:
+        h.append("<tr><td><b>%s</b></td><td class='n'>%s</td><td class='n'>%s</td><td class='n'>%s</td>"
+                 "<td class='n'>%s</td><td class='n'>%s</td><td class='n'>&times;%s</td></tr>"
+                 % (w["label"], num(w["dates"]), num(w["profit"]), num(w["clean"]), num(w["util"]),
+                    num(w["waste"]), num(w["delayScale"])))
+    h.append("</tbody></table>")
+    h.append("<div class='box good'>Every figure in this chapter was read out of the engine when the document was "
+             "built, by the same code the screens use. <code>python tools/build_handover.py</code> rewrites it, so the "
+             "document cannot drift away from the demo it describes.</div>")
+    return "".join(h)
 
 
 def build(f, imgs, url):
@@ -297,6 +606,10 @@ def build(f, imgs, url):
                                   "from attributes, with the plant's own validated overrides marked."))
     html.append(fig("stages-0", "Hold times as the planner states them: links with a minimum and a maximum lag, and a clock "
                                 "showing how much of each window the plan used."))
+
+    # ---- the plant, and its configuration
+    html.append(plant_section(f, fig))
+    html.append(config_section(f))
 
     # ---- what it does not do
     html.append("<h2 class='pb'>What this demo does not do</h2>")
