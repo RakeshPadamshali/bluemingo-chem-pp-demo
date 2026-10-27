@@ -35,6 +35,7 @@ PAGES = [
     ("tanks", "Tank Farm & Hazard Licence", ".tank .tf"),
     ("batches", "Batch Record & Yield", "#reg tbody tr"),
     ("lots", "Lots, Blending & Allocation", "#al tbody tr"),
+    ("report", "Production Plan Report", "#reg tbody tr"),
     ("capacity", "Capacity, Mix & Margin", ".mrow .mf"),
     ("sourcing", "Sourcing & Supply", ".ap td"),
     ("stock", "Stock, Shelf Life & Pack", ".ladder2 .lf"),

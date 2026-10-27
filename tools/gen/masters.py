@@ -35,6 +35,32 @@ def build_masters(products, matrix, customers, approvals, tanks, deliveries, raw
     m["dutyProfiles"] = [dict(id=k, label=a["label"], cls=a["cls"], clean=a["clean"],
                               seg1=_seg(a["segs"][0]), seg2=_seg(a["segs"][1]), seg3=_seg(a["segs"][2]))
                          for k, a in sorted(CFG.OP_ARCHETYPES.items())]
+    m["inputProfile"] = [dict(id="%s|%s" % (a, role), arch=a, archLabel=CFG.OP_ARCHETYPES[a]["label"], role=role,
+                              roleName=CFG.ROLE_NAMES.get(role, role), perKL=rate,
+                              unit="drum/kL" if role == "PACKAGING" else "kg/kL")
+                         for a in sorted(CFG.INPUT_PROFILE) for role, rate in CFG.INPUT_PROFILE[a]]
+    m["familyInputs"] = [dict(id="%s|%s" % (f, role), family=f, familyName=next(x["name"] for x in CFG.FAMILIES if x["id"] == f),
+                              role=role, roleName=CFG.ROLE_NAMES.get(role, role), rmId=rid,
+                              rmName=next(r["name"] for r in CFG.RAW_MATERIALS if r["id"] == rid))
+                         for f in sorted(CFG.FAMILY_INPUTS) for role, rid in sorted(CFG.FAMILY_INPUTS[f].items())]
+    m["chargeSheet"] = [dict(id="%s|%s|%s" % (p["id"], c["op"], c["role"]), productId=p["id"], productName=p["name"],
+                             chargeKL=p["chargeKL"], batchKg=p["batchKg"], **c) for p in products for c in p["charge"]]
+    m["utilityPerBatch"] = [dict(id="%s|%s" % (p["id"], u), productId=p["id"], productName=p["name"],
+                                 chargeKL=p["chargeKL"], batchKg=p["batchKg"], utility=u,
+                                 unit=_uunit(u), perBatch=v,
+                                 perTonne=round(v / (p["batchKg"] / 1000.0), 2),
+                                 perKL=round(v / p["chargeKL"], 2))
+                            for p in products for u, v in sorted(p["utilBatch"].items())]
+    m["wastePerBatch"] = [dict(id=p["id"], productId=p["id"], productName=p["name"], chargeKL=p["chargeKL"],
+                               batchKg=p["batchKg"],
+                               efflM3=p["wasteBatch"]["efflM3"],
+                               efflM3PerTonne=round(p["wasteBatch"]["efflM3"] / (p["batchKg"] / 1000.0), 2),
+                               byCategory=", ".join("%s %g m3" % (k, v) for k, v in sorted(p["wasteBatch"]["byCat"].items())),
+                               solventKL=p["wasteBatch"]["solvKL"],
+                               solventKLPerTonne=round(p["wasteBatch"]["solvKL"] / (p["batchKg"] / 1000.0), 3),
+                               recoveredKL=p["wasteBatch"]["recoveredKL"], makeupKL=p["wasteBatch"]["makeupKL"],
+                               recoveryRate=p["wasteBatch"]["recoveryRate"])
+                          for p in products]
     m["waste"] = [dict(**w) for w in CFG.WASTE]
     m["solventRecovery"] = [dict(id="RECOVERY", **CFG.SOLVENT_RECOVERY)]
     m["hazardClasses"] = [dict(**h) for h in CFG.HAZARD_CLASSES]
@@ -66,6 +92,12 @@ def build_masters(products, matrix, customers, approvals, tanks, deliveries, raw
     return m
 
 
+def _uunit(uid):
+    """The unit a utility is CONSUMED in, which is its rate times time — not the rate itself."""
+    rate = next((u["unit"] for u in CFG.UTILITIES if u["id"] == uid), "")
+    return {"t/h": "t", "TR": "TR-h", "m3/h": "m3", "Nm3/h": "Nm3"}.get(rate, rate)
+
+
 def _seg(seg):
     frac, rates = seg
     return "%d%% · %s" % (round(frac * 100), ", ".join("%s %g/kL" % (k, v) for k, v in sorted(rates.items())) or "no utility draw")
@@ -86,6 +118,16 @@ MASTERS = [
     ("campaignRule", "Campaign rule", "Product", "fa-layer-group", "id", True, "GENERATED",
      "Configure", ["P1"], "Minimum and maximum campaign size, how far demand may be pulled forward to reach the minimum, the attribute the campaign sorts on, and the forced break."),
     ("families", "Product families", "Product", "fa-sitemap", "id", False, "GENERATED", "Configure", [], "Grouping only; the rules read attributes, not the family name."),
+    ("inputProfile", "Charge profile (inputs per kL)", "Product", "fa-fill-drip", "id", False, "GENERATED",
+     "Configure", [], "What each operation archetype charges, per kL of reaction volume. The quantity a batch consumes therefore follows its batch size, with no second table."),
+    ("familyInputs", "Which material fills each role", "Product", "fa-arrow-right-arrow-left", "id", False, "GENERATED",
+     "Configure", [], "Four rows, one per family. This is the only place a product comes near a material id; everything else is derived."),
+    ("chargeSheet", "Charge sheet per batch (derived)", "Product", "fa-clipboard-list", "id", False, "RULE",
+     "Configure", [], "A view, not an input: the charge profile times the batch's own charge volume. One row per product, operation and material — the raw material consumption behind every batch in the plan."),
+    ("utilityPerBatch", "Utility consumed per batch (derived)", "Plant", "fa-gauge", "id", False, "RULE",
+     "Extend", ["P4"], "A view, not an input: the duty profile integrated over each operation's hours. This is the master that relates utility consumption to production volume — per batch, per tonne and per kL."),
+    ("wastePerBatch", "Effluent and solvent per batch (derived)", "Plant", "fa-droplet-slash", "id", False, "RULE",
+     "Extend", ["P5"], "A view, not an input: the route's effluent and solvent rows summed per batch, with what the recovery train returns. This is the master that relates effluent and solvent generation to production volume."),
     ("units", "Equipment", "Plant", "fa-industry", "id", True, "GENERATED",
      "Configure", [], "Class, block, working volume, material and service. Eligibility is derived from these against the product's attributes."),
     ("blockTimes", "Block times", "Plant", "fa-calendar-xmark", "id", True, "GENERATED",

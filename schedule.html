@@ -40,6 +40,15 @@
       </div>
     </div>
 
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-hourglass-half"></i>Where the time went
+        <span class="right">every hour of every unit over the plan, accounted for</span></div>
+      <div class="card-body">
+        <div id="timeuse"></div>
+        <div class="note"><i class="fa-solid fa-circle-info"></i><div id="tunote"></div></div>
+      </div>
+    </div>
+
     <div class="grid2">
       <div class="card">
         <div class="card-head"><i class="fa-solid fa-flask"></i>This batch <span class="right" id="bmeta"></span></div>
@@ -104,7 +113,8 @@
       var p = m.P[b.pix], hist = b.phase === 'H';
       b.ops.forEach(function (o) {
         bars.push({ lane: o.unit, s: o.s, e: o.e, color: hist ? X.COLOR.status.hist : colOf(b, m),
-                    cls: (hist ? 'hist ' : '') + (sel === b.id ? 'hl' : ''), id: b.id, label: b.id.split('-B')[0],
+                    // the batch NUMBER, not just the product: it is the handle the register, the lots and the report all use
+                    cls: (hist ? 'hist ' : '') + (sel === b.id ? 'hl' : ''), id: b.id, label: b.id,
                     tip: b.id + ' · ' + X.pname(p.id) + '\n' + o.label + ' on ' + o.unit + '\n' + X.fmt(o.s) + ' to ' + X.fmt(o.e) +
                          '\n' + X.n(b.kg) + ' kg at ' + X.assay(b.assay) + (hist ? '\n(frozen history)' : '') });
       });
@@ -131,6 +141,93 @@
       '<span><i style="background:repeating-linear-gradient(45deg,#8a93a0 0 3px,#c9ced4 3px 6px)"></i>cleaning</span>' +
       '<span><i style="background:repeating-linear-gradient(45deg,#d32f2f 0 3px,#f3b7b7 3px 6px)"></i>block time</span>' +
       '<span><i style="background:' + X.COLOR.status.hist + '"></i>frozen history</span>';
+  }
+
+  /* The white space on a chemical plant's Gantt is the thing worth explaining, not the thing worth hiding.
+
+     A reactor that is 25% occupied looks like a plant with three quarters of its capacity going spare, and on a discrete
+     line it would be. Here it is not: a reaction may only START if a filter will be free to take the slurry inside the
+     hold window, so most of the idle time is time no train could be built through. Account for every hour of every unit
+     and say which is which. */
+  var TU = [['run', 'Running a batch', '#2a78d6'], ['clean', 'Cleaning down', '#8a93a0'],
+            ['block', 'Planned block time and breakdowns', '#d32f2f'],
+            ['held', 'Held idle to protect a hold window', '#f5a623'],
+            ['idle', 'Idle — no train could be built through', '#eef1f4']];
+  function timeuse(C) {
+    var m = C.m || X.model(), now = X.ASOF, end = m.end, span = end - now;
+    var by = {}, cls = [];
+    m.U.forEach(function (u) {
+      if (!by[u.cls]) { by[u.cls] = { n: 0, run: 0, clean: 0, block: 0, held: 0, avail: 0 }; cls.push(u.cls); }
+      var g = by[u.cls];
+      g.n++; g.avail += span;
+      (m.blocks[u.ix] || []).forEach(function (b) { g.block += Math.max(0, Math.min(b[1], end) - Math.max(b[0], now)); });
+    });
+    C.aware.fwd.forEach(function (b) {
+      b.ops.forEach(function (o) {
+        var u = m.U[o.uix]; if (!u) return;
+        by[u.cls].run += Math.max(0, Math.min(o.e, end) - Math.max(o.s, now));
+      });
+    });
+    C.aware.cleans.filter(function (c) { return c.s >= now; }).forEach(function (c) {
+      var u = m.U[c.uix]; if (!u) return;
+      by[u.cls].clean += Math.max(0, Math.min(c.e, end) - Math.max(c.s, now));
+    });
+    C.aware.sacrifices.forEach(function (s) {
+      var u = m.U[s.uix]; if (!u) return;
+      by[u.cls].held += s.min;
+    });
+    cls.sort(function (a, b) { return (by[b].run + by[b].clean) / by[b].avail - (by[a].run + by[a].clean) / by[a].avail; });
+    $('timeuse').innerHTML =
+      '<div class="tukey">' + TU.map(function (k) {
+        return '<span><i style="background:' + (k[0] === 'block'
+          ? 'repeating-linear-gradient(45deg,#d32f2f 0 3px,#f3b7b7 3px 6px)'
+          : k[0] === 'clean' ? 'repeating-linear-gradient(45deg,#8a93a0 0 3px,#c9ced4 3px 6px)' : k[2]) +
+          (k[0] === 'idle' ? ';border:1px solid var(--color-border)' : '') + '"></i>' + X.esc(k[1]) + '</span>';
+      }).join('') + '</div>' +
+      cls.map(function (c) {
+        var g = by[c], parts = [];
+        var idle = Math.max(0, g.avail - g.run - g.clean - g.block - g.held);
+        [['run', g.run], ['clean', g.clean], ['block', g.block], ['held', g.held], ['idle', idle]].forEach(function (x) {
+          var k = TU.filter(function (t) { return t[0] === x[0]; })[0];
+          if (x[1] <= 0) return;
+          parts.push('<i style="width:' + (x[1] / g.avail * 100).toFixed(2) + '%;background:' +
+            (x[0] === 'block' ? 'repeating-linear-gradient(45deg,#d32f2f 0 3px,#f3b7b7 3px 6px)'
+             : x[0] === 'clean' ? 'repeating-linear-gradient(45deg,#8a93a0 0 3px,#c9ced4 3px 6px)' : k[2]) +
+            '" title="' + X.esc(k[1] + ': ' + Math.round(x[1] / 60) + ' h, ' + (x[1] / g.avail * 100).toFixed(1) + '%') + '"></i>');
+        });
+        return '<div class="tu"><span class="tn">' + X.esc(X.clsName(c)) + ' <span class="hint">' + g.n + (g.n === 1 ? ' unit' : ' units') + '</span></span>' +
+          '<span class="tb">' + parts.join('') + '</span>' +
+          '<span class="tv">' + X.pct((g.run + g.clean) / g.avail) + ' occupied · ' +
+          X.n(idle / 60 / g.n, 0) + ' h idle per unit</span></div>';
+      }).join('');
+    var sac = C.aware.sacrifices, sacH = sac.reduce(function (a, s) { return a + s.min; }, 0) / 60;
+    var lags = [], late = 0;
+    C.aware.fwd.forEach(function (b) {
+      for (var i = 1; i < b.ops.length; i++) lags.push((b.ops[i].s - b.ops[i - 1].e) / 60);
+    });
+    var meanLag = lags.length ? lags.reduce(function (a, x) { return a + x; }, 0) / lags.length : 0;
+    var bn = C.aware.kpi.utilClass;
+    // only a route's FIRST operation can start a train; the rest of the units are fed by the stage above them
+    var ctx = E.context(m), starts = 0;
+    for (var si = 0; si < m.U.length; si++) if (ctx.starts[si]) starts++;
+    var openEnd = 0, SL = C.aware.state.lines;
+    Object.keys(SL).forEach(function (k) { if (SL[k].rem > 0) openEnd += SL[k].rem; });
+    $('tunote').innerHTML =
+      '<b>No, the material does not move non-stop.</b> Every link in a route carries a <b>minimum</b> lag as well as a ' +
+      'maximum: the transfer, the cool-down and the in-process check have to happen before the next stage can start at ' +
+      'all. Across this plan the average gap between one stage ending and the next starting is <b>' + X.n(meanLag, 1) +
+      ' h</b>, and none of them exceeds its hold window.<br>' +
+      '<b>Why the chart has white in it</b>, and it is worth being exact rather than claiming the flattering answer. ' +
+      'Most idle moments are simply that nothing is released which that unit can make: this is a ' + X.n(span / 1440, 0) +
+      '-day plan against a book that releases on a rolling window, only ' + starts + ' of the ' + m.U.length +
+      ' units can start a route at all, and by the end of the horizon the plan has served all but ' + X.kg(openEnd) +
+      ' of the released demand. <b>The ceiling on how much it could ever absorb, though, is the hold window.</b> A ' +
+      'reaction may only be <i>started</i> when an eligible filter will be free to take the slurry inside that window; ' +
+      'when none will be, the scheduler leaves the reactor idle rather than strand an intermediate. <b>' + sac.length +
+      '</b> starts were held back that way, <b>' + X.n(sacH, 0) + ' h</b> in all, each listed on Multi-stage &amp; Hold ' +
+      'Times. The busiest class here is <b>' + X.esc(X.clsName(bn).toLowerCase()) + '</b> at ' +
+      X.pct(C.aware.kpi.utilBusiest) + ' occupied — and a second reactor would add very little, because the constraint ' +
+      'is a timing relationship between two stages rather than a shortage of vessel hours.';
   }
 
   function detail(C) {
@@ -213,7 +310,7 @@
 
   function paint(C) {
     CUR = C;
-    kpis(C); acts(C);
+    kpis(C); acts(C); timeuse(C);
     if (!pager) {
       pager = X.pager($('pg'), function (win) { if (CUR) draw(CUR, win); }, { from: X.ASOF - 1440 * 3, to: X.END, days: 14 });
       $('mode').onchange = function () { draw(CUR, pager.win()); };

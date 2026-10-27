@@ -11,9 +11,15 @@
 <style>
   .mwrap { overflow:auto; }
   .cmcell { font-size:9px; }
-  .ladder { display:flex; align-items:center; gap:0; height:20px; }
-  .ladder .seg { height:20px; position:relative; }
+  /* A real time axis: every bar sits at the moment it happens. Laying the product blocks out with flexbox packed them
+     left to right while the cleans were positioned by time, so the two never lined up — it looked like a Gantt and was
+     not one. */
+  .ladder { position:relative; height:20px; overflow:hidden; }
+  .ladder .seg { position:absolute; top:0; height:20px; }
   .ladder .seg.cl { background:repeating-linear-gradient(45deg,#8a93a0 0 3px,#c9ced4 3px 6px); }
+  .ladder .gl { position:absolute; top:0; bottom:0; width:1px; background:rgba(0,0,0,.07); }
+  .laxis { position:relative; height:15px; margin-bottom:3px; }
+  .laxis span { position:absolute; top:0; font-size:9.5px; color:var(--color-text-hint); transform:translateX(-50%); white-space:nowrap; }
   .lrow { display:grid; grid-template-columns:88px 1fr 128px; gap:9px; align-items:center; margin-bottom:5px; font-size:11.5px; }
   .lrow .un { font-weight:600; } .lrow .mt { text-align:right; font-variant-numeric:tabular-nums; color:var(--color-text-secondary); }
   .colkey { display:flex; gap:10px; font-size:11px; align-items:center; flex-wrap:wrap; }
@@ -52,7 +58,7 @@
 
     <div class="card">
       <div class="card-head"><i class="fa-solid fa-layer-group"></i>Campaign ladder
-        <span class="right">colour load along each unit, and the cleans between — pale to deep inside a family, then a break</span></div>
+        <span class="right">a compressed Gantt: one row per unit, time left to right, shaded by colour load</span></div>
       <div class="card-body">
         <div class="colkey" id="ckey" style="margin-bottom:9px"></div>
         <div id="ladder"></div>
@@ -186,27 +192,59 @@
     C.aware.cleans.filter(function (c) { return c.s >= X.ASOF; }).forEach(function (c) { (cleans[c.unit] = cleans[c.unit] || []).push(c); });
     var units = m.U.filter(function (u) { return (byUnit[u.id] || []).length; });
     var s0 = X.ASOF, e0 = X.END, span = e0 - s0;
-    $('ladder').innerHTML = units.map(function (u) {
+    var SHADE = ['#dbe9f8', '#a9cbef', '#6ba4e3', '#3b7fd1', '#1c5cab'];
+    var pos = function (t) { return ((t - s0) / span * 100); };
+    // a week grid and a date label every week, so "where on this row" is answerable
+    var grid = '', axis = '';
+    for (var d = Math.ceil(s0 / 1440 / 7) * 7; d * 1440 < e0; d += 7) {
+      grid += '<div class="gl" style="left:' + pos(d * 1440).toFixed(3) + '%"></div>';
+      axis += '<span style="left:' + pos(d * 1440).toFixed(3) + '%">' + X.fmtDM(d * 1440) + '</span>';
+    }
+    // how the colour ladder actually behaves: a step UP in colour load is cheap, a step DOWN is what costs a boil-out
+    var up = 0, down = 0, upH = 0, downH = 0;
+    units.forEach(function (u) {
       var seq = (byUnit[u.id] || []).sort(function (a, b) { return a.o.s - b.o.s; });
-      var cl = (cleans[u.id] || []), ch = cl.reduce(function (a, c) { return a + c.min; }, 0);
-      var segs = seq.map(function (x) {
-        var p = m.P[x.b.pix], w = (x.o.e - x.o.s) / span * 100;
-        var shade = ['#dbe9f8', '#a9cbef', '#6ba4e3', '#3b7fd1', '#1c5cab'][Math.max(0, Math.min(4, p.colour - 1))];
-        return '<div class="seg" style="width:' + w.toFixed(3) + '%;background:' + shade + '" title="' +
-          X.esc(x.b.id + ' · ' + X.pname(p.id) + ' · colour load ' + p.colour + ' · ' + X.fmtD(x.o.s)) + '"></div>';
-      }).join('');
-      var cls = cl.map(function (c) {
-        return '<div class="seg cl" style="position:absolute;left:' + ((c.s - s0) / span * 100).toFixed(3) + '%;width:' +
-          Math.max(0.12, c.min / span * 100).toFixed(3) + '%" title="' + X.esc(X.gradeName(c.grade) + ' · ' + X.n(c.min / 60, 1) + ' h · ' +
-          (c.frm ? c.frm + ' then ' + c.to : c.to) + (c.ahead ? ' (cleaned ahead)' : '') + ' · ' + X.fmtD(c.s)) + '"></div>';
-      }).join('');
-      return '<div class="lrow"><div class="un" title="' + X.esc(u.name) + '">' + X.esc(u.id) + '</div>' +
-        '<div class="ladder" style="position:relative;background:#f4f5f7;border-radius:3px">' + segs + cls + '</div>' +
-        '<div class="mt">' + seq.length + ' ops · ' + X.n(ch / 60, 0) + ' h clean</div></div>';
-    }).join('');
+      for (var i = 1; i < seq.length; i++) {
+        var pa = m.P[seq[i - 1].b.pix], pb = m.P[seq[i].b.pix];
+        if (pa.ix === pb.ix) continue;
+        var h = (seq[i].o.clean || 0) / 60;
+        if (pb.colour >= pa.colour) { up++; upH += h; } else { down++; downH += h; }
+      }
+    });
+    $('ladder').innerHTML =
+      '<div class="lrow"><div></div><div class="laxis">' + axis + '</div><div></div></div>' +
+      units.map(function (u) {
+        var seq = (byUnit[u.id] || []).sort(function (a, b) { return a.o.s - b.o.s; });
+        var cl = (cleans[u.id] || []), ch = cl.reduce(function (a, c) { return a + c.min; }, 0);
+        var segs = seq.map(function (x) {
+          var p = m.P[x.b.pix];
+          return '<div class="seg" style="left:' + pos(x.o.s).toFixed(3) + '%;width:' +
+            Math.max(0.1, (x.o.e - x.o.s) / span * 100).toFixed(3) + '%;background:' +
+            SHADE[Math.max(0, Math.min(4, p.colour - 1))] + '" title="' +
+            X.esc(x.b.id + ' · ' + X.pname(p.id) + ' · colour load ' + p.colour + ' · ' + X.fmt(x.o.s)) + '"></div>';
+        }).join('');
+        var cls = cl.map(function (c) {
+          return '<div class="seg cl" style="left:' + pos(c.s).toFixed(3) + '%;width:' +
+            Math.max(0.12, c.min / span * 100).toFixed(3) + '%" title="' + X.esc(X.gradeName(c.grade) + ' · ' + X.n(c.min / 60, 1) + ' h · ' +
+            (c.frm ? c.frm + ' then ' + c.to : c.to) + (c.ahead ? ' (cleaned ahead)' : '') + ' · ' + X.fmt(c.s)) + '"></div>';
+        }).join('');
+        return '<div class="lrow"><div class="un" title="' + X.esc(u.name) + '">' + X.esc(u.id) + '</div>' +
+          '<div class="ladder" style="background:#f4f5f7;border-radius:3px">' + grid + segs + cls + '</div>' +
+          '<div class="mt">' + seq.length + ' ops · ' + X.n(ch / 60, 0) + ' h clean</div></div>';
+      }).join('') +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div><b>How to read it.</b> One row per unit, and ' +
+      'left to right is <b>time</b> — the whole ' + X.n(span / 1440, 0) + '-day plan, with a line every week. Each solid block is one ' +
+      'operation, shaded by the product\'s <b>colour load</b> (1 pale to 5 deep). Each hatched block is a clean-down, drawn at ' +
+      'the moment it happens and as wide as it takes.<br><b>Why the ladder runs pale to deep.</b> The matrix only charges ' +
+      'for colour when it <i>falls</i>: following a pale product with a deeper one needs a rinse, but following a deep one ' +
+      'with a pale one needs a boil-out and a swab test. So the campaign rule sorts a family <b>ascending by colour</b> and ' +
+      'pays the big clean once, at the break. In this plan <b>' + up + '</b> changeovers went up the ladder or stayed level ' +
+      '(averaging ' + X.n(upH / Math.max(1, up), 1) + ' h of cleaning) and <b>' + down + '</b> stepped back down to a paler ' +
+      'product (averaging ' + X.n(downH / Math.max(1, down), 1) + ' h). That ratio is the campaign rule working.</div></div>';
     $('ckey').innerHTML = [1, 2, 3, 4, 5].map(function (c) {
-      return '<span><i style="background:' + ['#dbe9f8', '#a9cbef', '#6ba4e3', '#3b7fd1', '#1c5cab'][c - 1] + '"></i>colour load ' + c + '</span>';
-    }).join('') + '<span><i style="background:repeating-linear-gradient(45deg,#8a93a0 0 3px,#c9ced4 3px 6px)"></i>cleaning</span>';
+      return '<span><i style="background:' + SHADE[c - 1] + '"></i>colour load ' + c + '</span>';
+    }).join('') + '<span><i style="background:repeating-linear-gradient(45deg,#8a93a0 0 3px,#c9ced4 3px 6px)"></i>cleaning</span>' +
+      '<span style="margin-left:auto;color:var(--color-text-hint)">left to right is time &mdash; the whole plan horizon</span>';
   }
 
   function grades(C) {

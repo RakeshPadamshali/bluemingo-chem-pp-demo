@@ -20,6 +20,10 @@
   .segbar { display:flex; height:16px; border-radius:3px; overflow:hidden; border:1px solid rgba(0,0,0,.1); }
   .segbar div { display:flex; align-items:center; justify-content:center; font-size:9px; color:#fff; font-weight:600; }
   .conc { display:grid; grid-template-columns:118px 1fr 92px; gap:8px; align-items:center; font-size:11.5px; margin-bottom:4px; }
+  #inten .tu { grid-template-columns:238px 1fr 230px; }
+  #inten .tu .tn { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #inten .tu { grid-template-columns:238px 1fr 212px; }
+  #inten .tu .tn { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 </style>
 </head>
 <body>
@@ -51,6 +55,15 @@
         <div class="card-head"><i class="fa-solid fa-layer-group"></i>The hour it was tightest
           <span class="right"><span id="tmeta"></span></span></div>
         <div class="card-body" id="peak"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-gauge"></i>What a tonne of each product costs in utilities
+        <span class="right"><span class="fl">Utility</span>&nbsp;<select id="iu"></select>&nbsp;<span id="imeta"></span></span></div>
+      <div class="card-body">
+        <div id="inten"></div>
+        <div class="note"><i class="fa-solid fa-circle-info"></i><div id="inote"></div></div>
       </div>
     </div>
 
@@ -252,9 +265,51 @@
     };
   }
 
+  /* "Utility consumption is independent of production volume" is the first thing a chemical engineer checks, and until
+     now the only place it was answered was the duty master, in rates per kL per hour. Do the arithmetic on screen: a
+     rate times the charge times the hours is a QUANTITY, and dividing by the batch gives the intensity per tonne. */
+  function inten(C) {
+    var m = C.m || X.model(), uid = $('iu').value || m.utils[0].id;
+    var u = m.utils.filter(function (x) { return x.id === uid; })[0];
+    if (!u) return;
+    var qUnit = X.E.UTIL_QTY_UNIT[u.unit] || u.unit;
+    var made = {};
+    C.aware.fwd.forEach(function (b) { made[b.productId] = (made[b.productId] || 0) + 1; });
+    var rows = m.P.map(function (p) {
+      var q = X.E.utilPerBatch(m, p)[uid] || 0;
+      return { p: p, q: q, per: q / (p.batchKg / 1000), perKL: q / p.chargeKL, n: made[p.id] || 0 };
+    }).filter(function (r) { return r.q > 0; }).sort(function (a, b) { return b.per - a.per; });
+    var max = rows.length ? rows[0].per : 1;
+    $('imeta').textContent = rows.length + ' of ' + m.P.length + ' products draw it';
+    $('inten').innerHTML = rows.map(function (r) {
+      return '<div class="tu"><span class="tn"><span class="mono">' + X.esc(r.p.id) + '</span> <span class="hint">' +
+        X.esc(r.p.name) + '</span></span>' +
+        '<span class="tb"><i style="width:' + (r.per / max * 100).toFixed(1) + '%;background:var(--color-primary)" title="' +
+        X.esc(X.n(r.per, 1) + ' ' + qUnit + ' per tonne') + '"></i></span>' +
+        '<span class="tv">' + X.n(r.per, r.per < 100 ? 1 : 0) + ' ' + X.esc(qUnit) + ' per t of product <span class="hint">· ' +
+        X.n(r.q, r.q < 100 ? 1 : 0) + ' a batch</span></span></div>';
+    }).join('') || '<div class="empty-state">No product draws this utility.</div>';
+    var tot = 0;
+    C.aware.fwd.forEach(function (b) { tot += X.E.utilPerBatch(m, m.P[b.pix])[uid] || 0; });
+    $('inote').innerHTML =
+      'Consumption is <b>not</b> independent of volume, and nothing here is typed in per product. ' +
+      '<b>Duty profiles</b> in Master Data hold one rate per operation archetype, written <b>per kL of reaction charge per ' +
+      'hour</b>; the product supplies the charge, the route supplies the hours. So ' + X.esc(u.name) + ' for one batch is ' +
+      '<i>rate &times; charge kL &times; operation hours</i>, summed over the route — and per tonne it is that divided by ' +
+      'the batch size. Over this plan the ' + X.n(C.aware.kpi.batches) + ' batches draw <b>' + X.n(tot, 0) + ' ' +
+      X.esc(qUnit) + '</b> of ' + X.esc(u.name.toLowerCase()) + '. Double a product\'s charge volume and its draw doubles with ' +
+      'it; the hourly <b>cap</b> above is a different question — that is about how many batches may draw at once.' +
+      '<br>The same arithmetic, per product and per batch, is in Master Data &rarr; <b>Utility consumed per batch</b>, and ' +
+      'per individual batch in the <b>Production Plan Report</b>.';
+  }
+
   function paint(C) {
     CUR = C;
     var m = C.m || X.model();
+    if (!$('iu').options.length) {
+      $('iu').innerHTML = m.utils.map(function (u) { return '<option value="' + u.id + '">' + X.esc(u.name) + '</option>'; }).join('');
+      $('iu').onchange = function () { inten(CUR); };
+    }
     if (!$('util').options.length) {
       $('util').innerHTML = m.utils.map(function (u) { return '<option value="' + u.id + '">' + X.esc(u.name) + '</option>'; }).join('');
       $('arch').innerHTML = Object.keys(D.cfg.archetypes || {}).sort().map(function (k) {
@@ -265,7 +320,7 @@
     }
     var h = X.hashParam();
     if (h && m.utix[h] != null) $('util').value = h;
-    kpis(C); acts(C); prof(C); peak(C); gen(C);
+    kpis(C); acts(C); prof(C); peak(C); gen(C); inten(C);
     if (!pager) pager = X.pager($('pg'), function (win) { if (CUR) duty(CUR, win); }, { from: X.ASOF, to: X.END, days: 14 });
     else duty(C, pager.win());
   }

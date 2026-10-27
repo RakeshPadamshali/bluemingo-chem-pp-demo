@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Production Plan Report · Bluemingo PP</title>
+<link rel="icon" href="assets/img/bluemingo-logo.png">
+<link rel="stylesheet" href="assets/vendor/roboto/roboto.css">
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/chm-shell.css">
+<style>
+  .gloss { display:grid; grid-template-columns:repeat(2,1fr); gap:9px; }
+  @media (max-width:1050px){ .gloss { grid-template-columns:1fr; } }
+  .gloss .gi { border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:7px 9px; background:#fff; }
+  .gloss .gi .gt { font-size:12px; font-weight:600; }
+  .gloss .gi .gt .code { font-family:'Roboto Mono',monospace; color:var(--color-primary); }
+  .gloss .gi .gw { font-size:11px; color:var(--color-text-secondary); margin:2px 0 3px; }
+  .gloss .gi .gr { font-size:10.5px; color:var(--color-text-hint); }
+  .oprow { display:grid; grid-template-columns:132px 78px 1fr; gap:8px; font-size:11.5px; padding:3px 0; border-bottom:1px solid var(--color-border-light); }
+  .oprow:last-child { border-bottom:none; }
+  .chrow { display:grid; grid-template-columns:124px 1fr 96px 92px; gap:8px; align-items:center; font-size:11.5px; padding:3px 0; border-bottom:1px solid var(--color-border-light); }
+  .chrow:last-child { border-bottom:none; }
+  .chrow .n2 { text-align:right; font-variant-numeric:tabular-nums; }
+</style>
+</head>
+<body>
+<div class="bm-layout">
+  <main class="bm-content">
+    <div class="page-bar">
+      <div><h1>Production Plan Report</h1><div class="crumb">Every batch in the plan, with what it consumes and what it leaves behind</div></div>
+      <div class="actions" id="acts"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-book"></i>What the codes mean
+        <span class="right">every product in the plan, with the route behind its code</span></div>
+      <div class="card-body">
+        <div class="gloss" id="gloss"></div>
+        <div class="note"><i class="fa-solid fa-circle-info"></i><div id="gnote"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-table-list"></i>The production plan, batch by batch
+        <span class="right">
+          <span class="fl">Product</span>&nbsp;<select id="fp"><option value="">All</option></select>
+          <span class="fl">Show</span>&nbsp;<select id="fw">
+            <option value="P">The plan</option><option value="H">The frozen history</option><option value="">Both</option></select>
+          <span class="fl">Sort</span>&nbsp;<select id="fs">
+            <option value="s">Start time</option><option value="b">Batch number</option><option value="kg">Output</option>
+            <option value="ef">Effluent</option><option value="rm">Material cost</option></select>
+          <span id="bmeta"></span></span></div>
+      <div class="card-body tbl-wrap" style="max-height:470px;overflow:auto"><table class="tbl" id="reg"></table></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-flask"></i>This batch <span class="right" id="bhead"></span></div>
+        <div class="card-body" id="batch"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><i class="fa-solid fa-scale-balanced"></i>What it consumed and produced
+          <span class="right">charge sheet, utilities, effluent and solvent</span></div>
+        <div class="card-body" id="cons"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-chart-column"></i>Totals over the plan, per product
+        <span class="right">batches, output, materials, utilities and waste — the plan added up the way a works manager reads it</span></div>
+      <div class="card-body tbl-wrap" style="max-height:380px;overflow:auto"><table class="tbl" id="tot"></table></div>
+    </div>
+  </main>
+</div>
+<script>window.CHM_PAGE='report'; window.CHM_TITLE='Production Plan Report'; window.CHM_ICON='fa-table-list';</script>
+<script src="assets/chm-nav.js"></script>
+<script src="assets/chm-nuances.js"></script>
+<script src="data/chm-meta.js"></script>
+<script src="data/chm-data.js"></script>
+<script src="assets/chm-engine.js"></script>
+<script src="assets/chm-results.js"></script>
+<script src="assets/chm-core.js"></script>
+<script src="assets/chm-chrome.js"></script>
+<script src="assets/chm-embed.js"></script>
+<script>
+(function () {
+  var X = window.CHMX, D = X.D, E = X.E;
+  var $ = function (id) { return document.getElementById(id); };
+  var CUR = null, sel = null, FACTS = {};
+
+  // What a plant would call this product. Written from its attributes, so a product added from Excel gets a sentence too.
+  function describe(m, p) {
+    var f = (D.m.families || []).filter(function (x) { return x.id === p.family; })[0] || {};
+    var kind = f.kind || X.famName(p.family).toLowerCase();
+    return p.intermediate ? 'an intermediate the plant both consumes in its own later stages and sells'
+         : p.potency >= 3 ? 'a ' + kind + ', made only in the segregated Block B suite'
+         : p.regulated ? 'a ' + kind + ' on a filed route: an approved site, and a COA with every lot'
+         : 'a bulk ' + kind + ', sold as it comes off the line';
+  }
+
+  /* Everything one committed batch consumed, computed from the plan rather than read from a table.
+
+     Materials come from the charge profile (per kL of charge, against the operation archetype), utilities from the duty
+     profile integrated over each operation's ACTUAL scheduled hours, effluent and solvent from the route rows of the
+     operations that actually ran. So the report cannot drift from the plan it reports on. */
+  function facts(m, b) {
+    if (FACTS[b.id]) return FACTS[b.id];
+    var p = m.P[b.pix], util = {}, effl = {}, solv = 0, runH = 0, cleanH = 0;
+    b.ops.forEach(function (o) {
+      var op = p.ops[o.seq - 1];
+      if (!op) return;
+      var hrs = Math.max(0, (o.e - o.s) / 60);
+      runH += hrs; cleanH += (o.clean || 0) / 60;
+      op.duty.forEach(function (seg) {
+        Object.keys(seg.draw).forEach(function (k) { util[k] = (util[k] || 0) + seg.draw[k] * hrs * seg.frac; });
+      });
+      if (o.efflM3) effl[op.wasteCat] = Math.round(((effl[op.wasteCat] || 0) + o.efflM3) * 100) / 100;
+      solv += o.solvKL || 0;
+    });
+    Object.keys(util).forEach(function (k) { util[k] = Math.round(util[k] * 100) / 100; });
+    var inputs = E.inputs(m, p), rec = (m.recovery.min + m.recovery.max) / 2;
+    var f = { util: util, effl: effl, efflM3: Math.round(Object.keys(effl).reduce(function (a, k) { return a + effl[k]; }, 0) * 100) / 100,
+              solvKL: Math.round(solv * 100) / 100, recoveredKL: Math.round(solv * rec * 100) / 100,
+              makeupKL: Math.round(solv * (1 - rec) * 100) / 100,
+              inputs: inputs, rmCost: inputs.reduce(function (a, x) { return a + x.rupees; }, 0),
+              runH: Math.round(runH * 10) / 10, cleanH: Math.round(cleanH * 10) / 10 };
+    FACTS[b.id] = f;
+    return f;
+  }
+
+  function uqUnit(m, id) {
+    var u = m.utils.filter(function (x) { return x.id === id; })[0];
+    return u ? (E.UTIL_QTY_UNIT[u.unit] || u.unit) : '';
+  }
+
+  function kpis(C) {
+    var m = C.m || X.model(), a = C.aware.kpi;
+    var rm = 0, ef = 0, mk = 0, st = 0;
+    C.aware.fwd.forEach(function (b) {
+      var f = facts(m, b);
+      rm += f.rmCost; ef += f.efflM3; mk += f.makeupKL; st += (f.util.STEAM || 0);
+    });
+    $('kpis').innerHTML = [
+      ['blue', 'Batches in the report', X.n(a.batches), X.n(C.aware.fwd.reduce(function (s, b) { return s + b.ops.length; }, 0)) + ' operations, each with its own start and end'],
+      ['green', 'Output', X.t(a.madeKg), 'released as ' + X.n(a.lots) + ' lots'],
+      ['grey', 'Raw material consumed', X.rs(rm), 'from the charge sheet — the same rows the plan reads'],
+      ['amber', 'Effluent generated', X.m3(ef), X.n(ef / Math.max(1, a.madeKg / 1000), 1) + ' m³ a tonne of product'],
+      ['brand', 'Fresh solvent needed', X.kl(mk), 'after the recovery train returns the rest'],
+      ['grey', 'Steam consumed', X.n(st, 0) + ' t', 'the duty profile integrated over every scheduled hour']
+    ].map(function (c) {
+      return '<div class="kpi ' + c[0] + '"><div class="k">' + X.esc(c[1]) + '</div><div class="v">' + c[2] + '</div><div class="s">' + X.esc(c[3]) + '</div></div>';
+    }).join('');
+  }
+
+  function gloss(C) {
+    var m = C.m || X.model();
+    var made = {}; C.aware.fwd.forEach(function (b) { made[b.productId] = (made[b.productId] || 0) + 1; });
+    $('gloss').innerHTML = m.P.map(function (p) {
+      var route = p.ops.map(function (o) { return o.label; }).join(' → ');
+      return '<div class="gi"><div class="gt"><span class="code">' + X.esc(p.id) + '</span> &middot; ' + X.esc(p.name) +
+        ' <span class="chip">' + X.esc(X.famName(p.family)) + '</span>' +
+        (made[p.id] ? ' <span class="chip">' + made[p.id] + ' batch' + (made[p.id] > 1 ? 'es' : '') + ' planned</span>' : '') + '</div>' +
+        '<div class="gw">' + X.esc(describe(m, p)) + '</div>' +
+        '<div class="gr">' + X.n(p.chargeKL, 1) + ' kL charge &rarr; ' + X.kg(p.batchKg) + ' a batch &middot; ' +
+        p.ops.length + ' operation' + (p.ops.length > 1 ? 's' : '') + ' over ' + X.n(p.cycleH, 0) + ' h &middot; ' +
+        X.esc(p.solv) + ' solvent<br>' + X.esc(route) + '</div></div>';
+    }).join('');
+    $('gnote').innerHTML = 'A code like <b>RX-320</b> is the product; <b>RX-320-B007</b> is the seventh batch of it, and that batch ' +
+      'number is what the register, the Gantt and the lot numbers all carry. <b>IM-</b> codes are intermediates the plant makes for ' +
+      'its own later stages and also sells; <b>AM-</b>, <b>NT-</b>, <b>AZ-</b>, <b>RX-</b> and <b>HP-</b> are the four families — ' +
+      'aryl amines, nitro and azo, azo couplings, filed APIs and high-potency actives.';
+  }
+
+  function rows(C) {
+    var m = C.m || X.model(), fp = $('fp').value, fw = $('fw').value, fs = $('fs').value;
+    var bs = C.aware.batches.filter(function (b) {
+      if (fp && b.productId !== fp) return false;
+      if (fw && b.phase !== fw) return false;
+      return true;
+    });
+    bs.sort(function (a, b) {
+      var fa = facts(m, a), fb = facts(m, b);
+      if (fs === 'b') return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+      if (fs === 'kg') return b.kg - a.kg;
+      if (fs === 'ef') return fb.efflM3 - fa.efflM3;
+      if (fs === 'rm') return fb.rmCost - fa.rmCost;
+      return a.s - b.s;
+    });
+    return bs;
+  }
+
+  function reg(C) {
+    var m = C.m || X.model(), bs = rows(C);
+    $('bmeta').textContent = X.n(bs.length) + ' batches';
+    $('reg').innerHTML = '<thead><tr><th>Batch</th><th>Product</th><th>Start</th><th>End</th><th>QC release</th>' +
+      '<th>Units</th><th class="num">Output</th><th class="num">Assay</th><th class="num">Effluent</th>' +
+      '<th class="num">Solvent</th><th class="num">Materials</th><th>Order lines</th></tr></thead><tbody>' +
+      bs.slice(0, 260).map(function (b) {
+        var f = facts(m, b);
+        return '<tr data-id="' + X.esc(b.id) + '" class="' + (sel === b.id ? 'sel' : '') + '" style="cursor:pointer">' +
+          '<td class="mono">' + X.esc(b.id) + (b.phase === 'H' ? ' <span class="chip">history</span>' : '') +
+            (b.repair ? ' <span class="chip">replacement</span>' : '') + '</td>' +
+          '<td>' + X.esc(b.productId) + '</td>' +
+          '<td>' + X.fmt(b.s) + '</td><td>' + X.fmt(b.e) + '</td><td>' + X.fmtD(b.readyAt) + '</td>' +
+          '<td class="hint">' + X.esc(b.ops.map(function (o) { return o.unit; }).join(' ')) + '</td>' +
+          '<td class="num">' + X.n(b.kg) + ' kg</td>' +
+          '<td class="num">' + X.assay(b.assay) + (b.offSpec ? ' <span class="badge b-red">off spec</span>' : '') + '</td>' +
+          '<td class="num">' + X.n(f.efflM3, 1) + ' m³</td>' +
+          '<td class="num">' + X.n(f.solvKL, 1) + ' kL</td>' +
+          '<td class="num">' + X.rs(f.rmCost) + '</td>' +
+          '<td class="hint">' + X.esc((b.lineIds || []).join(' ') || '—') + '</td></tr>';
+      }).join('') + '</tbody>';
+    $('reg').onclick = function (e) {
+      var tr = e.target.closest('tr[data-id]');
+      if (!tr) return;
+      sel = tr.getAttribute('data-id');
+      reg(CUR); detail(CUR);
+    };
+  }
+
+  function detail(C) {
+    var m = C.m || X.model();
+    if (!sel) {
+      $('batch').innerHTML = '<div class="empty-state">Click a batch above to see its operations, the order lines it serves, and everything it consumed.</div>';
+      $('cons').innerHTML = '<div class="empty-state">—</div>';
+      $('bhead').textContent = '';
+      return;
+    }
+    var b = C.aware.batches.filter(function (x) { return x.id === sel; })[0];
+    if (!b) { sel = null; return detail(C); }
+    var p = m.P[b.pix], f = facts(m, b);
+    $('bhead').innerHTML = '<span class="mono">' + X.esc(b.id) + '</span>';
+    var ops = b.ops.map(function (o, i) {
+      var lag = i ? o.s - b.ops[i - 1].e : null, win = i ? p.ops[i].maxLag : null;
+      return '<div class="oprow"><span>' + X.esc(o.label) + '</span><span class="mono">' + X.esc(o.unit) + '</span>' +
+        '<span class="hint">' + X.fmt(o.s) + ' &rarr; ' + X.fmtT(o.e) + ' · ' + X.n((o.e - o.s) / 60, 1) + ' h' +
+        (o.clean ? ' · after a ' + X.n(o.clean / 60, 1) + ' h clean' : '') +
+        (lag != null ? ' · waited ' + X.n(lag / 60, 1) + ' h of a ' + X.n(win / 60, 0) + ' h window' : '') + '</span></div>';
+    }).join('');
+    var lines = (b.lineIds || []).map(function (id) {
+      var L = C.aware.byId[id];
+      return L ? '<div class="oprow"><span class="mono">' + X.esc(id) + '</span><span>' + X.esc(L.custName) + '</span>' +
+        '<span class="hint">' + X.kg(L.qty) + ' due ' + X.fmtD(L.due) + ' · ' + X.badge(L.status) + '</span></div>' : '';
+    }).join('');
+    $('batch').innerHTML =
+      '<div class="kv" style="margin-bottom:8px">' +
+        '<div class="k">Batch number</div><div class="v mono">' + X.esc(b.id) + (b.phase === 'H' ? ' <span class="chip">frozen history</span>' : '') + '</div>' +
+        '<div class="k">Product</div><div class="v">' + X.esc(X.pname(p.id)) + ' <span class="chip">' + X.esc(X.famName(p.family)) + '</span></div>' +
+        '<div class="k">Window</div><div class="v">' + X.fmt(b.s) + ' &rarr; ' + X.fmt(b.e) + ' <span class="hint">' + X.n(f.runH, 1) + ' h on the units, ' + X.n(f.cleanH, 1) + ' h of cleaning before them</span></div>' +
+        '<div class="k">Output</div><div class="v">' + X.kg(b.kg) + ' <span class="hint">against a nameplate ' + X.kg(b.nominalKg) + ' — ' + X.pct(b.kg / b.nominalKg) + '</span></div>' +
+        '<div class="k">Quality</div><div class="v">' + X.assay(b.assay) + ' assay · impurity ' + b.imp + '% · d90 ' + b.psd + ' µm' + (b.offSpec ? ' <span class="badge b-red">off spec</span>' : '') + '</div>' +
+        '<div class="k">QC release</div><div class="v">' + X.fmt(b.readyAt) + ' <span class="hint">' + X.n(b.qcMin / 1440, 1) + ' days after drying</span></div>' +
+      '</div>' +
+      '<div class="sub-title">Operations</div>' + ops +
+      (lines ? '<div class="sub-title" style="margin-top:8px">Order lines served</div>' + lines : '') +
+      '<div class="note" style="margin-top:8px"><i class="fa-solid fa-circle-info"></i><div>This is the same batch the Block Schedule ' +
+      'draws and the lot register releases — one batch number, carried all the way through.</div></div>';
+
+    $('cons').innerHTML =
+      '<div class="sub-title">Raw materials charged</div>' +
+      f.inputs.map(function (c) {
+        return '<div class="chrow"><span class="hint">' + X.esc(c.roleName) +
+          '<br><span style="font-size:10px">op ' + c.seq + ' · ' + X.esc(c.opLabel.toLowerCase()) + '</span></span>' +
+          '<span>' + X.esc(c.rmName) + ' <span class="hint mono">' + X.esc(c.rmId) + '</span>' +
+          (c.recovered ? ' <span class="chip">' + X.n(c.recovered, 2) + ' ' + X.esc(c.unit) + ' recovered</span>' : '') + '</span>' +
+          '<span class="n2">' + X.n(c.net, c.net < 10 ? 2 : 0) + ' ' + X.esc(c.unit) + '</span>' +
+          '<span class="n2">' + X.rs(c.rupees) + '</span></div>';
+      }).join('') +
+      '<div class="chrow" style="border-top:1px solid var(--color-border);font-weight:600"><span></span><span>Materials in this batch</span>' +
+        '<span class="n2"></span><span class="n2">' + X.rs(f.rmCost) + '</span></div>' +
+      '<div class="sub-title" style="margin-top:9px">Solvent</div>' +
+      '<div class="chrow"><span class="hint">Charged</span><span>' + X.esc(p.solv) + ' from tank ' +
+        X.esc(m.tanks[p.tix] ? m.tanks[p.tix].id : '—') + '</span><span class="n2">' + X.n(f.solvKL, 2) + ' kL</span><span class="n2"></span></div>' +
+      '<div class="chrow"><span class="hint">Recovered</span><span>back to the farm after distillation</span>' +
+        '<span class="n2">' + X.n(f.recoveredKL, 2) + ' kL</span><span class="n2"></span></div>' +
+      '<div class="chrow" style="font-weight:600"><span class="hint">Make-up</span><span>fresh solvent this batch actually costs</span>' +
+        '<span class="n2">' + X.n(f.makeupKL, 2) + ' kL</span><span class="n2">' +
+        X.rs(Math.round(f.makeupKL * (m.tanks[p.tix] ? m.tanks[p.tix].priceKL : 0))) + '</span></div>' +
+      /* Four utilities measured in four different units do not belong on one bar: a tonne of steam and a thousand
+         cubic metres of vacuum are not comparable lengths. The second number is the one that answers the question —
+         how much of this utility a tonne of product costs. */
+      '<div class="sub-title" style="margin-top:9px">Utilities consumed</div>' +
+      m.utils.filter(function (u) { return f.util[u.id]; }).map(function (u) {
+        var q = f.util[u.id], per = q / (b.kg / 1000);
+        return '<div class="chrow"><span class="hint">' + X.esc(u.id) + '</span><span>' + X.esc(u.name) + '</span>' +
+          '<span class="n2">' + X.n(q, q < 100 ? 1 : 0) + ' ' + X.esc(uqUnit(m, u.id)) + '</span>' +
+          '<span class="n2 hint">' + X.n(per, per < 100 ? 1 : 0) + ' / t</span></div>';
+      }).join('') +
+      '<div class="sub-title" style="margin-top:9px">Effluent and residue</div>' +
+      Object.keys(f.effl).sort().map(function (k) {
+        var w = m.wastes[m.wix[k]];
+        return '<div class="chrow"><span class="hint mono">' + X.esc(k) + '</span><span>' + X.esc(w ? w.name : k) + '</span>' +
+          '<span class="n2">' + X.n(f.effl[k], 2) + ' m³</span><span class="n2 hint">of ' + X.n(w ? w.cap : 0) + ' a day</span></div>';
+      }).join('') +
+      '<div class="note" style="margin-top:8px"><i class="fa-solid fa-circle-info"></i><div>None of these are typed in per product. ' +
+      'The charge profile and the duty profile are written <b>per kL of reaction volume</b> against the operation, so a ' +
+      X.n(p.chargeKL, 1) + ' kL charge consumes exactly ' + X.n(p.chargeKL, 1) + ' times the rate — and a bigger batch consumes more ' +
+      'without a second table. Master Data &rarr; <b>Charge profile</b>, <b>Duty profiles</b> and <b>Routes</b>.</div></div>';
+  }
+
+  function tot(C) {
+    var m = C.m || X.model(), by = {};
+    C.aware.fwd.forEach(function (b) {
+      var f = facts(m, b), g = by[b.productId] || (by[b.productId] = { n: 0, kg: 0, rm: 0, ef: 0, sv: 0, mk: 0, util: {}, h: 0 });
+      g.n++; g.kg += b.kg; g.rm += f.rmCost; g.ef += f.efflM3; g.sv += f.solvKL; g.mk += f.makeupKL; g.h += f.runH;
+      Object.keys(f.util).forEach(function (k) { g.util[k] = (g.util[k] || 0) + f.util[k]; });
+    });
+    var ids = Object.keys(by).sort(function (a, b) { return by[b].kg - by[a].kg; });
+    var us = m.utils.map(function (u) { return u; });
+    $('tot').innerHTML = '<thead><tr><th>Product</th><th class="num">Batches</th><th class="num">Output</th><th class="num">Unit hours</th>' +
+      '<th class="num">Materials</th><th class="num">Effluent</th><th class="num">m³ / t</th><th class="num">Solvent charged</th>' +
+      '<th class="num">Fresh solvent</th>' + us.map(function (u) { return '<th class="num">' + X.esc(u.id) + '</th>'; }).join('') +
+      '</tr></thead><tbody>' +
+      ids.map(function (id) {
+        var g = by[id];
+        return '<tr><td><span class="mono">' + X.esc(id) + '</span> <span class="hint">' + X.esc(X.product(id).name || '') + '</span></td>' +
+          '<td class="num">' + g.n + '</td><td class="num">' + X.n(g.kg) + ' kg</td><td class="num">' + X.n(g.h, 0) + ' h</td>' +
+          '<td class="num">' + X.rs(g.rm) + '</td><td class="num">' + X.n(g.ef, 1) + ' m³</td>' +
+          '<td class="num">' + X.n(g.ef / Math.max(0.001, g.kg / 1000), 1) + '</td>' +
+          '<td class="num">' + X.n(g.sv, 1) + ' kL</td><td class="num">' + X.n(g.mk, 1) + ' kL</td>' +
+          us.map(function (u) { return '<td class="num">' + (g.util[u.id] ? X.n(g.util[u.id], 0) : '—') + '</td>'; }).join('') + '</tr>';
+      }).join('') + '</tbody>';
+  }
+
+  function acts(C) {
+    var m = C.m || X.model();
+    $('acts').innerHTML = '<button class="btn btn-ghost btn-sm" id="gs"><i class="fa-solid fa-chart-gantt"></i>See it on the Gantt</button>' +
+      '<button class="btn btn-outline btn-sm" id="dl"><i class="fa-solid fa-file-excel"></i>Full report to Excel</button>';
+    $('gs').onclick = function () { X.go('schedule', sel || ''); };
+    $('dl').onclick = function () {
+      var bs = C.aware.batches, reg = [], opr = [], mat = [], uti = [], wst = [];
+      bs.forEach(function (b) {
+        var p = m.P[b.pix], f = facts(m, b);
+        reg.push([b.id, b.productId, p.name, b.phase === 'H' ? 'history' : 'plan', X.fmt(b.s), X.fmt(b.e), X.fmt(b.readyAt),
+                  b.ops.map(function (o) { return o.unit; }).join(' '), b.kg, b.nominalKg, b.assay, b.imp, b.psd,
+                  f.runH, f.cleanH, f.efflM3, f.solvKL, f.recoveredKL, f.makeupKL, f.rmCost, (b.lineIds || []).join(' ')]);
+        b.ops.forEach(function (o, i) {
+          opr.push([b.id, b.productId, o.seq, o.label, o.cls, o.unit, X.fmt(o.s), X.fmt(o.e),
+                    Math.round((o.e - o.s) / 60 * 10) / 10, Math.round((o.clean || 0) / 60 * 10) / 10,
+                    i ? Math.round((o.s - b.ops[i - 1].e) / 60 * 10) / 10 : '', i ? p.ops[i].maxLagH : '', o.efflM3, o.solvKL]);
+        });
+        f.inputs.forEach(function (c) {
+          mat.push([b.id, b.productId, c.seq, c.opLabel, c.roleName, c.rmId, c.rmName, c.perKL, p.chargeKL, c.qty, c.net, c.unit, c.priceUnit, c.rupees]);
+        });
+        Object.keys(f.util).sort().forEach(function (k) { uti.push([b.id, b.productId, k, f.util[k], uqUnit(m, k)]); });
+        Object.keys(f.effl).sort().forEach(function (k) { wst.push([b.id, b.productId, k, f.effl[k], 'm3']); });
+      });
+      X.xlsx([
+        { name: 'Batch register', cols: ['Batch', 'Product', 'Product name', 'Phase', 'Start', 'End', 'QC release', 'Units',
+                                         'Output kg', 'Nameplate kg', 'Assay %', 'Impurity %', 'd90 um', 'Run h', 'Clean h',
+                                         'Effluent m3', 'Solvent charged kL', 'Solvent recovered kL', 'Fresh solvent kL',
+                                         'Material cost Rs', 'Order lines'], rows: reg },
+        { name: 'Operations', cols: ['Batch', 'Product', 'Seq', 'Operation', 'Class', 'Unit', 'Start', 'End', 'Hours',
+                                     'Clean h before', 'Lag from previous h', 'Hold window h', 'Effluent m3', 'Solvent kL'], rows: opr },
+        { name: 'Materials consumed', cols: ['Batch', 'Product', 'Seq', 'Operation', 'Role', 'Material', 'Material name',
+                                             'Rate per kL', 'Charge kL', 'Charged', 'Net consumed', 'Unit', 'Price per unit', 'Rs'], rows: mat },
+        { name: 'Utilities consumed', cols: ['Batch', 'Product', 'Utility', 'Quantity', 'Unit'], rows: uti },
+        { name: 'Effluent', cols: ['Batch', 'Product', 'Category', 'Quantity', 'Unit'], rows: wst }
+      ], 'production-plan-report.xlsx');
+    };
+  }
+
+  function paint(C) {
+    CUR = C; FACTS = {};
+    var m = C.m || X.model();
+    if (!$('fp').options.length || $('fp').options.length !== m.P.length + 1) {
+      $('fp').innerHTML = '<option value="">All</option>' +
+        m.P.map(function (p) { return '<option value="' + p.id + '">' + X.esc(p.id) + '</option>'; }).join('');
+      $('fp').onchange = function () { reg(CUR); };
+      $('fw').onchange = function () { reg(CUR); };
+      $('fs').onchange = function () { reg(CUR); };
+    }
+    var h = X.hashParam();
+    if (h) {
+      if (C.aware.batches.some(function (b) { return b.id === h; })) sel = h;
+      else if (m.pix[h] != null) $('fp').value = h;
+    }
+    kpis(C); gloss(C); reg(C); detail(C); tot(C); acts(C);
+  }
+  X.withPlan(paint);
+  X.whenPlanChanges(paint);
+  window.addEventListener('chm:navigate', function () {
+    if (!CUR) return;
+    var h = X.hashParam(), m = CUR.m || X.model();
+    if (h && CUR.aware.batches.some(function (b) { return b.id === h; })) { sel = h; reg(CUR); detail(CUR); }
+    else if (h && m.pix[h] != null) { $('fp').value = h; reg(CUR); }
+  });
+})();
+</script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+</body>
+</html>

@@ -17,18 +17,18 @@ Every generated parameter is in `tools/gen/config.py` and is marked **generated*
 | Products | 14 in 4 families (6 regulated, 2 intermediates also sold) |
 | Cleaning matrix | 130 cells (1 not permitted, 8 validated clean-down, 35 boil-out, 5 overrides) |
 | Customers | 40 (12 regulated with an approved-site matrix) |
-| Order book | 86 orders / 126 lines / 85,090 kg / Rs 519,953,200 |
+| Order book | 140 orders / 208 lines / 119,810 kg / Rs 750,630,400 |
 | Load | 0.819 on REACTOR (band 0.85-0.92) |
 | Opening lots | 39 |
-| Deliveries | 25 tanker loads over the horizon |
+| Deliveries | 26 tanker loads over the horizon |
 
 ## Collections in `window.CHM`
 
-### `orders` — 86 records
+### `orders` — 140 records
 
 Fields: `id`, `customerId`, `cls`, `orderDate`, `po`, `siteId`
 
-### `lines` — 126 records
+### `lines` — 208 records
 
 Fields: `id`, `orderId`, `productId`, `qty`, `due`, `cls`, `customerId`, `priceKg`, `marginKg`, `siteId`, `minLifeM`, `assayMin`, `impMax`, `psdMax`, `tightSpec`, `coa`
 
@@ -41,6 +41,11 @@ Fields: `id`, `orderId`, `productId`, `qty`, `due`, `cls`, `customerId`, `priceK
 - `m.cleanGrades` (6) **Clean grades** — Configure route, nuances P1; What each grade costs in hours. Change a grade here and every sequence that uses it re-plans.
 - `m.campaignRule` (1) **Campaign rule** — Configure route, nuances P1; Minimum and maximum campaign size, how far demand may be pulled forward to reach the minimum, the attribute the campaign sorts on, and the forced break.
 - `m.families` (4) **Product families** — Configure route, Grouping only; the rules read attributes, not the family name.
+- `m.inputProfile` (14) **Charge profile (inputs per kL)** — Configure route, What each operation archetype charges, per kL of reaction volume. The quantity a batch consumes therefore follows its batch size, with no second table.
+- `m.familyInputs` (24) **Which material fills each role** — Configure route, Four rows, one per family. This is the only place a product comes near a material id; everything else is derived.
+- `m.chargeSheet` (66) **Charge sheet per batch (derived)** — Configure route, A view, not an input: the charge profile times the batch's own charge volume. One row per product, operation and material — the raw material consumption behind every batch in the plan.
+- `m.utilityPerBatch` (63) **Utility consumed per batch (derived)** — Extend route, nuances P4; A view, not an input: the duty profile integrated over each operation's hours. This is the master that relates utility consumption to production volume — per batch, per tonne and per kL.
+- `m.wastePerBatch` (14) **Effluent and solvent per batch (derived)** — Extend route, nuances P5; A view, not an input: the route's effluent and solvent rows summed per batch, with what the recovery train returns. This is the master that relates effluent and solvent generation to production volume.
 - `m.units` (17) **Equipment** — Configure route, Class, block, working volume, material and service. Eligibility is derived from these against the product's attributes.
 - `m.blockTimes` (17) **Block times** — Configure route, Planned maintenance and service windows. A plan cannot run a batch through a block time.
 - `m.utilities` (5) **Utilities (secondary resources)** — Extend route, nuances P4; Hourly capacity per utility, with the seasonal derate. The cap binds on the PEAK of concurrent batches.
@@ -51,13 +56,13 @@ Fields: `id`, `orderId`, `productId`, `qty`, `due`, `cls`, `customerId`, `priceK
 - `m.bunds` (4) **Bunds** — Extend route, nuances P6; Which hazard classes each bund may hold.
 - `m.segregation` (2) **Segregation rules** — Extend route, nuances P6; Hazard classes that may not share a bund.
 - `m.tanks` (11) **Tank farm** — Extend route, nuances P6; Day tanks: capacity, opening level, hazard class and bund.
-- `m.deliveries` (25) **Tanker deliveries** — Extend route, nuances P6; The delivery calendar the licence check runs against.
+- `m.deliveries` (26) **Tanker deliveries** — Extend route, nuances P6; The delivery calendar the licence check runs against.
 - `m.customers` (40) **Customers** — Extend route, nuances P7, S6, S7; Approved sites, the filed route, COA requirement and the minimum remaining shelf life on receipt.
 - `m.approvals` (120) **Site approval matrix** — Extend route, nuances S7; Customer by site, with the qualification lead time where a site is not yet filed.
 - `m.orderClasses` (4) **Order classes** — Configure route, Priority, delay penalty per day and the release window — how early a class may be started.
 - `m.demandPlan` (168) **Demand plan (12 months)** — Configure route, nuances S1, S8; Monthly volume per product, with the seasonal peak and the shutdown month.
 - `m.openingLots` (39) **Opening lots** — Extend route, nuances P7, S6; Stock at the start of history, each lot with its assay, impurity, PSD and retest date.
-- `m.rawMaterials` (8) **Raw materials** — Configure route, nuances S5; Minimum buy block, lead time and the price lag.
+- `m.rawMaterials` (10) **Raw materials** — Configure route, nuances S5; Minimum buy block, lead time and the price lag.
 - `m.sourcing` (8) **Make, buy or toll** — Configure route, nuances S3; The three sourcing options per intermediate, each with its cost and lead time.
 - `m.sites` (3) **Sites** — Extend route, nuances S7; The network. This demo schedules Unit 2 in detail; the others are S&OP-level.
 - `m.weights` (4) **Objective weights** — Configure route, The five levers. BOTH rule sets use the same weights, so the comparison is about rules, not priorities.

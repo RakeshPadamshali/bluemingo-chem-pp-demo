@@ -16,6 +16,14 @@
   .lic .caplbl { position:absolute; right:4px; font-size:10px; font-weight:600; color:var(--color-danger); background:rgba(255,255,255,.85); padding:0 3px; }
   .lic .dlbl { position:absolute; bottom:1px; font-size:9px; color:var(--color-text-hint); transform:translateX(-50%); }
   .lic .dm { position:absolute; bottom:0; top:0; width:2px; background:rgba(37,169,224,.5); }
+  .whatfor { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  @media (max-width:1050px){ .whatfor { grid-template-columns:repeat(2,1fr); } }
+  .whatfor .wc { border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:9px 11px; background:#fff; }
+  .whatfor .wc.no { background:#fdf5f5; border-color:#f0cccc; }
+  .whatfor .wc h5 { margin:0 0 4px; font-size:12px; display:flex; align-items:center; gap:6px; }
+  .whatfor .wc h5 i { color:var(--color-primary); }
+  .whatfor .wc.no h5 i { color:var(--color-danger); }
+  .whatfor .wc p { margin:0; font-size:11px; color:var(--color-text-secondary); line-height:1.5; }
 </style>
 </head>
 <body>
@@ -26,6 +34,16 @@
       <div class="actions" id="acts"></div>
     </div>
     <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-circle-question"></i>What the tank farm is, and what a tanker is for
+        <span class="right">how storage connects to the schedule</span></div>
+      <div class="card-body">
+        <div class="whatfor" id="whatfor"></div>
+        <div class="card-body tbl-wrap" style="padding:0;margin-top:9px;max-height:300px;overflow:auto"><table class="tbl" id="draw"></table></div>
+        <div class="note"><i class="fa-solid fa-circle-info"></i><div id="wfnote"></div></div>
+      </div>
+    </div>
 
     <div class="card">
       <div class="card-head"><i class="fa-solid fa-gauge"></i>Licensed quantity held, day by day
@@ -201,6 +219,82 @@
     };
   }
 
+  /* Two questions this page never answered in words: what the farm is FOR, and what a tanker delivery is doing in a
+     production plan at all. Both have the same answer — the farm holds the plant's INPUT solvents, every reaction and
+     every wash draws from it, and a tanker is how the level is put back. Finished product never goes near it. */
+  function whatfor(C) {
+    var m = C.m || X.model(), E = X.E;
+    var del = C.aware.state.accepted.filter(function (d) { return d.at >= X.ASOF; });
+    var ref = C.aware.refused.filter(function (r) { return r.at >= X.ASOF; });
+    var em = (C.aware.state.emergency || []).filter(function (e) { return e.at >= X.ASOF; });
+    $('whatfor').innerHTML = [
+      ['fa-arrow-right-to-bracket', 'It holds what goes IN',
+       'Eleven day tanks of bulk solvent and acid — toluene, dichloromethane, IPA, methanol, acetonitrile, DMF, THF, ' +
+       'ethyl acetate, nitric, sulphuric and caustic. These are the reaction media and the wash liquors, not product.'],
+      ['fa-flask', 'Production draws from it',
+       'Every reaction and every isolation step charges solvent from its product\'s tank. The charge is on the route, in ' +
+       'kL per batch, so the plan is also a draw-down schedule for the farm — ' +
+       X.kl(m.P.reduce(function (a, p) { return a + p.solvKL; }, 0)) + ' across one batch of each product.'],
+      ['fa-truck-droplet', 'A tanker puts the level back',
+       'Most of the solvent comes back from the recovery train, so a tanker is bringing <b>make-up</b>, not the whole ' +
+       'charge. ' + del.length + ' land in this plan. They are scheduled against the plant\'s own net draw, which is why ' +
+       'a delivery calendar belongs in a production plan rather than in a purchasing one.'],
+      ['fa-ban', 'Finished product is NOT stored here', true,
+       'Batches become <b>lots</b> — drummed, QC-released, carrying an assay and a retest date — and those live in the ' +
+       'warehouse, on <b>Lots, Blending &amp; Allocation</b>. The bund and the licence constrain how much hazardous ' +
+       '<i>input</i> may stand on site at once, and that is a planning constraint because it can refuse a delivery.']
+    ].map(function (c) {
+      var no = c[3] === undefined ? false : true;
+      return '<div class="wc' + (no ? ' no' : '') + '"><h5><i class="fa-solid ' + c[0] + '"></i>' + X.esc(c[1]) + '</h5>' +
+        '<p>' + (no ? c[3] : c[2]) + '</p></div>';
+    }).join('');
+
+    // the draw-down itself: which tank each product empties, and how much of it the plan takes
+    var byTank = {};
+    C.aware.fwd.forEach(function (b) {
+      var p = m.P[b.pix];
+      if (p.tix == null) return;
+      var w = E.wastePerBatch(m, p), g = byTank[p.tix] || (byTank[p.tix] = { draw: 0, back: 0, n: 0, prods: {} });
+      g.draw += w.solvKL; g.back += w.recoveredKL; g.n++; g.prods[p.id] = (g.prods[p.id] || 0) + 1;
+    });
+    var rows = m.tanks.map(function (t) { return { t: t, g: byTank[t.ix] || { draw: 0, back: 0, n: 0, prods: {} } }; })
+      .sort(function (a, b) { return b.g.draw - a.g.draw; });
+    $('draw').innerHTML =
+      '<thead><tr><th>Tank</th><th>Solvent</th><th>Hazard</th><th>Bund</th><th class="num">Capacity</th>' +
+      '<th class="num">Batches drawing</th><th class="num">Drawn by the plan</th><th class="num">Returned by recovery</th>' +
+      '<th class="num">Net make-up</th><th>Products that use it</th></tr></thead><tbody>' +
+      rows.map(function (r) {
+        var ps = Object.keys(r.g.prods).sort();
+        return '<tr><td class="mono">' + X.esc(r.t.id) + '</td><td>' + X.esc(r.t.solventId) + '</td>' +
+          '<td>' + X.esc(r.t.haz) + '</td><td>' + X.esc(r.t.bundId) + '</td>' +
+          '<td class="num">' + X.n(r.t.capKL, 0) + ' kL</td>' +
+          '<td class="num">' + (r.g.n || '—') + '</td>' +
+          '<td class="num">' + (r.g.draw ? X.n(r.g.draw, 1) + ' kL' : '—') + '</td>' +
+          '<td class="num">' + (r.g.back ? X.n(r.g.back, 1) + ' kL' : '—') + '</td>' +
+          '<td class="num"><b>' + (r.g.draw ? X.n(r.g.draw - r.g.back, 1) + ' kL' : '—') + '</b></td>' +
+          '<td class="hint">' + X.esc(ps.join(', ') || 'not used by this plan') + '</td></tr>';
+      }).join('') + '</tbody>';
+    /* A refused tanker waits and re-presents every two days, up to five times, so the refusal COUNT is events and not
+       tankers. Reporting it as tankers reads as a farm turning away three loads in four, which is not what happened. */
+    var accIds = {}, refIds = {};
+    del.forEach(function (d) { accIds[d.id] = 1; });
+    ref.forEach(function (r) { refIds[r.id] = 1; });
+    var refN = Object.keys(refIds).length;
+    var never = Object.keys(refIds).filter(function (i) { return !accIds[i]; }).length;
+    var due = m.deliveries.filter(function (d) { return d.at >= X.ASOF; }).length;
+    $('wfnote').innerHTML =
+      'That last column is the point: a tanker brings the <b>net make-up</b>, not the gross charge, because the recovery ' +
+      'train returns most of it after a ' + X.n(m.recovery.turnMin / 60, 0) + ' h turnaround. Size the calendar to the ' +
+      'gross draw and every tank fills to its licensed ceiling and starts refusing deliveries — which is how a plant ' +
+      'starves the one tank that actually needed the load. Of the <b>' + due + '</b> loads due in this window, <b>' +
+      Object.keys(accIds).length + '</b> were taken in and <b>' + refN + '</b> were turned away at least once' +
+      (never ? ', <b>' + never + '</b> of them never getting in at all' : '') + '. A refused tanker comes back in two ' +
+      'days, up to five times, so counted as events that is <b>' + ref.length + '</b> refusals' +
+      (ref.length ? ', <b>' + ref.filter(function (r) { return r.overLicence; }).length +
+       '</b> of them by the licence rather than by tank space' : '') + '. <b>' + em.length + '</b> charge' +
+      (em.length === 1 ? ' was' : 's were') + ' bought in at a premium because a tank could not cover it.';
+  }
+
   function paint(C) {
     CUR = C;
     var m = C.m || X.model();
@@ -211,7 +305,7 @@
     var h = X.hashParam();
     if (h && m.hix[h] != null) $('haz').value = h;
     else if (h && m.tix[h] != null) $('haz').value = m.tanks[m.tix[h]].haz;
-    kpis(C); lic(C); farm(C); dels(C); refused(C); acts(C);
+    kpis(C); whatfor(C); lic(C); farm(C); dels(C); refused(C); acts(C);
   }
   X.withPlan(paint);
   X.whenPlanChanges(paint);

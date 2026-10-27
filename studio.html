@@ -15,6 +15,16 @@
   .nbar .bv { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; }
   .nbar .nm { display:flex; align-items:center; gap:6px; } .nbar .nm i { color:var(--color-primary); width:13px; text-align:center; }
   tr.ledrow { cursor:pointer; } tr.ledrow.open td { background:var(--color-primary-light); }
+  .twoplans { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:900px){ .twoplans { grid-template-columns:1fr; } }
+  .twoplans .tp { border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:9px 11px; background:#fff; }
+  .twoplans .tp.aware { border-color:var(--color-primary); }
+  .twoplans .tp h4 { margin:0 0 4px; font-size:13px; }
+  .twoplans .tp .lede { font-size:11.5px; color:var(--color-text-secondary); margin-bottom:6px; }
+  .twoplans .tp ul { margin:0; padding-left:16px; font-size:11px; color:var(--color-text-secondary); }
+  .twoplans .tp li { margin-bottom:2px; }
+  .twoplans .same { grid-column:1/-1; font-size:11.5px; color:var(--color-text-secondary);
+                    background:var(--color-bg-alt); border-radius:var(--radius-sm); padding:7px 11px; }
 </style>
 </head>
 <body>
@@ -26,8 +36,11 @@
     </div>
 
     <div class="card">
-      <div class="card-body" style="padding:10px 12px">
-        <div class="note" style="margin:0"><i class="fa-solid fa-scale-balanced"></i><div id="fairness"></div></div>
+      <div class="card-head"><i class="fa-solid fa-circle-question"></i>What the two plans are
+        <span class="right">one scheduler, one order book, one set of weights — seven rules switched</span></div>
+      <div class="card-body">
+        <div class="twoplans" id="twoplans"></div>
+        <div class="note" style="margin-top:9px"><i class="fa-solid fa-scale-balanced"></i><div id="fairness"></div></div>
       </div>
     </div>
 
@@ -96,6 +109,26 @@
   var $ = function (id) { return document.getElementById(id); };
   var open = {};
 
+  /* "What is a chemical-aware batch?" is the first question anyone asks this page, and the scoreboards answered it only
+     by implication. There is no such thing as a chemical-aware BATCH: there are two PLANS of the same order book, and a
+     batch belongs to whichever plan placed it. Say so, and list the seven rules that are the whole difference. */
+  function twoplans(C) {
+    var as = D.m.genericAssumptions || [];
+    $('twoplans').innerHTML =
+      '<div class="tp"><h4>The generic plan</h4>' +
+      '<div class="lede">What a conventional scheduler produces. It is not a weak plan — it respects equipment ' +
+      'non-overlap, eligibility, batch sizes, maintenance windows, due-date order and campaign grouping, exactly as a ' +
+      'real APS does. It simply assumes seven things about the chemistry:</div><ul>' +
+      as.map(function (x) { return '<li>' + X.esc(x.label) + '</li>'; }).join('') + '</ul></div>' +
+      '<div class="tp aware"><h4>The chemical-aware plan</h4>' +
+      '<div class="lede">The <b>same scheduler</b>, with those seven assumptions replaced by the plant\'s own rules. ' +
+      'Nothing else changes — not the code path, not the objective, not the data:</div><ul>' +
+      as.map(function (x) { return '<li>' + X.esc(x.real) + '</li>'; }).join('') + '</ul></div>' +
+      '<div class="same"><b>So a batch is not "generic" or "aware" by nature.</b> Both plans make batches of the same ' +
+      'products on the same units; a batch is simply one the generic plan placed or one the aware plan placed. Where the ' +
+      'two put the same batch in the same slot, the batch is identical — which is why several rows below read the same.</div>';
+  }
+
   function fairness(C) {
     var g = C.naive.generic, a = C.naive.aware;
     var won = g.otif >= a.otif;
@@ -116,42 +149,57 @@
       if (Math.abs(gv - av) < 1e-9) return 'tie';
       return (dir === 'up' ? gv > av : gv < av) ? 'generic' : 'aware';
     }
+    // the gap between the columns, in the row's own units, so "nearly the same" and "the same" are told apart
+    function dPct(gv, av) { var d = (av - gv) * 100; return (Math.abs(d) < 0.05 ? '0' : (d > 0 ? '+' : '') + d.toFixed(1)) + ' pts'; }
+    function dNum(gv, av, suf) { var d = av - gv; return (d > 0 ? '+' : '') + X.n(d, 0) + (suf || ''); }
+    function dT(gv, av) { var d = (av - gv) / 1000; return (d > 0 ? '+' : '') + X.n(d, 1) + ' t'; }
+    function dRs(gv, av) { return (av - gv > 0 ? '+' : '') + X.rs(av - gv); }
     var rows;
     if (naive) {
+      var gUtil = (g.utilByClass[a.utilClass] || {}).busy || 0;
       rows = [
-        ['On time, in full', X.pct(g.otif), X.pct(a.otif), who(g.otif, a.otif, 'up')],
-        ['Output booked', X.t(g.nominalKg), X.t(a.nominalKg), who(g.nominalKg, a.nominalKg, 'up')],
-        ['Batches', X.n(g.batches), X.n(a.batches), who(g.batches, a.batches, 'up')],
-        ['Cleaning hours booked', X.n(g.cleanHours), X.n(a.cleanHours), who(g.cleanHours, a.cleanHours, 'down')],
-        [(a.utilClass ? X.clsName(a.utilClass) : 'Unit') + ' time used',
-         X.pct((g.utilByClass[a.utilClass] || {}).busy || 0), X.pct(a.utilBusiest),
-         who((g.utilByClass[a.utilClass] || {}).busy || 0, a.utilBusiest, 'up')],
-        ['Late lines', X.n(g.late), X.n(a.late), who(g.late, a.late, 'down')]
+        ['Cleaning hours booked', X.n(g.cleanHours), X.n(a.cleanHours), who(g.cleanHours, a.cleanHours, 'down'), dNum(g.cleanHours, a.cleanHours, ' h')],
+        ['On time, in full', X.pct(g.otif), X.pct(a.otif), who(g.otif, a.otif, 'up'), dPct(g.otif, a.otif)],
+        ['Late lines', X.n(g.late), X.n(a.late), who(g.late, a.late, 'down'), dNum(g.late, a.late)],
+        [(a.utilClass ? X.clsName(a.utilClass) : 'Unit') + ' time used', X.pct(gUtil), X.pct(a.utilBusiest),
+         who(gUtil, a.utilBusiest, 'up'), dPct(gUtil, a.utilBusiest)],
+        ['Output booked', X.t(g.nominalKg), X.t(a.nominalKg), who(g.nominalKg, a.nominalKg, 'up'), dT(g.nominalKg, a.nominalKg)],
+        ['Batches', X.n(g.batches), X.n(a.batches), who(g.batches, a.batches, 'up'), dNum(g.batches, a.batches)]
       ];
     } else {
       var gNet = g.contribution - g.delayCost - cons.total.rupees;
       var aNet = a.contribution - a.delayCost;
       rows = [
-        ['Output actually delivered', X.t(g.madeKg - lostKg), X.t(a.madeKg), who(g.madeKg - lostKg, a.madeKg, 'up')],
-        ['Constraints broken', X.n(C.proofGeneric.total.violations), X.n(C.proof.total.violations), who(C.proofGeneric.total.violations, C.proof.total.violations, 'down')],
-        ['Product written off or re-worked', X.kg(cons.total.kg), X.kg(0), who(cons.total.kg, 0, 'down')],
-        ['Plant hours lost to the consequences', X.n(cons.total.hours, 0) + ' h', '0 h', who(cons.total.hours, 0, 'down')],
-        ['Firefighting batches needed', X.n(C.repair.placed), '0', who(C.repair.placed, 0, 'down')],
-        ['Contribution', X.rs(g.contribution), X.rs(a.contribution), who(g.contribution, a.contribution, 'up')],
-        ['Late-delivery penalties', X.rs(-g.delayCost), X.rs(-a.delayCost), who(-g.delayCost, -a.delayCost, 'up')],
-        ['Cost of the assumptions', X.rs(-cons.total.rupees), X.rs(0), who(-cons.total.rupees, 0, 'up')],
-        ['__total', X.rs(gNet), X.rs(aNet), who(gNet, aNet, 'up')]
+        ['Output actually delivered', X.t(g.madeKg - lostKg), X.t(a.madeKg), who(g.madeKg - lostKg, a.madeKg, 'up'), dT(g.madeKg - lostKg, a.madeKg)],
+        ['Constraints broken', X.n(C.proofGeneric.total.violations), X.n(C.proof.total.violations), who(C.proofGeneric.total.violations, C.proof.total.violations, 'down'), dNum(C.proofGeneric.total.violations, C.proof.total.violations)],
+        ['Product written off or re-worked', X.kg(cons.total.kg), X.kg(0), who(cons.total.kg, 0, 'down'), dNum(cons.total.kg, 0, ' kg')],
+        ['Plant hours lost to the consequences', X.n(cons.total.hours, 0) + ' h', '0 h', who(cons.total.hours, 0, 'down'), dNum(cons.total.hours, 0, ' h')],
+        ['Firefighting batches needed', X.n(C.repair.placed), '0', who(C.repair.placed, 0, 'down'), dNum(C.repair.placed, 0)],
+        ['Contribution', X.rs(g.contribution), X.rs(a.contribution), who(g.contribution, a.contribution, 'up'), dRs(g.contribution, a.contribution)],
+        ['Late-delivery penalties', X.rs(-g.delayCost), X.rs(-a.delayCost), who(-g.delayCost, -a.delayCost, 'up'), dRs(-g.delayCost, -a.delayCost)],
+        ['Cost of the assumptions', X.rs(-cons.total.rupees), X.rs(0), who(-cons.total.rupees, 0, 'up'), dRs(-cons.total.rupees, 0)],
+        ['__total', X.rs(gNet), X.rs(aNet), who(gNet, aNet, 'up'), dRs(gNet, aNet)]
       ];
     }
+    /* A difference column, because on scoreboard 1 several rows ARE almost identical — the two plans book nearly the
+       same batches and nearly the same tonnage — and a reader who cannot see that they differ by 2 rather than by 0
+       reasonably wonders whether the page is showing one plan twice. */
     var html = '<table class="score"><thead><tr><th>' + (naive ? 'As each plan reports it' : 'What the plant is left with') +
-      '</th><th>Generic</th><th>Chemical-aware</th></tr></thead><tbody>' +
+      '</th><th>Generic</th><th>Chemical-aware</th><th>Difference</th></tr></thead><tbody>' +
       rows.map(function (r) {
         var total = r[0] === '__total';
         var lbl = total ? 'Net' : r[0];
+        var same = r[3] === 'tie';
         return '<tr' + (total ? ' class="total"' : '') + '><td>' + X.esc(lbl) + '</td>' +
           '<td class="' + (r[3] === 'generic' ? 'win' : r[3] === 'aware' ? 'lose' : '') + '">' + r[1] + '</td>' +
-          '<td class="' + (r[3] === 'aware' ? 'win' : r[3] === 'generic' ? 'lose' : '') + '">' + r[2] + '</td></tr>';
+          '<td class="' + (r[3] === 'aware' ? 'win' : r[3] === 'generic' ? 'lose' : '') + '">' + r[2] + '</td>' +
+          '<td class="hint">' + (same ? 'identical' : X.esc(r[4] || '')) + '</td></tr>';
       }).join('') + '</tbody></table>';
+    if (naive) html += '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Several of these rows are nearly ' +
+      'identical, and that is the finding, not a fault: both plans schedule <b>the same order book on the same equipment ' +
+      'with the same objective weights</b>, so they book a similar number of batches and a similar tonnage. They differ in ' +
+      'what they <b>believe</b> — cleaning hours and on-time delivery are where the assumptions show. Scoreboard 2 is the ' +
+      'same two plans after the chemistry has been applied to them.</div></div>';
     if (!naive) html += '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Only <b>' + C.cons.statusChanging +
       '</b> consequences are carried through to a batch\'s status — the first-order ones. A further <b>' + C.cons.unmodelled +
       '</b> are priced but not propagated, so the figure above is a floor, not a worst case.</div></div>';
@@ -283,7 +331,7 @@
     $('alloff').onclick = function () { X.replan(function () { X.State.set('assume', []); }, 'Back to the generic assumptions', paint); };
   }
 
-  function paint(C) { fairness(C); board(C, 'naive'); board(C, 'real'); ratchet(C); ledger(C); bars(C); weights(C); sacs(C); acts(C); }
+  function paint(C) { twoplans(C); fairness(C); board(C, 'naive'); board(C, 'real'); ratchet(C); ledger(C); bars(C); weights(C); sacs(C); acts(C); }
   X.withPlan(paint);
   X.whenPlanChanges(paint);
 })();

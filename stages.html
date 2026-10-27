@@ -18,8 +18,21 @@
   .route .lk .lt { font-size:10px; color:var(--color-text-muted); white-space:nowrap; margin-bottom:3px; }
   .route .lk.tight .lt { color:var(--color-danger); font-weight:600; }
   .route .lk.tight .ln { background:var(--color-danger); }
-  .clock { display:grid; grid-template-columns:132px 108px 1fr 96px; gap:9px; align-items:center; font-size:11.5px; margin-bottom:4px; }
+  .clock { display:grid; grid-template-columns:112px 248px 112px 1fr 108px; gap:9px; align-items:center; font-size:11.5px; margin-bottom:4px; }
+  .clock .lk2 { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .clock .wb { position:relative; height:14px; background:#eef1f4; border-radius:4px; overflow:hidden; }
+  .clockhead { display:grid; grid-template-columns:112px 248px 112px 1fr 108px; gap:9px; font:600 9.5px 'Roboto';
+               text-transform:uppercase; letter-spacing:.3px; color:var(--color-text-muted); padding-bottom:4px;
+               border-bottom:1px solid var(--color-border); margin-bottom:6px; }
+  .clockhead .r { text-align:right; }
+  .worked { display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin:4px 0 2px; }
+  .worked .ws { position:relative; padding:7px 10px 7px 16px; background:var(--color-bg-alt); font-size:11px;
+                border-right:3px solid #fff; }
+  .worked .ws:last-child { border-right:none; }
+  .worked .ws .wk { font:600 9.5px 'Roboto'; text-transform:uppercase; letter-spacing:.3px; color:var(--color-text-muted); }
+  .worked .ws .wt { font-weight:600; font-size:12px; }
+  .worked .ws .wd { color:var(--color-text-secondary); font-size:10.5px; }
+  .worked .ws.deadline { background:#fdeeee; } .worked .ws.actual { background:#eaf5ec; }
   .clock .wf2 { position:absolute; left:0; top:0; bottom:0; background:var(--color-success); }
   .clock .wf2.near { background:var(--color-warning); } .clock .wf2.over { background:var(--color-danger); }
   .clock .wm { position:absolute; top:-2px; bottom:-2px; width:2px; background:var(--color-text-primary); }
@@ -49,6 +62,10 @@
         <div class="card-head"><i class="fa-solid fa-stopwatch"></i>The hold clock
           <span class="right"><span id="hmeta"></span> · every link of every batch, against the window on that link</span></div>
         <div class="card-body">
+          <div class="note" style="margin-top:0"><i class="fa-solid fa-circle-info"></i><div id="explain"></div></div>
+          <div class="sub-title">One link, read end to end</div>
+          <div class="worked" id="worked"></div>
+          <div class="hint" id="wnote" style="margin:4px 0 10px"></div>
           <div class="filters">
             <span class="fl">Show</span><select id="filt">
               <option value="tight">The 40 tightest links</option>
@@ -57,7 +74,7 @@
             </select>
             <span class="hint" id="fnote"></span>
           </div>
-          <div id="clocks" style="max-height:430px;overflow:auto"></div>
+          <div id="clocks" style="max-height:380px;overflow:auto"></div>
         </div>
       </div>
       <div class="card">
@@ -147,6 +164,46 @@
       'a plan that breaks one cannot exist, so the scheduler holds the start back instead.';
   }
 
+  /* The hold clock, said in words before it is drawn.
+
+     A bar labelled "4.5 / 96 h" is only legible to somebody who already knows what a hold window is. What the panel is
+     actually showing is a countdown that starts the moment a stage ends: the material may stand for so long and no
+     longer, and the next stage has to have STARTED inside that time. So: name the link in full, name both units, and
+     work one link through end to end with real clock times before showing two hundred of them. */
+  function explain(C) {
+    var m = C.m || X.model(), L = links(C);
+    var min = 1e9, minP = '', minOp = '';
+    m.P.forEach(function (p) {
+      p.ops.forEach(function (o, i) { if (i && o.maxLagH < min) { min = o.maxLagH; minP = p.id; minOp = o.label.toLowerCase(); } });
+    });
+    $('explain').innerHTML =
+      'A <b>hold window</b> is how long the material coming off one stage may stand before the next stage has to start. ' +
+      'A wet cake on a filter is not stable: leave it and it cakes, oxidises or picks up water, and the batch needs a re-test ' +
+      'or a re-work. So every link in a route carries two numbers — a <b>minimum lag</b> (the transfer, the cool-down, the ' +
+      'in-process check that has to happen anyway) and a <b>maximum lag</b>, which is the hold window. The tightest one in ' +
+      'this plant is <b>' + min + ' h before ' + X.esc(minOp) + ' on ' + X.esc(minP) + '</b>. ' +
+      'There are ' + X.n(L.length) + ' such links in this plan, and the scheduler may not break one: it holds a reactor idle instead.';
+  }
+
+  /* One link, with the clock times on it. Picked automatically — the tightest link in the plan — so it is never stale. */
+  function worked(C) {
+    var L = links(C);
+    if (!L.length) { $('worked').innerHTML = ''; $('wnote').textContent = ''; return; }
+    var x = L.slice().sort(function (a, b) { return b.use - a.use; })[0];
+    var endPrev = x.at, must = x.at + x.win, started = x.at + x.lag, left = must - started;
+    $('worked').innerHTML = [
+      ['ws', 'Stage ends', X.fmt(endPrev), x.from + ' finishes on ' + x.fromUnit],
+      ['ws', 'Earliest it may start', X.fmt(endPrev + x.min), 'minimum lag ' + X.n(x.min / 60, 0) + ' h — transfer and cool-down'],
+      ['ws deadline', 'Must have started by', X.fmt(must), 'hold window ' + X.n(x.win / 60, 0) + ' h after the stage ended'],
+      ['ws actual', 'Actually started', X.fmt(started), x.to + ' on ' + x.toUnit + ' — ' + X.n(left / 60, 1) + ' h of room left']
+    ].map(function (s) {
+      return '<div class="' + s[0] + '"><div class="wk">' + X.esc(s[1]) + '</div><div class="wt">' + X.esc(s[2]) +
+        '</div><div class="wd">' + X.esc(s[3]) + '</div></div>';
+    }).join('');
+    $('wnote').innerHTML = 'Batch <b>' + X.esc(x.batch) + '</b> &middot; the tightest link in this plan: it used ' +
+      X.pct(x.use) + ' of its window. Every row below is one of these, drawn as a bar.';
+  }
+
   function clocks(C) {
     var L = links(C), mode = $('filt').value, pid = $('prod').value;
     if (mode === 'prod') L = L.filter(function (x) { return x.productId === pid; });
@@ -154,18 +211,25 @@
     var show = mode === 'all' ? L.slice(0, 200) : L.slice(0, 40);
     $('hmeta').textContent = X.n(L.length) + ' links';
     $('fnote').textContent = mode === 'all' ? 'first 200 by how little room they had' : mode === 'prod' ? X.pname(pid) : '';
-    $('clocks').innerHTML = show.map(function (x) {
-      var w = Math.min(100, x.use * 100), kls = x.use > 1 ? 'over' : x.use > 0.85 ? 'near' : '';
-      return '<div class="clock" title="' + X.esc(x.batch + ': ' + x.from + ' on ' + x.fromUnit + ' then ' + x.to + ' on ' + x.toUnit) + '">' +
-        '<span class="mono">' + X.esc(x.batch) + '</span>' +
-        '<span class="hint">' + X.esc(x.to.toLowerCase()) + '</span>' +
-        '<span class="wb"><span class="wf2 ' + kls + '" style="width:' + w.toFixed(1) + '%"></span>' +
-        '<span class="wm" style="left:' + Math.min(99.5, (x.min / Math.max(1, x.win)) * 100).toFixed(1) + '%" title="minimum lag"></span></span>' +
-        '<span class="wv">' + X.n(x.lag / 60, 1) + ' / ' + X.n(x.win / 60, 0) + ' h</span></div>';
-    }).join('') +
-    '<div class="note"><i class="fa-solid fa-circle-info"></i><div>The bar is how much of the window this link used. ' +
-    'The dark tick is the <b>minimum</b> lag — the transfer and cool-down that has to happen before the next step can start at all. ' +
-    'Nothing here passes 100%: the plan would not exist if it did.</div></div>';
+    $('clocks').innerHTML =
+      '<div class="clockhead"><span>Batch</span><span>Link: stage &rarr; next stage</span><span>Units</span>' +
+      '<span>Window used</span><span class="r">Stood / window</span></div>' +
+      show.map(function (x) {
+        var w = Math.min(100, x.use * 100), kls = x.use > 1 ? 'over' : x.use > 0.85 ? 'near' : '';
+        return '<div class="clock" title="' + X.esc(x.batch + ': ' + x.from + ' on ' + x.fromUnit + ', then ' + x.to + ' on ' + x.toUnit +
+          '. The material stood ' + X.n(x.lag / 60, 1) + ' h of a ' + X.n(x.win / 60, 0) + ' h window.') + '">' +
+          '<span class="mono">' + X.esc(x.batch) + '</span>' +
+          '<span class="lk2">' + X.esc(x.from) + ' <span class="hint">&rarr;</span> ' + X.esc(x.to) + '</span>' +
+          '<span class="hint mono">' + X.esc(x.fromUnit) + '&rarr;' + X.esc(x.toUnit) + '</span>' +
+          '<span class="wb"><span class="wf2 ' + kls + '" style="width:' + w.toFixed(1) + '%"></span>' +
+          '<span class="wm" style="left:' + Math.min(99.5, (x.min / Math.max(1, x.win)) * 100).toFixed(1) + '%" title="minimum lag"></span></span>' +
+          '<span class="wv">' + X.n(x.lag / 60, 1) + ' / ' + X.n(x.win / 60, 0) + ' h</span></div>';
+      }).join('') +
+      '<div class="note"><i class="fa-solid fa-circle-info"></i><div>The bar is how much of the window that link used: ' +
+      'full means the next stage started at the last possible moment, and the bar turns amber past 85%. The dark tick is the ' +
+      '<b>minimum</b> lag, before which it could not have started at all. ' +
+      'A bar may sit exactly on 100% — that link started at the last possible moment. None goes past it: a plan ' +
+      'that broke a window would not have been produced.</div></div>';
   }
 
   function sacs(C) {
@@ -222,7 +286,7 @@
     }
     var h = X.hashParam();
     if (h && m.pix[h] != null) $('prod').value = h;
-    kpis(C); route(C); clocks(C); sacs(C); gen(C); acts(C);
+    kpis(C); route(C); explain(C); worked(C); clocks(C); sacs(C); gen(C); acts(C);
   }
   X.withPlan(paint);
   X.whenPlanChanges(paint);

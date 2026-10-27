@@ -2019,7 +2019,7 @@
    "customer_order_id": "SO-41206",
    "production_order_id": "PR-SO-41206-04",
    "sku_id": "NT-210",
-   "quantity": 1320,
+   "quantity": 1060,
    "delivery_date": "2026-10-08T10:00:00+05:30",
    "priority": 4,
    "attributes": {
@@ -2038,7 +2038,7 @@
    "customer_order_id": "SO-41209",
    "production_order_id": "PR-SO-41209-05",
    "sku_id": "AZ-230",
-   "quantity": 760,
+   "quantity": 680,
    "delivery_date": "2026-10-21T18:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -2057,7 +2057,7 @@
    "customer_order_id": "SO-41209",
    "production_order_id": "PR-SO-41209-06",
    "sku_id": "NT-210",
-   "quantity": 1630,
+   "quantity": 1320,
    "delivery_date": "2026-10-21T13:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -2076,7 +2076,7 @@
    "customer_order_id": "SO-41212",
    "production_order_id": "PR-SO-41212-07",
    "sku_id": "IM-205",
-   "quantity": 1470,
+   "quantity": 1180,
    "delivery_date": "2026-10-30T18:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -2114,7 +2114,7 @@
    "customer_order_id": "SO-41218",
    "production_order_id": "PR-SO-41218-09",
    "sku_id": "NT-210",
-   "quantity": 690,
+   "quantity": 630,
    "delivery_date": "2026-10-09T10:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -2209,7 +2209,7 @@
    "customer_order_id": "SO-41230",
    "production_order_id": "PR-SO-41230-14",
    "sku_id": "AM-110",
-   "quantity": 1480,
+   "quantity": 1200,
    "delivery_date": "2026-10-10T10:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -2285,7 +2285,7 @@
    "customer_order_id": "SO-41239",
    "production_order_id": "PR-SO-41239-18",
    "sku_id": "IM-205",
-   "quantity": 910,
+   "quantity": 730,
    "delivery_date": "2026-10-20T06:00:00+05:30",
    "priority": 4,
    "attributes": {
@@ -2304,7 +2304,7 @@
    "customer_order_id": "SO-41239",
    "production_order_id": "PR-SO-41239-19",
    "sku_id": "AM-130",
-   "quantity": 1050,
+   "quantity": 850,
    "delivery_date": "2026-10-20T06:00:00+05:30",
    "priority": 4,
    "attributes": {
@@ -2323,7 +2323,7 @@
    "customer_order_id": "SO-41242",
    "production_order_id": "PR-SO-41242-20",
    "sku_id": "RX-320",
-   "quantity": 300,
+   "quantity": 250,
    "delivery_date": "2026-11-26T16:00:00+05:30",
    "priority": 1,
    "attributes": {
@@ -2437,7 +2437,7 @@
    "customer_order_id": "SO-41251",
    "production_order_id": "PR-SO-41251-26",
    "sku_id": "IM-205",
-   "quantity": 1110,
+   "quantity": 900,
    "delivery_date": "2026-10-05T14:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -2494,7 +2494,7 @@
    "customer_order_id": "SO-41257",
    "production_order_id": "PR-SO-41257-29",
    "sku_id": "AM-130",
-   "quantity": 1090,
+   "quantity": 880,
    "delivery_date": "2026-10-06T12:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -2665,7 +2665,7 @@
    "customer_order_id": "SO-41275",
    "production_order_id": "PR-SO-41275-38",
    "sku_id": "NT-210",
-   "quantity": 1190,
+   "quantity": 960,
    "delivery_date": "2026-12-18T17:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -2684,7 +2684,7 @@
    "customer_order_id": "SO-41275",
    "production_order_id": "PR-SO-41275-39",
    "sku_id": "IM-205",
-   "quantity": 1600,
+   "quantity": 1290,
    "delivery_date": "2026-12-18T19:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -2722,7 +2722,7 @@
    "customer_order_id": "SO-41278",
    "production_order_id": "PR-SO-41278-41",
    "sku_id": "IM-205",
-   "quantity": 1530,
+   "quantity": 1240,
    "delivery_date": "2026-11-01T19:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -2741,7 +2741,7 @@
    "customer_order_id": "SO-41281",
    "production_order_id": "PR-SO-41281-42",
    "sku_id": "AZ-230",
-   "quantity": 1630,
+   "quantity": 1320,
    "delivery_date": "2026-12-14T10:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -2760,7 +2760,7 @@
    "customer_order_id": "SO-41284",
    "production_order_id": "PR-SO-41284-43",
    "sku_id": "IM-315",
-   "quantity": 390,
+   "quantity": 350,
    "delivery_date": "2026-11-03T13:00:00+05:30",
    "priority": 1,
    "attributes": {
@@ -2874,7 +2874,7 @@
    "customer_order_id": "SO-41293",
    "production_order_id": "PR-SO-41293-49",
    "sku_id": "IM-205",
-   "quantity": 1150,
+   "quantity": 930,
    "delivery_date": "2026-10-20T17:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -2912,7 +2912,7 @@
    "customer_order_id": "SO-41296",
    "production_order_id": "PR-SO-41296-51",
    "sku_id": "AZ-230",
-   "quantity": 1460,
+   "quantity": 1180,
    "delivery_date": "2026-10-25T09:00:00+05:30",
    "priority": 4,
    "attributes": {
@@ -2931,7 +2931,7 @@
    "customer_order_id": "SO-41299",
    "production_order_id": "PR-SO-41299-52",
    "sku_id": "AM-130",
-   "quantity": 1710,
+   "quantity": 1380,
    "delivery_date": "2027-01-04T18:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -2950,7 +2950,7 @@
    "customer_order_id": "SO-41299",
    "production_order_id": "PR-SO-41299-53",
    "sku_id": "AM-130",
-   "quantity": 1820,
+   "quantity": 1470,
    "delivery_date": "2027-01-04T08:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -2969,7 +2969,7 @@
    "customer_order_id": "SO-41302",
    "production_order_id": "PR-SO-41302-54",
    "sku_id": "IM-315",
-   "quantity": 1530,
+   "quantity": 1240,
    "delivery_date": "2026-10-15T14:00:00+05:30",
    "priority": 1,
    "attributes": {
@@ -3007,7 +3007,7 @@
    "customer_order_id": "SO-41308",
    "production_order_id": "PR-SO-41308-56",
    "sku_id": "NT-210",
-   "quantity": 1620,
+   "quantity": 1310,
    "delivery_date": "2026-12-01T08:00:00+05:30",
    "priority": 4,
    "attributes": {
@@ -3026,7 +3026,7 @@
    "customer_order_id": "SO-41311",
    "production_order_id": "PR-SO-41311-57",
    "sku_id": "NT-220",
-   "quantity": 870,
+   "quantity": 710,
    "delivery_date": "2026-11-06T18:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -3045,7 +3045,7 @@
    "customer_order_id": "SO-41311",
    "production_order_id": "PR-SO-41311-58",
    "sku_id": "AZ-230",
-   "quantity": 1100,
+   "quantity": 890,
    "delivery_date": "2026-11-06T12:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -3064,7 +3064,7 @@
    "customer_order_id": "SO-41314",
    "production_order_id": "PR-SO-41314-59",
    "sku_id": "NT-220",
-   "quantity": 1120,
+   "quantity": 910,
    "delivery_date": "2026-10-27T12:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -3083,7 +3083,7 @@
    "customer_order_id": "SO-41314",
    "production_order_id": "PR-SO-41314-60",
    "sku_id": "IM-205",
-   "quantity": 620,
+   "quantity": 520,
    "delivery_date": "2026-10-27T15:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -3102,7 +3102,7 @@
    "customer_order_id": "SO-41317",
    "production_order_id": "PR-SO-41317-61",
    "sku_id": "AM-120",
-   "quantity": 640,
+   "quantity": 520,
    "delivery_date": "2026-10-06T10:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -3178,7 +3178,7 @@
    "customer_order_id": "SO-41329",
    "production_order_id": "PR-SO-41329-65",
    "sku_id": "AM-120",
-   "quantity": 470,
+   "quantity": 380,
    "delivery_date": "2026-10-03T12:00:00+05:30",
    "priority": 4,
    "attributes": {
@@ -3216,7 +3216,7 @@
    "customer_order_id": "SO-41332",
    "production_order_id": "PR-SO-41332-67",
    "sku_id": "AM-130",
-   "quantity": 1230,
+   "quantity": 990,
    "delivery_date": "2026-11-25T20:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -3292,7 +3292,7 @@
    "customer_order_id": "SO-41341",
    "production_order_id": "PR-SO-41341-71",
    "sku_id": "AM-120",
-   "quantity": 1660,
+   "quantity": 1340,
    "delivery_date": "2026-11-04T10:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -3330,7 +3330,7 @@
    "customer_order_id": "SO-41347",
    "production_order_id": "PR-SO-41347-73",
    "sku_id": "AM-110",
-   "quantity": 580,
+   "quantity": 470,
    "delivery_date": "2026-10-03T06:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -3349,7 +3349,7 @@
    "customer_order_id": "SO-41347",
    "production_order_id": "PR-SO-41347-74",
    "sku_id": "AM-110",
-   "quantity": 660,
+   "quantity": 540,
    "delivery_date": "2026-10-03T18:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -3368,7 +3368,7 @@
    "customer_order_id": "SO-41350",
    "production_order_id": "PR-SO-41350-75",
    "sku_id": "AM-110",
-   "quantity": 1010,
+   "quantity": 810,
    "delivery_date": "2026-11-14T11:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -3387,7 +3387,7 @@
    "customer_order_id": "SO-41350",
    "production_order_id": "PR-SO-41350-76",
    "sku_id": "NT-220",
-   "quantity": 960,
+   "quantity": 770,
    "delivery_date": "2026-11-14T20:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -3406,7 +3406,7 @@
    "customer_order_id": "SO-41353",
    "production_order_id": "PR-SO-41353-77",
    "sku_id": "AM-110",
-   "quantity": 1450,
+   "quantity": 1170,
    "delivery_date": "2026-09-26T13:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -3444,7 +3444,7 @@
    "customer_order_id": "SO-41356",
    "production_order_id": "PR-SO-41356-79",
    "sku_id": "IM-315",
-   "quantity": 1140,
+   "quantity": 920,
    "delivery_date": "2026-10-07T19:00:00+05:30",
    "priority": 1,
    "attributes": {
@@ -3501,7 +3501,7 @@
    "customer_order_id": "SO-41365",
    "production_order_id": "PR-SO-41365-82",
    "sku_id": "AM-130",
-   "quantity": 880,
+   "quantity": 710,
    "delivery_date": "2026-12-15T14:00:00+05:30",
    "priority": 4,
    "attributes": {
@@ -3520,7 +3520,7 @@
    "customer_order_id": "SO-41368",
    "production_order_id": "PR-SO-41368-83",
    "sku_id": "AM-130",
-   "quantity": 1530,
+   "quantity": 1240,
    "delivery_date": "2026-12-09T11:00:00+05:30",
    "priority": 4,
    "attributes": {
@@ -3539,7 +3539,7 @@
    "customer_order_id": "SO-41368",
    "production_order_id": "PR-SO-41368-84",
    "sku_id": "AM-110",
-   "quantity": 1480,
+   "quantity": 1200,
    "delivery_date": "2026-12-09T11:00:00+05:30",
    "priority": 4,
    "attributes": {
@@ -3653,7 +3653,7 @@
    "customer_order_id": "SO-41380",
    "production_order_id": "PR-SO-41380-90",
    "sku_id": "AM-130",
-   "quantity": 1220,
+   "quantity": 980,
    "delivery_date": "2027-01-06T13:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -3710,7 +3710,7 @@
    "customer_order_id": "SO-41386",
    "production_order_id": "PR-SO-41386-93",
    "sku_id": "AM-130",
-   "quantity": 1890,
+   "quantity": 1520,
    "delivery_date": "2026-12-04T13:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -3729,7 +3729,7 @@
    "customer_order_id": "SO-41389",
    "production_order_id": "PR-SO-41389-94",
    "sku_id": "NT-210",
-   "quantity": 1840,
+   "quantity": 1480,
    "delivery_date": "2026-12-11T13:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -3805,7 +3805,7 @@
    "customer_order_id": "SO-41395",
    "production_order_id": "PR-SO-41395-98",
    "sku_id": "IM-315",
-   "quantity": 920,
+   "quantity": 740,
    "delivery_date": "2026-11-24T07:00:00+05:30",
    "priority": 1,
    "attributes": {
@@ -3824,7 +3824,7 @@
    "customer_order_id": "SO-41398",
    "production_order_id": "PR-SO-41398-99",
    "sku_id": "AM-110",
-   "quantity": 480,
+   "quantity": 460,
    "delivery_date": "2026-12-22T11:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -3900,7 +3900,7 @@
    "customer_order_id": "SO-41410",
    "production_order_id": "PR-SO-41410-03",
    "sku_id": "IM-315",
-   "quantity": 1540,
+   "quantity": 1240,
    "delivery_date": "2026-12-27T13:00:00+05:30",
    "priority": 1,
    "attributes": {
@@ -3919,7 +3919,7 @@
    "customer_order_id": "SO-41413",
    "production_order_id": "PR-SO-41413-04",
    "sku_id": "AM-130",
-   "quantity": 1520,
+   "quantity": 1230,
    "delivery_date": "2026-11-01T16:00:00+05:30",
    "priority": 4,
    "attributes": {
@@ -3938,7 +3938,7 @@
    "customer_order_id": "SO-41416",
    "production_order_id": "PR-SO-41416-05",
    "sku_id": "NT-220",
-   "quantity": 930,
+   "quantity": 750,
    "delivery_date": "2026-10-17T06:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -3995,7 +3995,7 @@
    "customer_order_id": "SO-41422",
    "production_order_id": "PR-SO-41422-08",
    "sku_id": "NT-220",
-   "quantity": 1090,
+   "quantity": 880,
    "delivery_date": "2026-10-18T08:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -4033,7 +4033,7 @@
    "customer_order_id": "SO-41425",
    "production_order_id": "PR-SO-41425-10",
    "sku_id": "AZ-230",
-   "quantity": 1260,
+   "quantity": 1010,
    "delivery_date": "2026-12-07T12:00:00+05:30",
    "priority": 4,
    "attributes": {
@@ -4052,7 +4052,7 @@
    "customer_order_id": "SO-41428",
    "production_order_id": "PR-SO-41428-11",
    "sku_id": "AZ-230",
-   "quantity": 1170,
+   "quantity": 950,
    "delivery_date": "2026-11-25T18:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -4071,7 +4071,7 @@
    "customer_order_id": "SO-41428",
    "production_order_id": "PR-SO-41428-12",
    "sku_id": "IM-205",
-   "quantity": 1430,
+   "quantity": 1160,
    "delivery_date": "2026-11-25T18:00:00+05:30",
    "priority": 2,
    "attributes": {
@@ -4090,7 +4090,7 @@
    "customer_order_id": "SO-41431",
    "production_order_id": "PR-SO-41431-13",
    "sku_id": "AM-110",
-   "quantity": 1110,
+   "quantity": 900,
    "delivery_date": "2026-11-30T16:00:00+05:30",
    "priority": 4,
    "attributes": {
@@ -4128,7 +4128,7 @@
    "customer_order_id": "SO-41434",
    "production_order_id": "PR-SO-41434-15",
    "sku_id": "NT-220",
-   "quantity": 640,
+   "quantity": 520,
    "delivery_date": "2027-01-02T07:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -4185,7 +4185,7 @@
    "customer_order_id": "SO-41440",
    "production_order_id": "PR-SO-41440-18",
    "sku_id": "NT-220",
-   "quantity": 1100,
+   "quantity": 890,
    "delivery_date": "2026-12-23T17:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -4204,7 +4204,7 @@
    "customer_order_id": "SO-41443",
    "production_order_id": "PR-SO-41443-19",
    "sku_id": "IM-315",
-   "quantity": 1760,
+   "quantity": 1420,
    "delivery_date": "2027-01-03T17:00:00+05:30",
    "priority": 1,
    "attributes": {
@@ -4261,7 +4261,7 @@
    "customer_order_id": "SO-41449",
    "production_order_id": "PR-SO-41449-22",
    "sku_id": "NT-210",
-   "quantity": 1870,
+   "quantity": 1510,
    "delivery_date": "2026-10-16T11:00:00+05:30",
    "priority": 3,
    "attributes": {
@@ -4350,6 +4350,1564 @@
     "coa_required": false
    },
    "routing_id": "R-HP-430"
+  },
+  {
+   "order_line_id": "SO-41458/27",
+   "customer_order_id": "SO-41458",
+   "production_order_id": "PR-SO-41458-27",
+   "sku_id": "AM-120",
+   "quantity": 980,
+   "delivery_date": "2026-12-27T18:00:00+05:30",
+   "priority": 4,
+   "attributes": {
+    "order_class": "DOM_OPEN",
+    "customer": "C030",
+    "assay_min": 98.05,
+    "impurity_max": 0.3,
+    "psd_max": 162,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-120"
+  },
+  {
+   "order_line_id": "SO-41461/28",
+   "customer_order_id": "SO-41461",
+   "production_order_id": "PR-SO-41461-28",
+   "sku_id": "RX-330",
+   "quantity": 400,
+   "delivery_date": "2026-09-27T20:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C007",
+    "assay_min": 98.55,
+    "impurity_max": 0.2,
+    "psd_max": 148,
+    "min_life_months": 12,
+    "coa_required": true
+   },
+   "routing_id": "R-RX-330"
+  },
+  {
+   "order_line_id": "SO-41461/29",
+   "customer_order_id": "SO-41461",
+   "production_order_id": "PR-SO-41461-29",
+   "sku_id": "RX-330",
+   "quantity": 400,
+   "delivery_date": "2026-09-27T18:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C007",
+    "assay_min": 98.95,
+    "impurity_max": 0.172,
+    "psd_max": 123,
+    "min_life_months": 12,
+    "coa_required": true
+   },
+   "routing_id": "R-RX-330"
+  },
+  {
+   "order_line_id": "SO-41464/30",
+   "customer_order_id": "SO-41464",
+   "production_order_id": "PR-SO-41464-30",
+   "sku_id": "IM-315",
+   "quantity": 350,
+   "delivery_date": "2026-12-11T06:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C006",
+    "assay_min": 98.25,
+    "impurity_max": 0.25,
+    "psd_max": 176,
+    "min_life_months": 24,
+    "coa_required": true
+   },
+   "routing_id": "R-IM-315"
+  },
+  {
+   "order_line_id": "SO-41467/31",
+   "customer_order_id": "SO-41467",
+   "production_order_id": "PR-SO-41467-31",
+   "sku_id": "HP-430",
+   "quantity": 125,
+   "delivery_date": "2026-11-04T12:00:00+05:30",
+   "priority": 4,
+   "attributes": {
+    "order_class": "DOM_OPEN",
+    "customer": "C020",
+    "assay_min": 98.35,
+    "impurity_max": 0.18,
+    "psd_max": 74,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-HP-430"
+  },
+  {
+   "order_line_id": "SO-41470/32",
+   "customer_order_id": "SO-41470",
+   "production_order_id": "PR-SO-41470-32",
+   "sku_id": "HP-410",
+   "quantity": 105,
+   "delivery_date": "2026-11-15T13:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C003",
+    "assay_min": 99.45,
+    "impurity_max": 0.069,
+    "psd_max": 50,
+    "min_life_months": 15,
+    "coa_required": true
+   },
+   "routing_id": "R-HP-410"
+  },
+  {
+   "order_line_id": "SO-41470/33",
+   "customer_order_id": "SO-41470",
+   "production_order_id": "PR-SO-41470-33",
+   "sku_id": "HP-410",
+   "quantity": 105,
+   "delivery_date": "2026-11-15T11:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C003",
+    "assay_min": 99.45,
+    "impurity_max": 0.069,
+    "psd_max": 50,
+    "min_life_months": 15,
+    "coa_required": true
+   },
+   "routing_id": "R-HP-410"
+  },
+  {
+   "order_line_id": "SO-41473/34",
+   "customer_order_id": "SO-41473",
+   "production_order_id": "PR-SO-41473-34",
+   "sku_id": "NT-220",
+   "quantity": 520,
+   "delivery_date": "2026-10-30T12:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C025",
+    "assay_min": 97.25,
+    "impurity_max": 0.55,
+    "psd_max": 256,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-NT-220"
+  },
+  {
+   "order_line_id": "SO-41476/35",
+   "customer_order_id": "SO-41476",
+   "production_order_id": "PR-SO-41476-35",
+   "sku_id": "AZ-230",
+   "quantity": 680,
+   "delivery_date": "2027-01-03T07:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C021",
+    "assay_min": 96.25,
+    "impurity_max": 0.8,
+    "psd_max": 324,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AZ-230"
+  },
+  {
+   "order_line_id": "SO-41476/36",
+   "customer_order_id": "SO-41476",
+   "production_order_id": "PR-SO-41476-36",
+   "sku_id": "IM-205",
+   "quantity": 520,
+   "delivery_date": "2027-01-03T17:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C021",
+    "assay_min": 97.35,
+    "impurity_max": 0.45,
+    "psd_max": 250,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-IM-205"
+  },
+  {
+   "order_line_id": "SO-41479/37",
+   "customer_order_id": "SO-41479",
+   "production_order_id": "PR-SO-41479-37",
+   "sku_id": "NT-220",
+   "quantity": 520,
+   "delivery_date": "2026-10-13T15:00:00+05:30",
+   "priority": 4,
+   "attributes": {
+    "order_class": "DOM_OPEN",
+    "customer": "C023",
+    "assay_min": 97.25,
+    "impurity_max": 0.55,
+    "psd_max": 256,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-NT-220"
+  },
+  {
+   "order_line_id": "SO-41479/38",
+   "customer_order_id": "SO-41479",
+   "production_order_id": "PR-SO-41479-38",
+   "sku_id": "HP-430",
+   "quantity": 125,
+   "delivery_date": "2026-10-13T11:00:00+05:30",
+   "priority": 4,
+   "attributes": {
+    "order_class": "DOM_OPEN",
+    "customer": "C023",
+    "assay_min": 98.35,
+    "impurity_max": 0.18,
+    "psd_max": 74,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-HP-430"
+  },
+  {
+   "order_line_id": "SO-41482/39",
+   "customer_order_id": "SO-41482",
+   "production_order_id": "PR-SO-41482-39",
+   "sku_id": "HP-420",
+   "quantity": 90,
+   "delivery_date": "2026-10-08T14:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C005",
+    "assay_min": 99.25,
+    "impurity_max": 0.086,
+    "psd_max": 43,
+    "min_life_months": 19,
+    "coa_required": true
+   },
+   "routing_id": "R-HP-420"
+  },
+  {
+   "order_line_id": "SO-41482/40",
+   "customer_order_id": "SO-41482",
+   "production_order_id": "PR-SO-41482-40",
+   "sku_id": "RX-330",
+   "quantity": 400,
+   "delivery_date": "2026-10-08T13:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C005",
+    "assay_min": 98.55,
+    "impurity_max": 0.2,
+    "psd_max": 148,
+    "min_life_months": 19,
+    "coa_required": true
+   },
+   "routing_id": "R-RX-330"
+  },
+  {
+   "order_line_id": "SO-41485/41",
+   "customer_order_id": "SO-41485",
+   "production_order_id": "PR-SO-41485-41",
+   "sku_id": "RX-320",
+   "quantity": 250,
+   "delivery_date": "2026-11-29T19:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C008",
+    "assay_min": 99.35,
+    "impurity_max": 0.086,
+    "psd_max": 90,
+    "min_life_months": 21,
+    "coa_required": true
+   },
+   "routing_id": "R-RX-320"
+  },
+  {
+   "order_line_id": "SO-41488/42",
+   "customer_order_id": "SO-41488",
+   "production_order_id": "PR-SO-41488-42",
+   "sku_id": "IM-205",
+   "quantity": 1530,
+   "delivery_date": "2027-01-03T07:00:00+05:30",
+   "priority": 2,
+   "attributes": {
+    "order_class": "EXPORT",
+    "customer": "C025",
+    "assay_min": 97.35,
+    "impurity_max": 0.45,
+    "psd_max": 250,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-IM-205"
+  },
+  {
+   "order_line_id": "SO-41488/43",
+   "customer_order_id": "SO-41488",
+   "production_order_id": "PR-SO-41488-43",
+   "sku_id": "IM-205",
+   "quantity": 1370,
+   "delivery_date": "2027-01-03T11:00:00+05:30",
+   "priority": 2,
+   "attributes": {
+    "order_class": "EXPORT",
+    "customer": "C025",
+    "assay_min": 97.35,
+    "impurity_max": 0.45,
+    "psd_max": 250,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-IM-205"
+  },
+  {
+   "order_line_id": "SO-41491/44",
+   "customer_order_id": "SO-41491",
+   "production_order_id": "PR-SO-41491-44",
+   "sku_id": "AM-110",
+   "quantity": 460,
+   "delivery_date": "2026-10-15T09:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C031",
+    "assay_min": 97.65,
+    "impurity_max": 0.35,
+    "psd_max": 189,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-110"
+  },
+  {
+   "order_line_id": "SO-41491/45",
+   "customer_order_id": "SO-41491",
+   "production_order_id": "PR-SO-41491-45",
+   "sku_id": "AM-130",
+   "quantity": 770,
+   "delivery_date": "2026-10-15T12:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C031",
+    "assay_min": 98.45,
+    "impurity_max": 0.25,
+    "psd_max": 216,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-130"
+  },
+  {
+   "order_line_id": "SO-41494/46",
+   "customer_order_id": "SO-41494",
+   "production_order_id": "PR-SO-41494-46",
+   "sku_id": "AZ-230",
+   "quantity": 1440,
+   "delivery_date": "2026-12-13T12:00:00+05:30",
+   "priority": 2,
+   "attributes": {
+    "order_class": "EXPORT",
+    "customer": "C040",
+    "assay_min": 96.25,
+    "impurity_max": 0.8,
+    "psd_max": 324,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AZ-230"
+  },
+  {
+   "order_line_id": "SO-41494/47",
+   "customer_order_id": "SO-41494",
+   "production_order_id": "PR-SO-41494-47",
+   "sku_id": "IM-205",
+   "quantity": 1040,
+   "delivery_date": "2026-12-13T06:00:00+05:30",
+   "priority": 2,
+   "attributes": {
+    "order_class": "EXPORT",
+    "customer": "C040",
+    "assay_min": 97.35,
+    "impurity_max": 0.45,
+    "psd_max": 250,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-IM-205"
+  },
+  {
+   "order_line_id": "SO-41497/48",
+   "customer_order_id": "SO-41497",
+   "production_order_id": "PR-SO-41497-48",
+   "sku_id": "RX-330",
+   "quantity": 400,
+   "delivery_date": "2026-12-28T07:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C010",
+    "assay_min": 98.95,
+    "impurity_max": 0.172,
+    "psd_max": 123,
+    "min_life_months": 19,
+    "coa_required": true
+   },
+   "routing_id": "R-RX-330"
+  },
+  {
+   "order_line_id": "SO-41500/49",
+   "customer_order_id": "SO-41500",
+   "production_order_id": "PR-SO-41500-49",
+   "sku_id": "NT-210",
+   "quantity": 730,
+   "delivery_date": "2026-11-21T15:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C040",
+    "assay_min": 96.85,
+    "impurity_max": 0.6,
+    "psd_max": 284,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-NT-210"
+  },
+  {
+   "order_line_id": "SO-41503/50",
+   "customer_order_id": "SO-41503",
+   "production_order_id": "PR-SO-41503-50",
+   "sku_id": "HP-430",
+   "quantity": 125,
+   "delivery_date": "2026-10-02T10:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C025",
+    "assay_min": 98.35,
+    "impurity_max": 0.18,
+    "psd_max": 74,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-HP-430"
+  },
+  {
+   "order_line_id": "SO-41503/51",
+   "customer_order_id": "SO-41503",
+   "production_order_id": "PR-SO-41503-51",
+   "sku_id": "NT-220",
+   "quantity": 1360,
+   "delivery_date": "2026-10-02T14:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C025",
+    "assay_min": 97.25,
+    "impurity_max": 0.55,
+    "psd_max": 256,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-NT-220"
+  },
+  {
+   "order_line_id": "SO-41506/52",
+   "customer_order_id": "SO-41506",
+   "production_order_id": "PR-SO-41506-52",
+   "sku_id": "HP-430",
+   "quantity": 125,
+   "delivery_date": "2026-12-24T11:00:00+05:30",
+   "priority": 4,
+   "attributes": {
+    "order_class": "DOM_OPEN",
+    "customer": "C025",
+    "assay_min": 98.35,
+    "impurity_max": 0.18,
+    "psd_max": 74,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-HP-430"
+  },
+  {
+   "order_line_id": "SO-41506/53",
+   "customer_order_id": "SO-41506",
+   "production_order_id": "PR-SO-41506-53",
+   "sku_id": "HP-430",
+   "quantity": 125,
+   "delivery_date": "2026-12-24T16:00:00+05:30",
+   "priority": 4,
+   "attributes": {
+    "order_class": "DOM_OPEN",
+    "customer": "C025",
+    "assay_min": 98.35,
+    "impurity_max": 0.18,
+    "psd_max": 74,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-HP-430"
+  },
+  {
+   "order_line_id": "SO-41509/54",
+   "customer_order_id": "SO-41509",
+   "production_order_id": "PR-SO-41509-54",
+   "sku_id": "RX-330",
+   "quantity": 400,
+   "delivery_date": "2026-10-12T06:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C005",
+    "assay_min": 98.55,
+    "impurity_max": 0.2,
+    "psd_max": 148,
+    "min_life_months": 19,
+    "coa_required": true
+   },
+   "routing_id": "R-RX-330"
+  },
+  {
+   "order_line_id": "SO-41509/55",
+   "customer_order_id": "SO-41509",
+   "production_order_id": "PR-SO-41509-55",
+   "sku_id": "HP-420",
+   "quantity": 90,
+   "delivery_date": "2026-10-12T06:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C005",
+    "assay_min": 98.85,
+    "impurity_max": 0.1,
+    "psd_max": 51,
+    "min_life_months": 19,
+    "coa_required": true
+   },
+   "routing_id": "R-HP-420"
+  },
+  {
+   "order_line_id": "SO-41512/56",
+   "customer_order_id": "SO-41512",
+   "production_order_id": "PR-SO-41512-56",
+   "sku_id": "AM-110",
+   "quantity": 460,
+   "delivery_date": "2026-12-04T19:00:00+05:30",
+   "priority": 2,
+   "attributes": {
+    "order_class": "EXPORT",
+    "customer": "C021",
+    "assay_min": 97.65,
+    "impurity_max": 0.35,
+    "psd_max": 189,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-110"
+  },
+  {
+   "order_line_id": "SO-41515/57",
+   "customer_order_id": "SO-41515",
+   "production_order_id": "PR-SO-41515-57",
+   "sku_id": "IM-315",
+   "quantity": 1040,
+   "delivery_date": "2026-10-18T15:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C012",
+    "assay_min": 98.25,
+    "impurity_max": 0.25,
+    "psd_max": 176,
+    "min_life_months": 15,
+    "coa_required": true
+   },
+   "routing_id": "R-IM-315"
+  },
+  {
+   "order_line_id": "SO-41518/58",
+   "customer_order_id": "SO-41518",
+   "production_order_id": "PR-SO-41518-58",
+   "sku_id": "IM-315",
+   "quantity": 350,
+   "delivery_date": "2026-12-06T17:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C012",
+    "assay_min": 98.65,
+    "impurity_max": 0.215,
+    "psd_max": 146,
+    "min_life_months": 15,
+    "coa_required": true
+   },
+   "routing_id": "R-IM-315"
+  },
+  {
+   "order_line_id": "SO-41521/59",
+   "customer_order_id": "SO-41521",
+   "production_order_id": "PR-SO-41521-59",
+   "sku_id": "NT-220",
+   "quantity": 1030,
+   "delivery_date": "2026-12-21T09:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C025",
+    "assay_min": 97.25,
+    "impurity_max": 0.55,
+    "psd_max": 256,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-NT-220"
+  },
+  {
+   "order_line_id": "SO-41521/60",
+   "customer_order_id": "SO-41521",
+   "production_order_id": "PR-SO-41521-60",
+   "sku_id": "NT-220",
+   "quantity": 1010,
+   "delivery_date": "2026-12-21T11:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C025",
+    "assay_min": 97.25,
+    "impurity_max": 0.55,
+    "psd_max": 256,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-NT-220"
+  },
+  {
+   "order_line_id": "SO-41524/61",
+   "customer_order_id": "SO-41524",
+   "production_order_id": "PR-SO-41524-61",
+   "sku_id": "AM-130",
+   "quantity": 800,
+   "delivery_date": "2026-11-16T07:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C027",
+    "assay_min": 98.45,
+    "impurity_max": 0.25,
+    "psd_max": 216,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-130"
+  },
+  {
+   "order_line_id": "SO-41527/62",
+   "customer_order_id": "SO-41527",
+   "production_order_id": "PR-SO-41527-62",
+   "sku_id": "AZ-230",
+   "quantity": 1410,
+   "delivery_date": "2026-10-15T14:00:00+05:30",
+   "priority": 4,
+   "attributes": {
+    "order_class": "DOM_OPEN",
+    "customer": "C018",
+    "assay_min": 96.25,
+    "impurity_max": 0.8,
+    "psd_max": 324,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AZ-230"
+  },
+  {
+   "order_line_id": "SO-41530/63",
+   "customer_order_id": "SO-41530",
+   "production_order_id": "PR-SO-41530-63",
+   "sku_id": "AM-130",
+   "quantity": 570,
+   "delivery_date": "2026-11-07T16:00:00+05:30",
+   "priority": 4,
+   "attributes": {
+    "order_class": "DOM_OPEN",
+    "customer": "C037",
+    "assay_min": 98.45,
+    "impurity_max": 0.25,
+    "psd_max": 216,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-130"
+  },
+  {
+   "order_line_id": "SO-41530/64",
+   "customer_order_id": "SO-41530",
+   "production_order_id": "PR-SO-41530-64",
+   "sku_id": "NT-210",
+   "quantity": 1290,
+   "delivery_date": "2026-11-07T08:00:00+05:30",
+   "priority": 4,
+   "attributes": {
+    "order_class": "DOM_OPEN",
+    "customer": "C037",
+    "assay_min": 96.85,
+    "impurity_max": 0.6,
+    "psd_max": 284,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-NT-210"
+  },
+  {
+   "order_line_id": "SO-41533/65",
+   "customer_order_id": "SO-41533",
+   "production_order_id": "PR-SO-41533-65",
+   "sku_id": "AM-130",
+   "quantity": 570,
+   "delivery_date": "2026-12-03T19:00:00+05:30",
+   "priority": 2,
+   "attributes": {
+    "order_class": "EXPORT",
+    "customer": "C027",
+    "assay_min": 98.45,
+    "impurity_max": 0.25,
+    "psd_max": 216,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-130"
+  },
+  {
+   "order_line_id": "SO-41536/66",
+   "customer_order_id": "SO-41536",
+   "production_order_id": "PR-SO-41536-66",
+   "sku_id": "AM-110",
+   "quantity": 460,
+   "delivery_date": "2026-11-07T15:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C019",
+    "assay_min": 97.65,
+    "impurity_max": 0.35,
+    "psd_max": 189,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-110"
+  },
+  {
+   "order_line_id": "SO-41536/67",
+   "customer_order_id": "SO-41536",
+   "production_order_id": "PR-SO-41536-67",
+   "sku_id": "IM-205",
+   "quantity": 630,
+   "delivery_date": "2026-11-07T15:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C019",
+    "assay_min": 97.35,
+    "impurity_max": 0.45,
+    "psd_max": 250,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-IM-205"
+  },
+  {
+   "order_line_id": "SO-41539/68",
+   "customer_order_id": "SO-41539",
+   "production_order_id": "PR-SO-41539-68",
+   "sku_id": "IM-205",
+   "quantity": 640,
+   "delivery_date": "2026-10-04T08:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C027",
+    "assay_min": 97.35,
+    "impurity_max": 0.45,
+    "psd_max": 250,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-IM-205"
+  },
+  {
+   "order_line_id": "SO-41542/69",
+   "customer_order_id": "SO-41542",
+   "production_order_id": "PR-SO-41542-69",
+   "sku_id": "HP-420",
+   "quantity": 90,
+   "delivery_date": "2026-10-01T20:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C002",
+    "assay_min": 98.85,
+    "impurity_max": 0.1,
+    "psd_max": 51,
+    "min_life_months": 16,
+    "coa_required": true
+   },
+   "routing_id": "R-HP-420"
+  },
+  {
+   "order_line_id": "SO-41542/70",
+   "customer_order_id": "SO-41542",
+   "production_order_id": "PR-SO-41542-70",
+   "sku_id": "RX-310",
+   "quantity": 310,
+   "delivery_date": "2026-10-01T11:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C002",
+    "assay_min": 98.75,
+    "impurity_max": 0.15,
+    "psd_max": 128,
+    "min_life_months": 16,
+    "coa_required": true
+   },
+   "routing_id": "R-RX-310"
+  },
+  {
+   "order_line_id": "SO-41545/71",
+   "customer_order_id": "SO-41545",
+   "production_order_id": "PR-SO-41545-71",
+   "sku_id": "IM-205",
+   "quantity": 520,
+   "delivery_date": "2026-09-28T19:00:00+05:30",
+   "priority": 2,
+   "attributes": {
+    "order_class": "EXPORT",
+    "customer": "C020",
+    "assay_min": 97.35,
+    "impurity_max": 0.45,
+    "psd_max": 250,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-IM-205"
+  },
+  {
+   "order_line_id": "SO-41548/72",
+   "customer_order_id": "SO-41548",
+   "production_order_id": "PR-SO-41548-72",
+   "sku_id": "HP-420",
+   "quantity": 90,
+   "delivery_date": "2027-01-06T15:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C003",
+    "assay_min": 98.85,
+    "impurity_max": 0.1,
+    "psd_max": 51,
+    "min_life_months": 15,
+    "coa_required": true
+   },
+   "routing_id": "R-HP-420"
+  },
+  {
+   "order_line_id": "SO-41548/73",
+   "customer_order_id": "SO-41548",
+   "production_order_id": "PR-SO-41548-73",
+   "sku_id": "HP-420",
+   "quantity": 90,
+   "delivery_date": "2027-01-06T11:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C003",
+    "assay_min": 98.85,
+    "impurity_max": 0.1,
+    "psd_max": 51,
+    "min_life_months": 15,
+    "coa_required": true
+   },
+   "routing_id": "R-HP-420"
+  },
+  {
+   "order_line_id": "SO-41551/74",
+   "customer_order_id": "SO-41551",
+   "production_order_id": "PR-SO-41551-74",
+   "sku_id": "NT-220",
+   "quantity": 1350,
+   "delivery_date": "2026-12-20T07:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C015",
+    "assay_min": 97.25,
+    "impurity_max": 0.55,
+    "psd_max": 256,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-NT-220"
+  },
+  {
+   "order_line_id": "SO-41554/75",
+   "customer_order_id": "SO-41554",
+   "production_order_id": "PR-SO-41554-75",
+   "sku_id": "RX-320",
+   "quantity": 250,
+   "delivery_date": "2026-12-07T11:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C006",
+    "assay_min": 99.35,
+    "impurity_max": 0.086,
+    "psd_max": 90,
+    "min_life_months": 24,
+    "coa_required": true
+   },
+   "routing_id": "R-RX-320"
+  },
+  {
+   "order_line_id": "SO-41557/76",
+   "customer_order_id": "SO-41557",
+   "production_order_id": "PR-SO-41557-76",
+   "sku_id": "NT-220",
+   "quantity": 1050,
+   "delivery_date": "2026-11-19T19:00:00+05:30",
+   "priority": 4,
+   "attributes": {
+    "order_class": "DOM_OPEN",
+    "customer": "C033",
+    "assay_min": 97.25,
+    "impurity_max": 0.55,
+    "psd_max": 256,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-NT-220"
+  },
+  {
+   "order_line_id": "SO-41557/77",
+   "customer_order_id": "SO-41557",
+   "production_order_id": "PR-SO-41557-77",
+   "sku_id": "NT-220",
+   "quantity": 1060,
+   "delivery_date": "2026-11-19T11:00:00+05:30",
+   "priority": 4,
+   "attributes": {
+    "order_class": "DOM_OPEN",
+    "customer": "C033",
+    "assay_min": 97.25,
+    "impurity_max": 0.55,
+    "psd_max": 256,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-NT-220"
+  },
+  {
+   "order_line_id": "SO-41560/78",
+   "customer_order_id": "SO-41560",
+   "production_order_id": "PR-SO-41560-78",
+   "sku_id": "AM-120",
+   "quantity": 360,
+   "delivery_date": "2026-11-20T17:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C022",
+    "assay_min": 98.05,
+    "impurity_max": 0.3,
+    "psd_max": 162,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-120"
+  },
+  {
+   "order_line_id": "SO-41560/79",
+   "customer_order_id": "SO-41560",
+   "production_order_id": "PR-SO-41560-79",
+   "sku_id": "AM-130",
+   "quantity": 570,
+   "delivery_date": "2026-11-20T08:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C022",
+    "assay_min": 98.45,
+    "impurity_max": 0.25,
+    "psd_max": 216,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-130"
+  },
+  {
+   "order_line_id": "SO-41563/80",
+   "customer_order_id": "SO-41563",
+   "production_order_id": "PR-SO-41563-80",
+   "sku_id": "RX-310",
+   "quantity": 310,
+   "delivery_date": "2027-01-03T07:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C011",
+    "assay_min": 98.75,
+    "impurity_max": 0.15,
+    "psd_max": 128,
+    "min_life_months": 15,
+    "coa_required": true
+   },
+   "routing_id": "R-RX-310"
+  },
+  {
+   "order_line_id": "SO-41563/81",
+   "customer_order_id": "SO-41563",
+   "production_order_id": "PR-SO-41563-81",
+   "sku_id": "RX-310",
+   "quantity": 310,
+   "delivery_date": "2027-01-03T06:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C011",
+    "assay_min": 98.75,
+    "impurity_max": 0.15,
+    "psd_max": 128,
+    "min_life_months": 15,
+    "coa_required": true
+   },
+   "routing_id": "R-RX-310"
+  },
+  {
+   "order_line_id": "SO-41566/82",
+   "customer_order_id": "SO-41566",
+   "production_order_id": "PR-SO-41566-82",
+   "sku_id": "HP-430",
+   "quantity": 125,
+   "delivery_date": "2026-10-24T09:00:00+05:30",
+   "priority": 4,
+   "attributes": {
+    "order_class": "DOM_OPEN",
+    "customer": "C035",
+    "assay_min": 98.35,
+    "impurity_max": 0.18,
+    "psd_max": 74,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-HP-430"
+  },
+  {
+   "order_line_id": "SO-41566/83",
+   "customer_order_id": "SO-41566",
+   "production_order_id": "PR-SO-41566-83",
+   "sku_id": "AM-110",
+   "quantity": 760,
+   "delivery_date": "2026-10-24T13:00:00+05:30",
+   "priority": 4,
+   "attributes": {
+    "order_class": "DOM_OPEN",
+    "customer": "C035",
+    "assay_min": 97.65,
+    "impurity_max": 0.35,
+    "psd_max": 189,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-110"
+  },
+  {
+   "order_line_id": "SO-41569/84",
+   "customer_order_id": "SO-41569",
+   "production_order_id": "PR-SO-41569-84",
+   "sku_id": "NT-220",
+   "quantity": 1050,
+   "delivery_date": "2027-01-03T20:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C032",
+    "assay_min": 97.25,
+    "impurity_max": 0.55,
+    "psd_max": 256,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-NT-220"
+  },
+  {
+   "order_line_id": "SO-41569/85",
+   "customer_order_id": "SO-41569",
+   "production_order_id": "PR-SO-41569-85",
+   "sku_id": "AM-130",
+   "quantity": 1160,
+   "delivery_date": "2027-01-03T10:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C032",
+    "assay_min": 98.45,
+    "impurity_max": 0.25,
+    "psd_max": 216,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-130"
+  },
+  {
+   "order_line_id": "SO-41572/86",
+   "customer_order_id": "SO-41572",
+   "production_order_id": "PR-SO-41572-86",
+   "sku_id": "NT-210",
+   "quantity": 720,
+   "delivery_date": "2026-10-28T18:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C039",
+    "assay_min": 96.85,
+    "impurity_max": 0.6,
+    "psd_max": 284,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-NT-210"
+  },
+  {
+   "order_line_id": "SO-41575/87",
+   "customer_order_id": "SO-41575",
+   "production_order_id": "PR-SO-41575-87",
+   "sku_id": "AZ-230",
+   "quantity": 680,
+   "delivery_date": "2026-10-02T15:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C026",
+    "assay_min": 96.25,
+    "impurity_max": 0.8,
+    "psd_max": 324,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AZ-230"
+  },
+  {
+   "order_line_id": "SO-41575/88",
+   "customer_order_id": "SO-41575",
+   "production_order_id": "PR-SO-41575-88",
+   "sku_id": "AM-110",
+   "quantity": 710,
+   "delivery_date": "2026-10-02T14:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C026",
+    "assay_min": 97.65,
+    "impurity_max": 0.35,
+    "psd_max": 189,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-110"
+  },
+  {
+   "order_line_id": "SO-41578/89",
+   "customer_order_id": "SO-41578",
+   "production_order_id": "PR-SO-41578-89",
+   "sku_id": "HP-410",
+   "quantity": 105,
+   "delivery_date": "2026-10-02T19:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C001",
+    "assay_min": 99.05,
+    "impurity_max": 0.08,
+    "psd_max": 61,
+    "min_life_months": 18,
+    "coa_required": true
+   },
+   "routing_id": "R-HP-410"
+  },
+  {
+   "order_line_id": "SO-41581/90",
+   "customer_order_id": "SO-41581",
+   "production_order_id": "PR-SO-41581-90",
+   "sku_id": "AM-110",
+   "quantity": 850,
+   "delivery_date": "2026-10-26T20:00:00+05:30",
+   "priority": 2,
+   "attributes": {
+    "order_class": "EXPORT",
+    "customer": "C029",
+    "assay_min": 97.65,
+    "impurity_max": 0.35,
+    "psd_max": 189,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-110"
+  },
+  {
+   "order_line_id": "SO-41581/91",
+   "customer_order_id": "SO-41581",
+   "production_order_id": "PR-SO-41581-91",
+   "sku_id": "AM-110",
+   "quantity": 460,
+   "delivery_date": "2026-10-26T09:00:00+05:30",
+   "priority": 2,
+   "attributes": {
+    "order_class": "EXPORT",
+    "customer": "C029",
+    "assay_min": 97.65,
+    "impurity_max": 0.35,
+    "psd_max": 189,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-110"
+  },
+  {
+   "order_line_id": "SO-41584/92",
+   "customer_order_id": "SO-41584",
+   "production_order_id": "PR-SO-41584-92",
+   "sku_id": "RX-310",
+   "quantity": 310,
+   "delivery_date": "2026-10-29T09:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C007",
+    "assay_min": 98.75,
+    "impurity_max": 0.15,
+    "psd_max": 128,
+    "min_life_months": 12,
+    "coa_required": true
+   },
+   "routing_id": "R-RX-310"
+  },
+  {
+   "order_line_id": "SO-41587/93",
+   "customer_order_id": "SO-41587",
+   "production_order_id": "PR-SO-41587-93",
+   "sku_id": "IM-205",
+   "quantity": 520,
+   "delivery_date": "2026-11-25T07:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C018",
+    "assay_min": 97.35,
+    "impurity_max": 0.45,
+    "psd_max": 250,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-IM-205"
+  },
+  {
+   "order_line_id": "SO-41587/94",
+   "customer_order_id": "SO-41587",
+   "production_order_id": "PR-SO-41587-94",
+   "sku_id": "AZ-230",
+   "quantity": 930,
+   "delivery_date": "2026-11-25T20:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C018",
+    "assay_min": 96.25,
+    "impurity_max": 0.8,
+    "psd_max": 324,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AZ-230"
+  },
+  {
+   "order_line_id": "SO-41590/95",
+   "customer_order_id": "SO-41590",
+   "production_order_id": "PR-SO-41590-95",
+   "sku_id": "HP-430",
+   "quantity": 125,
+   "delivery_date": "2026-11-12T18:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C035",
+    "assay_min": 98.35,
+    "impurity_max": 0.18,
+    "psd_max": 74,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-HP-430"
+  },
+  {
+   "order_line_id": "SO-41593/96",
+   "customer_order_id": "SO-41593",
+   "production_order_id": "PR-SO-41593-96",
+   "sku_id": "RX-320",
+   "quantity": 250,
+   "delivery_date": "2026-10-09T08:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C012",
+    "assay_min": 98.95,
+    "impurity_max": 0.1,
+    "psd_max": 108,
+    "min_life_months": 15,
+    "coa_required": true
+   },
+   "routing_id": "R-RX-320"
+  },
+  {
+   "order_line_id": "SO-41596/97",
+   "customer_order_id": "SO-41596",
+   "production_order_id": "PR-SO-41596-97",
+   "sku_id": "AM-110",
+   "quantity": 460,
+   "delivery_date": "2026-09-25T15:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C022",
+    "assay_min": 97.65,
+    "impurity_max": 0.35,
+    "psd_max": 189,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-110"
+  },
+  {
+   "order_line_id": "SO-41599/98",
+   "customer_order_id": "SO-41599",
+   "production_order_id": "PR-SO-41599-98",
+   "sku_id": "AM-110",
+   "quantity": 730,
+   "delivery_date": "2026-10-15T09:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C036",
+    "assay_min": 97.65,
+    "impurity_max": 0.35,
+    "psd_max": 189,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-110"
+  },
+  {
+   "order_line_id": "SO-41599/99",
+   "customer_order_id": "SO-41599",
+   "production_order_id": "PR-SO-41599-99",
+   "sku_id": "AM-110",
+   "quantity": 460,
+   "delivery_date": "2026-10-15T20:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C036",
+    "assay_min": 97.65,
+    "impurity_max": 0.35,
+    "psd_max": 189,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-110"
+  },
+  {
+   "order_line_id": "SO-41602/00",
+   "customer_order_id": "SO-41602",
+   "production_order_id": "PR-SO-41602-00",
+   "sku_id": "NT-220",
+   "quantity": 520,
+   "delivery_date": "2026-10-18T11:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C027",
+    "assay_min": 97.25,
+    "impurity_max": 0.55,
+    "psd_max": 256,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-NT-220"
+  },
+  {
+   "order_line_id": "SO-41602/01",
+   "customer_order_id": "SO-41602",
+   "production_order_id": "PR-SO-41602-01",
+   "sku_id": "AM-110",
+   "quantity": 460,
+   "delivery_date": "2026-10-18T09:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C027",
+    "assay_min": 97.65,
+    "impurity_max": 0.35,
+    "psd_max": 189,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-110"
+  },
+  {
+   "order_line_id": "SO-41605/02",
+   "customer_order_id": "SO-41605",
+   "production_order_id": "PR-SO-41605-02",
+   "sku_id": "IM-315",
+   "quantity": 350,
+   "delivery_date": "2026-12-07T16:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C010",
+    "assay_min": 98.65,
+    "impurity_max": 0.215,
+    "psd_max": 146,
+    "min_life_months": 19,
+    "coa_required": true
+   },
+   "routing_id": "R-IM-315"
+  },
+  {
+   "order_line_id": "SO-41605/03",
+   "customer_order_id": "SO-41605",
+   "production_order_id": "PR-SO-41605-03",
+   "sku_id": "IM-315",
+   "quantity": 520,
+   "delivery_date": "2026-12-07T19:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C010",
+    "assay_min": 98.65,
+    "impurity_max": 0.215,
+    "psd_max": 146,
+    "min_life_months": 19,
+    "coa_required": true
+   },
+   "routing_id": "R-IM-315"
+  },
+  {
+   "order_line_id": "SO-41608/04",
+   "customer_order_id": "SO-41608",
+   "production_order_id": "PR-SO-41608-04",
+   "sku_id": "AM-120",
+   "quantity": 360,
+   "delivery_date": "2026-11-21T11:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C014",
+    "assay_min": 98.05,
+    "impurity_max": 0.3,
+    "psd_max": 162,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-120"
+  },
+  {
+   "order_line_id": "SO-41611/05",
+   "customer_order_id": "SO-41611",
+   "production_order_id": "PR-SO-41611-05",
+   "sku_id": "AM-130",
+   "quantity": 570,
+   "delivery_date": "2026-11-08T10:00:00+05:30",
+   "priority": 4,
+   "attributes": {
+    "order_class": "DOM_OPEN",
+    "customer": "C037",
+    "assay_min": 98.45,
+    "impurity_max": 0.25,
+    "psd_max": 216,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-AM-130"
+  },
+  {
+   "order_line_id": "SO-41614/06",
+   "customer_order_id": "SO-41614",
+   "production_order_id": "PR-SO-41614-06",
+   "sku_id": "RX-330",
+   "quantity": 400,
+   "delivery_date": "2026-11-09T19:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C010",
+    "assay_min": 98.95,
+    "impurity_max": 0.172,
+    "psd_max": 123,
+    "min_life_months": 19,
+    "coa_required": true
+   },
+   "routing_id": "R-RX-330"
+  },
+  {
+   "order_line_id": "SO-41614/07",
+   "customer_order_id": "SO-41614",
+   "production_order_id": "PR-SO-41614-07",
+   "sku_id": "RX-330",
+   "quantity": 400,
+   "delivery_date": "2026-11-09T18:00:00+05:30",
+   "priority": 1,
+   "attributes": {
+    "order_class": "EXPORT_REG",
+    "customer": "C010",
+    "assay_min": 98.95,
+    "impurity_max": 0.172,
+    "psd_max": 123,
+    "min_life_months": 19,
+    "coa_required": true
+   },
+   "routing_id": "R-RX-330"
+  },
+  {
+   "order_line_id": "SO-41617/08",
+   "customer_order_id": "SO-41617",
+   "production_order_id": "PR-SO-41617-08",
+   "sku_id": "NT-220",
+   "quantity": 1110,
+   "delivery_date": "2027-01-06T10:00:00+05:30",
+   "priority": 3,
+   "attributes": {
+    "order_class": "DOM_COMMITTED",
+    "customer": "C031",
+    "assay_min": 97.25,
+    "impurity_max": 0.55,
+    "psd_max": 256,
+    "min_life_months": 0,
+    "coa_required": false
+   },
+   "routing_id": "R-NT-220"
   }
  ],
  "material_availability": [
@@ -4982,9 +6540,449 @@
    "order_line_id": "SO-41455/26",
    "position_no": 10,
    "available_from": "2026-12-17T15:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41458/27",
+   "position_no": 10,
+   "available_from": "2026-12-13T18:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41461/28",
+   "position_no": 10,
+   "available_from": "2026-08-30T20:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41461/29",
+   "position_no": 10,
+   "available_from": "2026-08-30T18:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41464/30",
+   "position_no": 10,
+   "available_from": "2026-11-16T16:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41467/31",
+   "position_no": 10,
+   "available_from": "2026-10-21T12:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41470/32",
+   "position_no": 10,
+   "available_from": "2026-10-18T13:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41470/33",
+   "position_no": 10,
+   "available_from": "2026-10-18T11:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41473/34",
+   "position_no": 10,
+   "available_from": "2026-10-12T12:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41476/35",
+   "position_no": 10,
+   "available_from": "2026-12-16T07:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41476/36",
+   "position_no": 10,
+   "available_from": "2026-12-16T17:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41479/37",
+   "position_no": 10,
+   "available_from": "2026-09-29T15:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41479/38",
+   "position_no": 10,
+   "available_from": "2026-09-29T11:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41482/39",
+   "position_no": 10,
+   "available_from": "2026-09-10T14:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41482/40",
+   "position_no": 10,
+   "available_from": "2026-09-10T13:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41485/41",
+   "position_no": 10,
+   "available_from": "2026-11-01T19:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41488/42",
+   "position_no": 10,
+   "available_from": "2026-12-10T07:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41488/43",
+   "position_no": 10,
+   "available_from": "2026-12-10T11:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41491/44",
+   "position_no": 10,
+   "available_from": "2026-09-27T09:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41491/45",
+   "position_no": 10,
+   "available_from": "2026-09-27T12:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41494/46",
+   "position_no": 10,
+   "available_from": "2026-11-19T12:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41494/47",
+   "position_no": 10,
+   "available_from": "2026-11-19T06:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41497/48",
+   "position_no": 10,
+   "available_from": "2026-11-30T07:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41500/49",
+   "position_no": 10,
+   "available_from": "2026-11-03T15:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41503/50",
+   "position_no": 10,
+   "available_from": "2026-09-14T10:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41503/51",
+   "position_no": 10,
+   "available_from": "2026-09-14T14:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41506/52",
+   "position_no": 10,
+   "available_from": "2026-12-10T11:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41506/53",
+   "position_no": 10,
+   "available_from": "2026-12-10T16:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41509/54",
+   "position_no": 10,
+   "available_from": "2026-09-14T06:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41509/55",
+   "position_no": 10,
+   "available_from": "2026-09-14T06:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41512/56",
+   "position_no": 10,
+   "available_from": "2026-11-10T19:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41515/57",
+   "position_no": 10,
+   "available_from": "2026-09-23T17:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41518/58",
+   "position_no": 10,
+   "available_from": "2026-11-08T17:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41521/59",
+   "position_no": 10,
+   "available_from": "2026-12-03T09:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41521/60",
+   "position_no": 10,
+   "available_from": "2026-12-03T11:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41524/61",
+   "position_no": 10,
+   "available_from": "2026-11-02T15:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41527/62",
+   "position_no": 10,
+   "available_from": "2026-10-01T14:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41530/63",
+   "position_no": 10,
+   "available_from": "2026-10-24T16:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41530/64",
+   "position_no": 10,
+   "available_from": "2026-10-24T08:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41533/65",
+   "position_no": 10,
+   "available_from": "2026-11-09T19:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41536/66",
+   "position_no": 10,
+   "available_from": "2026-10-20T15:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41536/67",
+   "position_no": 10,
+   "available_from": "2026-10-20T15:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41539/68",
+   "position_no": 10,
+   "available_from": "2026-09-16T08:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41542/69",
+   "position_no": 10,
+   "available_from": "2026-09-03T20:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41542/70",
+   "position_no": 10,
+   "available_from": "2026-09-03T11:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41545/71",
+   "position_no": 10,
+   "available_from": "2026-09-04T19:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41548/72",
+   "position_no": 10,
+   "available_from": "2026-12-16T16:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41548/73",
+   "position_no": 10,
+   "available_from": "2026-12-16T16:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41551/74",
+   "position_no": 10,
+   "available_from": "2026-12-02T07:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41554/75",
+   "position_no": 10,
+   "available_from": "2026-11-09T11:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41557/76",
+   "position_no": 10,
+   "available_from": "2026-11-05T19:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41557/77",
+   "position_no": 10,
+   "available_from": "2026-11-05T11:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41560/78",
+   "position_no": 10,
+   "available_from": "2026-11-03T16:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41560/79",
+   "position_no": 10,
+   "available_from": "2026-11-03T16:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41563/80",
+   "position_no": 10,
+   "available_from": "2026-12-13T09:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41563/81",
+   "position_no": 10,
+   "available_from": "2026-12-13T09:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41566/82",
+   "position_no": 10,
+   "available_from": "2026-10-10T09:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41566/83",
+   "position_no": 10,
+   "available_from": "2026-10-10T13:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41569/84",
+   "position_no": 10,
+   "available_from": "2026-12-23T09:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41569/85",
+   "position_no": 10,
+   "available_from": "2026-12-23T09:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41572/86",
+   "position_no": 10,
+   "available_from": "2026-10-10T18:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41575/87",
+   "position_no": 10,
+   "available_from": "2026-09-14T15:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41575/88",
+   "position_no": 10,
+   "available_from": "2026-09-14T14:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41578/89",
+   "position_no": 10,
+   "available_from": "2026-09-04T19:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41581/90",
+   "position_no": 10,
+   "available_from": "2026-10-02T20:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41581/91",
+   "position_no": 10,
+   "available_from": "2026-10-02T09:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41584/92",
+   "position_no": 10,
+   "available_from": "2026-10-01T09:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41587/93",
+   "position_no": 10,
+   "available_from": "2026-11-07T07:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41587/94",
+   "position_no": 10,
+   "available_from": "2026-11-07T20:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41590/95",
+   "position_no": 10,
+   "available_from": "2026-10-25T18:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41593/96",
+   "position_no": 10,
+   "available_from": "2026-09-11T08:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41596/97",
+   "position_no": 10,
+   "available_from": "2026-09-07T15:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41599/98",
+   "position_no": 10,
+   "available_from": "2026-09-30T17:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41599/99",
+   "position_no": 10,
+   "available_from": "2026-09-30T17:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41602/00",
+   "position_no": 10,
+   "available_from": "2026-09-30T11:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41602/01",
+   "position_no": 10,
+   "available_from": "2026-09-30T09:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41605/02",
+   "position_no": 10,
+   "available_from": "2026-11-09T16:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41605/03",
+   "position_no": 10,
+   "available_from": "2026-11-09T19:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41608/04",
+   "position_no": 10,
+   "available_from": "2026-11-03T11:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41611/05",
+   "position_no": 10,
+   "available_from": "2026-10-29T12:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41614/06",
+   "position_no": 10,
+   "available_from": "2026-10-18T08:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41614/07",
+   "position_no": 10,
+   "available_from": "2026-10-18T08:00:00+05:30"
+  },
+  {
+   "order_line_id": "SO-41617/08",
+   "position_no": 10,
+   "available_from": "2026-12-21T12:00:00+05:30"
   }
  ],
  "product_mix": [
+  {
+   "order_line_id": "SO-41596/97",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-09-25",
+   "bucket_start": "2026-09-25T06:00:00+05:30",
+   "bucket_end": "2026-09-26T06:00:00+05:30",
+   "quantity": 460
+  },
+  {
+   "order_line_id": "SO-41596/97",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-09-24",
+   "bucket_start": "2026-09-24T06:00:00+05:30",
+   "bucket_end": "2026-09-25T06:00:00+05:30",
+   "quantity": 620
+  },
+  {
+   "order_line_id": "SO-41596/97",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-09-24",
+   "bucket_start": "2026-09-24T06:00:00+05:30",
+   "bucket_end": "2026-09-25T06:00:00+05:30",
+   "quantity": 620
+  },
   {
    "order_line_id": "SO-41248/25",
    "position_no": 50,
@@ -5043,7 +7041,7 @@
    "bucket_id": "2026-09-26",
    "bucket_start": "2026-09-26T06:00:00+05:30",
    "bucket_end": "2026-09-27T06:00:00+05:30",
-   "quantity": 1450
+   "quantity": 1170
   },
   {
    "order_line_id": "SO-41353/77",
@@ -5053,7 +7051,7 @@
    "bucket_id": "2026-09-25",
    "bucket_start": "2026-09-25T06:00:00+05:30",
    "bucket_end": "2026-09-26T06:00:00+05:30",
-   "quantity": 1860
+   "quantity": 1240
   },
   {
    "order_line_id": "SO-41353/77",
@@ -5063,7 +7061,7 @@
    "bucket_id": "2026-09-25",
    "bucket_start": "2026-09-25T06:00:00+05:30",
    "bucket_end": "2026-09-26T06:00:00+05:30",
-   "quantity": 1860
+   "quantity": 1240
   },
   {
    "order_line_id": "SO-41353/78",
@@ -5146,6 +7144,386 @@
    "quantity": 540
   },
   {
+   "order_line_id": "SO-41461/29",
+   "position_no": 50,
+   "machine_id": "PK-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-09-27",
+   "bucket_start": "2026-09-27T06:00:00+05:30",
+   "bucket_end": "2026-09-28T06:00:00+05:30",
+   "quantity": 400
+  },
+  {
+   "order_line_id": "SO-41461/29",
+   "position_no": 40,
+   "machine_id": "VTD-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-09-26",
+   "bucket_start": "2026-09-26T06:00:00+05:30",
+   "bucket_end": "2026-09-27T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41461/29",
+   "position_no": 30,
+   "machine_id": "R-101",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-09-26",
+   "bucket_start": "2026-09-26T06:00:00+05:30",
+   "bucket_end": "2026-09-27T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41461/29",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-09-25",
+   "bucket_start": "2026-09-25T06:00:00+05:30",
+   "bucket_end": "2026-09-26T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41461/29",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-09-25",
+   "bucket_start": "2026-09-25T06:00:00+05:30",
+   "bucket_end": "2026-09-26T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41461/28",
+   "position_no": 50,
+   "machine_id": "PK-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-09-27",
+   "bucket_start": "2026-09-27T06:00:00+05:30",
+   "bucket_end": "2026-09-28T06:00:00+05:30",
+   "quantity": 400
+  },
+  {
+   "order_line_id": "SO-41461/28",
+   "position_no": 40,
+   "machine_id": "VTD-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-09-27",
+   "bucket_start": "2026-09-27T06:00:00+05:30",
+   "bucket_end": "2026-09-28T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41461/28",
+   "position_no": 30,
+   "machine_id": "R-101",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-09-26",
+   "bucket_start": "2026-09-26T06:00:00+05:30",
+   "bucket_end": "2026-09-27T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41461/28",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-09-26",
+   "bucket_start": "2026-09-26T06:00:00+05:30",
+   "bucket_end": "2026-09-27T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41461/28",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-09-25",
+   "bucket_start": "2026-09-25T06:00:00+05:30",
+   "bucket_end": "2026-09-26T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41545/71",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "IM-205",
+   "bucket_id": "2026-09-28",
+   "bucket_start": "2026-09-28T06:00:00+05:30",
+   "bucket_end": "2026-09-29T06:00:00+05:30",
+   "quantity": 520
+  },
+  {
+   "order_line_id": "SO-41545/71",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "IM-205",
+   "bucket_id": "2026-09-27",
+   "bucket_start": "2026-09-27T06:00:00+05:30",
+   "bucket_end": "2026-09-28T06:00:00+05:30",
+   "quantity": 690
+  },
+  {
+   "order_line_id": "SO-41542/70",
+   "position_no": 60,
+   "machine_id": "PK-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2026-10-01",
+   "bucket_start": "2026-10-01T06:00:00+05:30",
+   "bucket_end": "2026-10-02T06:00:00+05:30",
+   "quantity": 310
+  },
+  {
+   "order_line_id": "SO-41542/70",
+   "position_no": 50,
+   "machine_id": "VTD-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2026-09-30",
+   "bucket_start": "2026-09-30T06:00:00+05:30",
+   "bucket_end": "2026-10-01T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41542/70",
+   "position_no": 40,
+   "machine_id": "CF-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2026-09-30",
+   "bucket_start": "2026-09-30T06:00:00+05:30",
+   "bucket_end": "2026-10-01T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41542/70",
+   "position_no": 30,
+   "machine_id": "R-101",
+   "sku_id": "RX-310",
+   "bucket_id": "2026-09-29",
+   "bucket_start": "2026-09-29T06:00:00+05:30",
+   "bucket_end": "2026-09-30T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41542/70",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2026-09-29",
+   "bucket_start": "2026-09-29T06:00:00+05:30",
+   "bucket_end": "2026-09-30T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41542/70",
+   "position_no": 10,
+   "machine_id": "R-103",
+   "sku_id": "RX-310",
+   "bucket_id": "2026-09-28",
+   "bucket_start": "2026-09-28T06:00:00+05:30",
+   "bucket_end": "2026-09-29T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41542/69",
+   "position_no": 40,
+   "machine_id": "PK-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2026-10-01",
+   "bucket_start": "2026-10-01T06:00:00+05:30",
+   "bucket_end": "2026-10-02T06:00:00+05:30",
+   "quantity": 90
+  },
+  {
+   "order_line_id": "SO-41542/69",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2026-09-30",
+   "bucket_start": "2026-09-30T06:00:00+05:30",
+   "bucket_end": "2026-10-01T06:00:00+05:30",
+   "quantity": 120
+  },
+  {
+   "order_line_id": "SO-41542/69",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2026-09-30",
+   "bucket_start": "2026-09-30T06:00:00+05:30",
+   "bucket_end": "2026-10-01T06:00:00+05:30",
+   "quantity": 120
+  },
+  {
+   "order_line_id": "SO-41542/69",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-420",
+   "bucket_id": "2026-09-29",
+   "bucket_start": "2026-09-29T06:00:00+05:30",
+   "bucket_end": "2026-09-30T06:00:00+05:30",
+   "quantity": 120
+  },
+  {
+   "order_line_id": "SO-41503/50",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-10-01",
+   "bucket_start": "2026-10-01T06:00:00+05:30",
+   "bucket_end": "2026-10-02T06:00:00+05:30",
+   "quantity": 125
+  },
+  {
+   "order_line_id": "SO-41503/50",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-10-01",
+   "bucket_start": "2026-10-01T06:00:00+05:30",
+   "bucket_end": "2026-10-02T06:00:00+05:30",
+   "quantity": 165
+  },
+  {
+   "order_line_id": "SO-41503/50",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-09-30",
+   "bucket_start": "2026-09-30T06:00:00+05:30",
+   "bucket_end": "2026-10-01T06:00:00+05:30",
+   "quantity": 165
+  },
+  {
+   "order_line_id": "SO-41503/51",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-10-02",
+   "bucket_start": "2026-10-02T06:00:00+05:30",
+   "bucket_end": "2026-10-03T06:00:00+05:30",
+   "quantity": 1360
+  },
+  {
+   "order_line_id": "SO-41503/51",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-10-01",
+   "bucket_start": "2026-10-01T06:00:00+05:30",
+   "bucket_end": "2026-10-02T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41503/51",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-09-30",
+   "bucket_start": "2026-09-30T06:00:00+05:30",
+   "bucket_end": "2026-10-01T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41575/88",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-02",
+   "bucket_start": "2026-10-02T06:00:00+05:30",
+   "bucket_end": "2026-10-03T06:00:00+05:30",
+   "quantity": 710
+  },
+  {
+   "order_line_id": "SO-41575/88",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-01",
+   "bucket_start": "2026-10-01T06:00:00+05:30",
+   "bucket_end": "2026-10-02T06:00:00+05:30",
+   "quantity": 1240
+  },
+  {
+   "order_line_id": "SO-41575/88",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-01",
+   "bucket_start": "2026-10-01T06:00:00+05:30",
+   "bucket_end": "2026-10-02T06:00:00+05:30",
+   "quantity": 1240
+  },
+  {
+   "order_line_id": "SO-41575/87",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AZ-230",
+   "bucket_id": "2026-10-02",
+   "bucket_start": "2026-10-02T06:00:00+05:30",
+   "bucket_end": "2026-10-03T06:00:00+05:30",
+   "quantity": 680
+  },
+  {
+   "order_line_id": "SO-41575/87",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AZ-230",
+   "bucket_id": "2026-10-01",
+   "bucket_start": "2026-10-01T06:00:00+05:30",
+   "bucket_end": "2026-10-02T06:00:00+05:30",
+   "quantity": 900
+  },
+  {
+   "order_line_id": "SO-41575/87",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AZ-230",
+   "bucket_id": "2026-10-01",
+   "bucket_start": "2026-10-01T06:00:00+05:30",
+   "bucket_end": "2026-10-02T06:00:00+05:30",
+   "quantity": 900
+  },
+  {
+   "order_line_id": "SO-41578/89",
+   "position_no": 40,
+   "machine_id": "PK-02",
+   "sku_id": "HP-410",
+   "bucket_id": "2026-10-02",
+   "bucket_start": "2026-10-02T06:00:00+05:30",
+   "bucket_end": "2026-10-03T06:00:00+05:30",
+   "quantity": 105
+  },
+  {
+   "order_line_id": "SO-41578/89",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-410",
+   "bucket_id": "2026-10-01",
+   "bucket_start": "2026-10-01T06:00:00+05:30",
+   "bucket_end": "2026-10-02T06:00:00+05:30",
+   "quantity": 140
+  },
+  {
+   "order_line_id": "SO-41578/89",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-410",
+   "bucket_id": "2026-10-01",
+   "bucket_start": "2026-10-01T06:00:00+05:30",
+   "bucket_end": "2026-10-02T06:00:00+05:30",
+   "quantity": 140
+  },
+  {
+   "order_line_id": "SO-41578/89",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-410",
+   "bucket_id": "2026-09-30",
+   "bucket_start": "2026-09-30T06:00:00+05:30",
+   "bucket_end": "2026-10-01T06:00:00+05:30",
+   "quantity": 140
+  },
+  {
    "order_line_id": "SO-41347/73",
    "position_no": 30,
    "machine_id": "VTD-01",
@@ -5153,7 +7531,7 @@
    "bucket_id": "2026-10-02",
    "bucket_start": "2026-10-02T06:00:00+05:30",
    "bucket_end": "2026-10-03T06:00:00+05:30",
-   "quantity": 580
+   "quantity": 470
   },
   {
    "order_line_id": "SO-41347/73",
@@ -5213,7 +7591,7 @@
    "bucket_id": "2026-10-03",
    "bucket_start": "2026-10-03T06:00:00+05:30",
    "bucket_end": "2026-10-04T06:00:00+05:30",
-   "quantity": 470
+   "quantity": 380
   },
   {
    "order_line_id": "SO-41329/65",
@@ -5243,7 +7621,7 @@
    "bucket_id": "2026-10-03",
    "bucket_start": "2026-10-03T06:00:00+05:30",
    "bucket_end": "2026-10-04T06:00:00+05:30",
-   "quantity": 660
+   "quantity": 540
   },
   {
    "order_line_id": "SO-41347/74",
@@ -5253,7 +7631,7 @@
    "bucket_id": "2026-10-02",
    "bucket_start": "2026-10-02T06:00:00+05:30",
    "bucket_end": "2026-10-03T06:00:00+05:30",
-   "quantity": 1240
+   "quantity": 620
   },
   {
    "order_line_id": "SO-41347/74",
@@ -5263,7 +7641,27 @@
    "bucket_id": "2026-10-02",
    "bucket_start": "2026-10-02T06:00:00+05:30",
    "bucket_end": "2026-10-03T06:00:00+05:30",
-   "quantity": 1240
+   "quantity": 620
+  },
+  {
+   "order_line_id": "SO-41539/68",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "IM-205",
+   "bucket_id": "2026-10-04",
+   "bucket_start": "2026-10-04T06:00:00+05:30",
+   "bucket_end": "2026-10-05T06:00:00+05:30",
+   "quantity": 640
+  },
+  {
+   "order_line_id": "SO-41539/68",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "IM-205",
+   "bucket_id": "2026-10-03",
+   "bucket_start": "2026-10-03T06:00:00+05:30",
+   "bucket_end": "2026-10-04T06:00:00+05:30",
+   "quantity": 690
   },
   {
    "order_line_id": "SO-41338/70",
@@ -5303,7 +7701,7 @@
    "bucket_id": "2026-10-05",
    "bucket_start": "2026-10-05T06:00:00+05:30",
    "bucket_end": "2026-10-06T06:00:00+05:30",
-   "quantity": 1110
+   "quantity": 900
   },
   {
    "order_line_id": "SO-41251/26",
@@ -5323,7 +7721,7 @@
    "bucket_id": "2026-10-05",
    "bucket_start": "2026-10-05T06:00:00+05:30",
    "bucket_end": "2026-10-06T06:00:00+05:30",
-   "quantity": 640
+   "quantity": 520
   },
   {
    "order_line_id": "SO-41317/61",
@@ -5353,7 +7751,7 @@
    "bucket_id": "2026-10-06",
    "bucket_start": "2026-10-06T06:00:00+05:30",
    "bucket_end": "2026-10-07T06:00:00+05:30",
-   "quantity": 1090
+   "quantity": 880
   },
   {
    "order_line_id": "SO-41257/29",
@@ -5413,7 +7811,7 @@
    "bucket_id": "2026-10-07",
    "bucket_start": "2026-10-07T06:00:00+05:30",
    "bucket_end": "2026-10-08T06:00:00+05:30",
-   "quantity": 1140
+   "quantity": 920
   },
   {
    "order_line_id": "SO-41356/79",
@@ -5423,7 +7821,7 @@
    "bucket_id": "2026-10-06",
    "bucket_start": "2026-10-06T06:00:00+05:30",
    "bucket_end": "2026-10-07T06:00:00+05:30",
-   "quantity": 1410
+   "quantity": 940
   },
   {
    "order_line_id": "SO-41233/15",
@@ -5513,7 +7911,7 @@
    "bucket_id": "2026-10-07",
    "bucket_start": "2026-10-07T06:00:00+05:30",
    "bucket_end": "2026-10-08T06:00:00+05:30",
-   "quantity": 1320
+   "quantity": 1060
   },
   {
    "order_line_id": "SO-41206/04",
@@ -5534,6 +7932,96 @@
    "bucket_start": "2026-10-06T06:00:00+05:30",
    "bucket_end": "2026-10-07T06:00:00+05:30",
    "quantity": 1680
+  },
+  {
+   "order_line_id": "SO-41482/40",
+   "position_no": 50,
+   "machine_id": "PK-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-10-08",
+   "bucket_start": "2026-10-08T06:00:00+05:30",
+   "bucket_end": "2026-10-09T06:00:00+05:30",
+   "quantity": 400
+  },
+  {
+   "order_line_id": "SO-41482/40",
+   "position_no": 40,
+   "machine_id": "VTD-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-10-07",
+   "bucket_start": "2026-10-07T06:00:00+05:30",
+   "bucket_end": "2026-10-08T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41482/40",
+   "position_no": 30,
+   "machine_id": "R-101",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-10-07",
+   "bucket_start": "2026-10-07T06:00:00+05:30",
+   "bucket_end": "2026-10-08T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41482/40",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-10-06",
+   "bucket_start": "2026-10-06T06:00:00+05:30",
+   "bucket_end": "2026-10-07T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41482/40",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-10-05",
+   "bucket_start": "2026-10-05T06:00:00+05:30",
+   "bucket_end": "2026-10-06T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41482/39",
+   "position_no": 40,
+   "machine_id": "PK-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2026-10-08",
+   "bucket_start": "2026-10-08T06:00:00+05:30",
+   "bucket_end": "2026-10-09T06:00:00+05:30",
+   "quantity": 90
+  },
+  {
+   "order_line_id": "SO-41482/39",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2026-10-07",
+   "bucket_start": "2026-10-07T06:00:00+05:30",
+   "bucket_end": "2026-10-08T06:00:00+05:30",
+   "quantity": 120
+  },
+  {
+   "order_line_id": "SO-41482/39",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2026-10-07",
+   "bucket_start": "2026-10-07T06:00:00+05:30",
+   "bucket_end": "2026-10-08T06:00:00+05:30",
+   "quantity": 120
+  },
+  {
+   "order_line_id": "SO-41482/39",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-420",
+   "bucket_id": "2026-10-06",
+   "bucket_start": "2026-10-06T06:00:00+05:30",
+   "bucket_end": "2026-10-07T06:00:00+05:30",
+   "quantity": 120
   },
   {
    "order_line_id": "SO-41245/22",
@@ -5606,6 +8094,76 @@
    "quantity": 120
   },
   {
+   "order_line_id": "SO-41593/96",
+   "position_no": 70,
+   "machine_id": "PK-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-10-09",
+   "bucket_start": "2026-10-09T06:00:00+05:30",
+   "bucket_end": "2026-10-10T06:00:00+05:30",
+   "quantity": 250
+  },
+  {
+   "order_line_id": "SO-41593/96",
+   "position_no": 60,
+   "machine_id": "MC-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-10-08",
+   "bucket_start": "2026-10-08T06:00:00+05:30",
+   "bucket_end": "2026-10-09T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41593/96",
+   "position_no": 50,
+   "machine_id": "VTD-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-10-08",
+   "bucket_start": "2026-10-08T06:00:00+05:30",
+   "bucket_end": "2026-10-09T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41593/96",
+   "position_no": 40,
+   "machine_id": "CF-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-10-07",
+   "bucket_start": "2026-10-07T06:00:00+05:30",
+   "bucket_end": "2026-10-08T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41593/96",
+   "position_no": 30,
+   "machine_id": "R-101",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-10-07",
+   "bucket_start": "2026-10-07T06:00:00+05:30",
+   "bucket_end": "2026-10-08T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41593/96",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-10-06",
+   "bucket_start": "2026-10-06T06:00:00+05:30",
+   "bucket_end": "2026-10-07T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41593/96",
+   "position_no": 10,
+   "machine_id": "R-103",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-10-06",
+   "bucket_start": "2026-10-06T06:00:00+05:30",
+   "bucket_end": "2026-10-07T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
    "order_line_id": "SO-41218/09",
    "position_no": 30,
    "machine_id": "VTD-01",
@@ -5613,7 +8171,7 @@
    "bucket_id": "2026-10-08",
    "bucket_start": "2026-10-08T06:00:00+05:30",
    "bucket_end": "2026-10-09T06:00:00+05:30",
-   "quantity": 690
+   "quantity": 630
   },
   {
    "order_line_id": "SO-41218/09",
@@ -5643,7 +8201,7 @@
    "bucket_id": "2026-10-09",
    "bucket_start": "2026-10-09T06:00:00+05:30",
    "bucket_end": "2026-10-10T06:00:00+05:30",
-   "quantity": 1480
+   "quantity": 1200
   },
   {
    "order_line_id": "SO-41230/14",
@@ -5653,7 +8211,7 @@
    "bucket_id": "2026-10-09",
    "bucket_start": "2026-10-09T06:00:00+05:30",
    "bucket_end": "2026-10-10T06:00:00+05:30",
-   "quantity": 1860
+   "quantity": 1240
   },
   {
    "order_line_id": "SO-41230/14",
@@ -5663,7 +8221,7 @@
    "bucket_id": "2026-10-08",
    "bucket_start": "2026-10-08T06:00:00+05:30",
    "bucket_end": "2026-10-09T06:00:00+05:30",
-   "quantity": 1860
+   "quantity": 1240
   },
   {
    "order_line_id": "SO-41401/00",
@@ -5716,6 +8274,156 @@
    "quantity": 540
   },
   {
+   "order_line_id": "SO-41509/54",
+   "position_no": 50,
+   "machine_id": "PK-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-10-12",
+   "bucket_start": "2026-10-12T06:00:00+05:30",
+   "bucket_end": "2026-10-13T06:00:00+05:30",
+   "quantity": 400
+  },
+  {
+   "order_line_id": "SO-41509/54",
+   "position_no": 40,
+   "machine_id": "VTD-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-10-11",
+   "bucket_start": "2026-10-11T06:00:00+05:30",
+   "bucket_end": "2026-10-12T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41509/54",
+   "position_no": 30,
+   "machine_id": "R-101",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-10-10",
+   "bucket_start": "2026-10-10T06:00:00+05:30",
+   "bucket_end": "2026-10-11T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41509/54",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-10-10",
+   "bucket_start": "2026-10-10T06:00:00+05:30",
+   "bucket_end": "2026-10-11T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41509/54",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-10-09",
+   "bucket_start": "2026-10-09T06:00:00+05:30",
+   "bucket_end": "2026-10-10T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41509/55",
+   "position_no": 40,
+   "machine_id": "PK-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2026-10-12",
+   "bucket_start": "2026-10-12T06:00:00+05:30",
+   "bucket_end": "2026-10-13T06:00:00+05:30",
+   "quantity": 90
+  },
+  {
+   "order_line_id": "SO-41509/55",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2026-10-11",
+   "bucket_start": "2026-10-11T06:00:00+05:30",
+   "bucket_end": "2026-10-12T06:00:00+05:30",
+   "quantity": 120
+  },
+  {
+   "order_line_id": "SO-41509/55",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2026-10-10",
+   "bucket_start": "2026-10-10T06:00:00+05:30",
+   "bucket_end": "2026-10-11T06:00:00+05:30",
+   "quantity": 120
+  },
+  {
+   "order_line_id": "SO-41509/55",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-420",
+   "bucket_id": "2026-10-10",
+   "bucket_start": "2026-10-10T06:00:00+05:30",
+   "bucket_end": "2026-10-11T06:00:00+05:30",
+   "quantity": 120
+  },
+  {
+   "order_line_id": "SO-41479/38",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-10-12",
+   "bucket_start": "2026-10-12T06:00:00+05:30",
+   "bucket_end": "2026-10-13T06:00:00+05:30",
+   "quantity": 125
+  },
+  {
+   "order_line_id": "SO-41479/38",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-10-12",
+   "bucket_start": "2026-10-12T06:00:00+05:30",
+   "bucket_end": "2026-10-13T06:00:00+05:30",
+   "quantity": 165
+  },
+  {
+   "order_line_id": "SO-41479/38",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-10-11",
+   "bucket_start": "2026-10-11T06:00:00+05:30",
+   "bucket_end": "2026-10-12T06:00:00+05:30",
+   "quantity": 165
+  },
+  {
+   "order_line_id": "SO-41479/37",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-10-13",
+   "bucket_start": "2026-10-13T06:00:00+05:30",
+   "bucket_end": "2026-10-14T06:00:00+05:30",
+   "quantity": 520
+  },
+  {
+   "order_line_id": "SO-41479/37",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-10-12",
+   "bucket_start": "2026-10-12T06:00:00+05:30",
+   "bucket_end": "2026-10-13T06:00:00+05:30",
+   "quantity": 700
+  },
+  {
+   "order_line_id": "SO-41479/37",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-10-11",
+   "bucket_start": "2026-10-11T06:00:00+05:30",
+   "bucket_end": "2026-10-12T06:00:00+05:30",
+   "quantity": 700
+  },
+  {
    "order_line_id": "SO-41437/17",
    "position_no": 60,
    "machine_id": "PK-01",
@@ -5836,6 +8544,96 @@
    "quantity": 410
   },
   {
+   "order_line_id": "SO-41491/44",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-14",
+   "bucket_start": "2026-10-14T06:00:00+05:30",
+   "bucket_end": "2026-10-15T06:00:00+05:30",
+   "quantity": 460
+  },
+  {
+   "order_line_id": "SO-41491/44",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-14",
+   "bucket_start": "2026-10-14T06:00:00+05:30",
+   "bucket_end": "2026-10-15T06:00:00+05:30",
+   "quantity": 620
+  },
+  {
+   "order_line_id": "SO-41491/44",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-13",
+   "bucket_start": "2026-10-13T06:00:00+05:30",
+   "bucket_end": "2026-10-14T06:00:00+05:30",
+   "quantity": 620
+  },
+  {
+   "order_line_id": "SO-41599/98",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-14",
+   "bucket_start": "2026-10-14T06:00:00+05:30",
+   "bucket_end": "2026-10-15T06:00:00+05:30",
+   "quantity": 730
+  },
+  {
+   "order_line_id": "SO-41599/98",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-14",
+   "bucket_start": "2026-10-14T06:00:00+05:30",
+   "bucket_end": "2026-10-15T06:00:00+05:30",
+   "quantity": 1240
+  },
+  {
+   "order_line_id": "SO-41599/98",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-13",
+   "bucket_start": "2026-10-13T06:00:00+05:30",
+   "bucket_end": "2026-10-14T06:00:00+05:30",
+   "quantity": 1240
+  },
+  {
+   "order_line_id": "SO-41491/45",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-10-15",
+   "bucket_start": "2026-10-15T06:00:00+05:30",
+   "bucket_end": "2026-10-16T06:00:00+05:30",
+   "quantity": 770
+  },
+  {
+   "order_line_id": "SO-41491/45",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-10-14",
+   "bucket_start": "2026-10-14T06:00:00+05:30",
+   "bucket_end": "2026-10-15T06:00:00+05:30",
+   "quantity": 1520
+  },
+  {
+   "order_line_id": "SO-41491/45",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-10-14",
+   "bucket_start": "2026-10-14T06:00:00+05:30",
+   "bucket_end": "2026-10-15T06:00:00+05:30",
+   "quantity": 1520
+  },
+  {
    "order_line_id": "SO-41302/54",
    "position_no": 20,
    "machine_id": "CF-01",
@@ -5843,7 +8641,7 @@
    "bucket_id": "2026-10-15",
    "bucket_start": "2026-10-15T06:00:00+05:30",
    "bucket_end": "2026-10-16T06:00:00+05:30",
-   "quantity": 1530
+   "quantity": 1240
   },
   {
    "order_line_id": "SO-41302/54",
@@ -5853,7 +8651,67 @@
    "bucket_id": "2026-10-14",
    "bucket_start": "2026-10-14T06:00:00+05:30",
    "bucket_end": "2026-10-15T06:00:00+05:30",
-   "quantity": 1880
+   "quantity": 1410
+  },
+  {
+   "order_line_id": "SO-41527/62",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AZ-230",
+   "bucket_id": "2026-10-15",
+   "bucket_start": "2026-10-15T06:00:00+05:30",
+   "bucket_end": "2026-10-16T06:00:00+05:30",
+   "quantity": 1410
+  },
+  {
+   "order_line_id": "SO-41527/62",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AZ-230",
+   "bucket_id": "2026-10-14",
+   "bucket_start": "2026-10-14T06:00:00+05:30",
+   "bucket_end": "2026-10-15T06:00:00+05:30",
+   "quantity": 1800
+  },
+  {
+   "order_line_id": "SO-41527/62",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AZ-230",
+   "bucket_id": "2026-10-14",
+   "bucket_start": "2026-10-14T06:00:00+05:30",
+   "bucket_end": "2026-10-15T06:00:00+05:30",
+   "quantity": 1800
+  },
+  {
+   "order_line_id": "SO-41599/99",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-15",
+   "bucket_start": "2026-10-15T06:00:00+05:30",
+   "bucket_end": "2026-10-16T06:00:00+05:30",
+   "quantity": 460
+  },
+  {
+   "order_line_id": "SO-41599/99",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-15",
+   "bucket_start": "2026-10-15T06:00:00+05:30",
+   "bucket_end": "2026-10-16T06:00:00+05:30",
+   "quantity": 620
+  },
+  {
+   "order_line_id": "SO-41599/99",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-14",
+   "bucket_start": "2026-10-14T06:00:00+05:30",
+   "bucket_end": "2026-10-15T06:00:00+05:30",
+   "quantity": 620
   },
   {
    "order_line_id": "SO-41449/22",
@@ -5863,7 +8721,7 @@
    "bucket_id": "2026-10-15",
    "bucket_start": "2026-10-15T06:00:00+05:30",
    "bucket_end": "2026-10-16T06:00:00+05:30",
-   "quantity": 1870
+   "quantity": 1510
   },
   {
    "order_line_id": "SO-41449/22",
@@ -5873,7 +8731,7 @@
    "bucket_id": "2026-10-15",
    "bucket_start": "2026-10-15T06:00:00+05:30",
    "bucket_end": "2026-10-16T06:00:00+05:30",
-   "quantity": 2520
+   "quantity": 1680
   },
   {
    "order_line_id": "SO-41449/22",
@@ -5883,7 +8741,7 @@
    "bucket_id": "2026-10-14",
    "bucket_start": "2026-10-14T06:00:00+05:30",
    "bucket_end": "2026-10-15T06:00:00+05:30",
-   "quantity": 2520
+   "quantity": 1680
   },
   {
    "order_line_id": "SO-41449/23",
@@ -5953,7 +8811,7 @@
    "bucket_id": "2026-10-16",
    "bucket_start": "2026-10-16T06:00:00+05:30",
    "bucket_end": "2026-10-17T06:00:00+05:30",
-   "quantity": 930
+   "quantity": 750
   },
   {
    "order_line_id": "SO-41416/05",
@@ -6013,7 +8871,7 @@
    "bucket_id": "2026-10-17",
    "bucket_start": "2026-10-17T06:00:00+05:30",
    "bucket_end": "2026-10-18T06:00:00+05:30",
-   "quantity": 1090
+   "quantity": 880
   },
   {
    "order_line_id": "SO-41422/08",
@@ -6034,6 +8892,86 @@
    "bucket_start": "2026-10-16T06:00:00+05:30",
    "bucket_end": "2026-10-17T06:00:00+05:30",
    "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41602/01",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-17",
+   "bucket_start": "2026-10-17T06:00:00+05:30",
+   "bucket_end": "2026-10-18T06:00:00+05:30",
+   "quantity": 460
+  },
+  {
+   "order_line_id": "SO-41602/01",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-17",
+   "bucket_start": "2026-10-17T06:00:00+05:30",
+   "bucket_end": "2026-10-18T06:00:00+05:30",
+   "quantity": 620
+  },
+  {
+   "order_line_id": "SO-41602/01",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-16",
+   "bucket_start": "2026-10-16T06:00:00+05:30",
+   "bucket_end": "2026-10-17T06:00:00+05:30",
+   "quantity": 620
+  },
+  {
+   "order_line_id": "SO-41602/00",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-10-17",
+   "bucket_start": "2026-10-17T06:00:00+05:30",
+   "bucket_end": "2026-10-18T06:00:00+05:30",
+   "quantity": 520
+  },
+  {
+   "order_line_id": "SO-41602/00",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-10-17",
+   "bucket_start": "2026-10-17T06:00:00+05:30",
+   "bucket_end": "2026-10-18T06:00:00+05:30",
+   "quantity": 700
+  },
+  {
+   "order_line_id": "SO-41602/00",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-10-16",
+   "bucket_start": "2026-10-16T06:00:00+05:30",
+   "bucket_end": "2026-10-17T06:00:00+05:30",
+   "quantity": 700
+  },
+  {
+   "order_line_id": "SO-41515/57",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "IM-315",
+   "bucket_id": "2026-10-18",
+   "bucket_start": "2026-10-18T06:00:00+05:30",
+   "bucket_end": "2026-10-19T06:00:00+05:30",
+   "quantity": 1040
+  },
+  {
+   "order_line_id": "SO-41515/57",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "IM-315",
+   "bucket_id": "2026-10-17",
+   "bucket_start": "2026-10-17T06:00:00+05:30",
+   "bucket_end": "2026-10-18T06:00:00+05:30",
+   "quantity": 1410
   },
   {
    "order_line_id": "SO-41422/09",
@@ -6073,7 +9011,7 @@
    "bucket_id": "2026-10-19",
    "bucket_start": "2026-10-19T06:00:00+05:30",
    "bucket_end": "2026-10-20T06:00:00+05:30",
-   "quantity": 910
+   "quantity": 730
   },
   {
    "order_line_id": "SO-41239/18",
@@ -6093,7 +9031,7 @@
    "bucket_id": "2026-10-19",
    "bucket_start": "2026-10-19T06:00:00+05:30",
    "bucket_end": "2026-10-20T06:00:00+05:30",
-   "quantity": 1050
+   "quantity": 850
   },
   {
    "order_line_id": "SO-41239/19",
@@ -6153,7 +9091,7 @@
    "bucket_id": "2026-10-20",
    "bucket_start": "2026-10-20T06:00:00+05:30",
    "bucket_end": "2026-10-21T06:00:00+05:30",
-   "quantity": 1150
+   "quantity": 930
   },
   {
    "order_line_id": "SO-41293/49",
@@ -6173,7 +9111,7 @@
    "bucket_id": "2026-10-20",
    "bucket_start": "2026-10-20T06:00:00+05:30",
    "bucket_end": "2026-10-21T06:00:00+05:30",
-   "quantity": 1630
+   "quantity": 1320
   },
   {
    "order_line_id": "SO-41209/06",
@@ -6203,7 +9141,7 @@
    "bucket_id": "2026-10-21",
    "bucket_start": "2026-10-21T06:00:00+05:30",
    "bucket_end": "2026-10-22T06:00:00+05:30",
-   "quantity": 760
+   "quantity": 680
   },
   {
    "order_line_id": "SO-41209/05",
@@ -6286,6 +9224,36 @@
    "quantity": 165
   },
   {
+   "order_line_id": "SO-41566/82",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-10-23",
+   "bucket_start": "2026-10-23T06:00:00+05:30",
+   "bucket_end": "2026-10-24T06:00:00+05:30",
+   "quantity": 125
+  },
+  {
+   "order_line_id": "SO-41566/82",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-10-23",
+   "bucket_start": "2026-10-23T06:00:00+05:30",
+   "bucket_end": "2026-10-24T06:00:00+05:30",
+   "quantity": 165
+  },
+  {
+   "order_line_id": "SO-41566/82",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-10-22",
+   "bucket_start": "2026-10-22T06:00:00+05:30",
+   "bucket_end": "2026-10-23T06:00:00+05:30",
+   "quantity": 165
+  },
+  {
    "order_line_id": "SO-41266/34",
    "position_no": 30,
    "machine_id": "VTD-02",
@@ -6316,6 +9284,36 @@
    "quantity": 165
   },
   {
+   "order_line_id": "SO-41566/83",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-24",
+   "bucket_start": "2026-10-24T06:00:00+05:30",
+   "bucket_end": "2026-10-25T06:00:00+05:30",
+   "quantity": 760
+  },
+  {
+   "order_line_id": "SO-41566/83",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-23",
+   "bucket_start": "2026-10-23T06:00:00+05:30",
+   "bucket_end": "2026-10-24T06:00:00+05:30",
+   "quantity": 1240
+  },
+  {
+   "order_line_id": "SO-41566/83",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-23",
+   "bucket_start": "2026-10-23T06:00:00+05:30",
+   "bucket_end": "2026-10-24T06:00:00+05:30",
+   "quantity": 1240
+  },
+  {
    "order_line_id": "SO-41296/51",
    "position_no": 30,
    "machine_id": "VTD-01",
@@ -6323,7 +9321,7 @@
    "bucket_id": "2026-10-24",
    "bucket_start": "2026-10-24T06:00:00+05:30",
    "bucket_end": "2026-10-25T06:00:00+05:30",
-   "quantity": 1460
+   "quantity": 1180
   },
   {
    "order_line_id": "SO-41296/51",
@@ -6376,6 +9374,36 @@
    "quantity": 165
   },
   {
+   "order_line_id": "SO-41581/91",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-25",
+   "bucket_start": "2026-10-25T06:00:00+05:30",
+   "bucket_end": "2026-10-26T06:00:00+05:30",
+   "quantity": 460
+  },
+  {
+   "order_line_id": "SO-41581/91",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-25",
+   "bucket_start": "2026-10-25T06:00:00+05:30",
+   "bucket_end": "2026-10-26T06:00:00+05:30",
+   "quantity": 620
+  },
+  {
+   "order_line_id": "SO-41581/91",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-24",
+   "bucket_start": "2026-10-24T06:00:00+05:30",
+   "bucket_end": "2026-10-25T06:00:00+05:30",
+   "quantity": 620
+  },
+  {
    "order_line_id": "SO-41305/55",
    "position_no": 30,
    "machine_id": "VTD-01",
@@ -6404,6 +9432,36 @@
    "bucket_start": "2026-10-24T06:00:00+05:30",
    "bucket_end": "2026-10-25T06:00:00+05:30",
    "quantity": 840
+  },
+  {
+   "order_line_id": "SO-41581/90",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-26",
+   "bucket_start": "2026-10-26T06:00:00+05:30",
+   "bucket_end": "2026-10-27T06:00:00+05:30",
+   "quantity": 850
+  },
+  {
+   "order_line_id": "SO-41581/90",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-26",
+   "bucket_start": "2026-10-26T06:00:00+05:30",
+   "bucket_end": "2026-10-27T06:00:00+05:30",
+   "quantity": 1240
+  },
+  {
+   "order_line_id": "SO-41581/90",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-10-25",
+   "bucket_start": "2026-10-25T06:00:00+05:30",
+   "bucket_end": "2026-10-26T06:00:00+05:30",
+   "quantity": 1240
   },
   {
    "order_line_id": "SO-41335/68",
@@ -6443,7 +9501,7 @@
    "bucket_id": "2026-10-26",
    "bucket_start": "2026-10-26T06:00:00+05:30",
    "bucket_end": "2026-10-27T06:00:00+05:30",
-   "quantity": 1120
+   "quantity": 910
   },
   {
    "order_line_id": "SO-41314/59",
@@ -6543,7 +9601,7 @@
    "bucket_id": "2026-10-27",
    "bucket_start": "2026-10-27T06:00:00+05:30",
    "bucket_end": "2026-10-28T06:00:00+05:30",
-   "quantity": 620
+   "quantity": 520
   },
   {
    "order_line_id": "SO-41314/60",
@@ -6696,6 +9754,96 @@
    "quantity": 330
   },
   {
+   "order_line_id": "SO-41572/86",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "NT-210",
+   "bucket_id": "2026-10-28",
+   "bucket_start": "2026-10-28T06:00:00+05:30",
+   "bucket_end": "2026-10-29T06:00:00+05:30",
+   "quantity": 720
+  },
+  {
+   "order_line_id": "SO-41572/86",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "NT-210",
+   "bucket_id": "2026-10-27",
+   "bucket_start": "2026-10-27T06:00:00+05:30",
+   "bucket_end": "2026-10-28T06:00:00+05:30",
+   "quantity": 840
+  },
+  {
+   "order_line_id": "SO-41572/86",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "NT-210",
+   "bucket_id": "2026-10-26",
+   "bucket_start": "2026-10-26T06:00:00+05:30",
+   "bucket_end": "2026-10-27T06:00:00+05:30",
+   "quantity": 840
+  },
+  {
+   "order_line_id": "SO-41584/92",
+   "position_no": 60,
+   "machine_id": "PK-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2026-10-29",
+   "bucket_start": "2026-10-29T06:00:00+05:30",
+   "bucket_end": "2026-10-30T06:00:00+05:30",
+   "quantity": 310
+  },
+  {
+   "order_line_id": "SO-41584/92",
+   "position_no": 50,
+   "machine_id": "VTD-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2026-10-28",
+   "bucket_start": "2026-10-28T06:00:00+05:30",
+   "bucket_end": "2026-10-29T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41584/92",
+   "position_no": 40,
+   "machine_id": "CF-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2026-10-28",
+   "bucket_start": "2026-10-28T06:00:00+05:30",
+   "bucket_end": "2026-10-29T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41584/92",
+   "position_no": 30,
+   "machine_id": "R-101",
+   "sku_id": "RX-310",
+   "bucket_id": "2026-10-27",
+   "bucket_start": "2026-10-27T06:00:00+05:30",
+   "bucket_end": "2026-10-28T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41584/92",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2026-10-27",
+   "bucket_start": "2026-10-27T06:00:00+05:30",
+   "bucket_end": "2026-10-28T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41584/92",
+   "position_no": 10,
+   "machine_id": "R-103",
+   "sku_id": "RX-310",
+   "bucket_id": "2026-10-26",
+   "bucket_start": "2026-10-26T06:00:00+05:30",
+   "bucket_end": "2026-10-27T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
    "order_line_id": "SO-41263/33",
    "position_no": 30,
    "machine_id": "VTD-02",
@@ -6754,6 +9902,36 @@
    "bucket_start": "2026-10-27T06:00:00+05:30",
    "bucket_end": "2026-10-28T06:00:00+05:30",
    "quantity": 165
+  },
+  {
+   "order_line_id": "SO-41473/34",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-10-29",
+   "bucket_start": "2026-10-29T06:00:00+05:30",
+   "bucket_end": "2026-10-30T06:00:00+05:30",
+   "quantity": 520
+  },
+  {
+   "order_line_id": "SO-41473/34",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-10-29",
+   "bucket_start": "2026-10-29T06:00:00+05:30",
+   "bucket_end": "2026-10-30T06:00:00+05:30",
+   "quantity": 700
+  },
+  {
+   "order_line_id": "SO-41473/34",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-10-28",
+   "bucket_start": "2026-10-28T06:00:00+05:30",
+   "bucket_end": "2026-10-29T06:00:00+05:30",
+   "quantity": 700
   },
   {
    "order_line_id": "SO-41212/07",
@@ -6763,7 +9941,7 @@
    "bucket_id": "2026-10-30",
    "bucket_start": "2026-10-30T06:00:00+05:30",
    "bucket_end": "2026-10-31T06:00:00+05:30",
-   "quantity": 1470
+   "quantity": 1180
   },
   {
    "order_line_id": "SO-41212/07",
@@ -6773,7 +9951,7 @@
    "bucket_id": "2026-10-29",
    "bucket_start": "2026-10-29T06:00:00+05:30",
    "bucket_end": "2026-10-30T06:00:00+05:30",
-   "quantity": 2070
+   "quantity": 1380
   },
   {
    "order_line_id": "SO-41290/47",
@@ -6883,7 +10061,7 @@
    "bucket_id": "2026-11-01",
    "bucket_start": "2026-11-01T06:00:00+05:30",
    "bucket_end": "2026-11-02T06:00:00+05:30",
-   "quantity": 1520
+   "quantity": 1230
   },
   {
    "order_line_id": "SO-41413/04",
@@ -6913,7 +10091,7 @@
    "bucket_id": "2026-11-01",
    "bucket_start": "2026-11-01T06:00:00+05:30",
    "bucket_end": "2026-11-02T06:00:00+05:30",
-   "quantity": 1530
+   "quantity": 1240
   },
   {
    "order_line_id": "SO-41278/41",
@@ -6923,7 +10101,7 @@
    "bucket_id": "2026-10-31",
    "bucket_start": "2026-10-31T06:00:00+05:30",
    "bucket_end": "2026-11-01T06:00:00+05:30",
-   "quantity": 2070
+   "quantity": 1380
   },
   {
    "order_line_id": "SO-41260/31",
@@ -7083,7 +10261,7 @@
    "bucket_id": "2026-11-03",
    "bucket_start": "2026-11-03T06:00:00+05:30",
    "bucket_end": "2026-11-04T06:00:00+05:30",
-   "quantity": 390
+   "quantity": 350
   },
   {
    "order_line_id": "SO-41284/43",
@@ -7163,7 +10341,7 @@
    "bucket_id": "2026-11-03",
    "bucket_start": "2026-11-03T06:00:00+05:30",
    "bucket_end": "2026-11-04T06:00:00+05:30",
-   "quantity": 1660
+   "quantity": 1340
   },
   {
    "order_line_id": "SO-41341/71",
@@ -7173,7 +10351,7 @@
    "bucket_id": "2026-11-03",
    "bucket_start": "2026-11-03T06:00:00+05:30",
    "bucket_end": "2026-11-04T06:00:00+05:30",
-   "quantity": 1920
+   "quantity": 1440
   },
   {
    "order_line_id": "SO-41341/71",
@@ -7183,7 +10361,7 @@
    "bucket_id": "2026-11-03",
    "bucket_start": "2026-11-03T06:00:00+05:30",
    "bucket_end": "2026-11-04T06:00:00+05:30",
-   "quantity": 1920
+   "quantity": 1440
   },
   {
    "order_line_id": "SO-41374/87",
@@ -7236,6 +10414,36 @@
    "quantity": 540
   },
   {
+   "order_line_id": "SO-41467/31",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-11-03",
+   "bucket_start": "2026-11-03T06:00:00+05:30",
+   "bucket_end": "2026-11-04T06:00:00+05:30",
+   "quantity": 125
+  },
+  {
+   "order_line_id": "SO-41467/31",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-11-03",
+   "bucket_start": "2026-11-03T06:00:00+05:30",
+   "bucket_end": "2026-11-04T06:00:00+05:30",
+   "quantity": 165
+  },
+  {
+   "order_line_id": "SO-41467/31",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-11-02",
+   "bucket_start": "2026-11-02T06:00:00+05:30",
+   "bucket_end": "2026-11-03T06:00:00+05:30",
+   "quantity": 165
+  },
+  {
    "order_line_id": "SO-41311/58",
    "position_no": 30,
    "machine_id": "VTD-01",
@@ -7243,7 +10451,7 @@
    "bucket_id": "2026-11-06",
    "bucket_start": "2026-11-06T06:00:00+05:30",
    "bucket_end": "2026-11-07T06:00:00+05:30",
-   "quantity": 1100
+   "quantity": 890
   },
   {
    "order_line_id": "SO-41311/58",
@@ -7253,7 +10461,7 @@
    "bucket_id": "2026-11-05",
    "bucket_start": "2026-11-05T06:00:00+05:30",
    "bucket_end": "2026-11-06T06:00:00+05:30",
-   "quantity": 1800
+   "quantity": 900
   },
   {
    "order_line_id": "SO-41311/58",
@@ -7263,7 +10471,7 @@
    "bucket_id": "2026-11-05",
    "bucket_start": "2026-11-05T06:00:00+05:30",
    "bucket_end": "2026-11-06T06:00:00+05:30",
-   "quantity": 1800
+   "quantity": 900
   },
   {
    "order_line_id": "SO-41311/57",
@@ -7273,7 +10481,7 @@
    "bucket_id": "2026-11-06",
    "bucket_start": "2026-11-06T06:00:00+05:30",
    "bucket_end": "2026-11-07T06:00:00+05:30",
-   "quantity": 870
+   "quantity": 710
   },
   {
    "order_line_id": "SO-41311/57",
@@ -7294,6 +10502,146 @@
    "bucket_start": "2026-11-05T06:00:00+05:30",
    "bucket_end": "2026-11-06T06:00:00+05:30",
    "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41530/64",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "NT-210",
+   "bucket_id": "2026-11-06",
+   "bucket_start": "2026-11-06T06:00:00+05:30",
+   "bucket_end": "2026-11-07T06:00:00+05:30",
+   "quantity": 1290
+  },
+  {
+   "order_line_id": "SO-41530/64",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "NT-210",
+   "bucket_id": "2026-11-06",
+   "bucket_start": "2026-11-06T06:00:00+05:30",
+   "bucket_end": "2026-11-07T06:00:00+05:30",
+   "quantity": 1680
+  },
+  {
+   "order_line_id": "SO-41530/64",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "NT-210",
+   "bucket_id": "2026-11-05",
+   "bucket_start": "2026-11-05T06:00:00+05:30",
+   "bucket_end": "2026-11-06T06:00:00+05:30",
+   "quantity": 1680
+  },
+  {
+   "order_line_id": "SO-41536/66",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-11-07",
+   "bucket_start": "2026-11-07T06:00:00+05:30",
+   "bucket_end": "2026-11-08T06:00:00+05:30",
+   "quantity": 460
+  },
+  {
+   "order_line_id": "SO-41536/66",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-11-06",
+   "bucket_start": "2026-11-06T06:00:00+05:30",
+   "bucket_end": "2026-11-07T06:00:00+05:30",
+   "quantity": 620
+  },
+  {
+   "order_line_id": "SO-41536/66",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-11-06",
+   "bucket_start": "2026-11-06T06:00:00+05:30",
+   "bucket_end": "2026-11-07T06:00:00+05:30",
+   "quantity": 620
+  },
+  {
+   "order_line_id": "SO-41536/67",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "IM-205",
+   "bucket_id": "2026-11-07",
+   "bucket_start": "2026-11-07T06:00:00+05:30",
+   "bucket_end": "2026-11-08T06:00:00+05:30",
+   "quantity": 630
+  },
+  {
+   "order_line_id": "SO-41536/67",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "IM-205",
+   "bucket_id": "2026-11-06",
+   "bucket_start": "2026-11-06T06:00:00+05:30",
+   "bucket_end": "2026-11-07T06:00:00+05:30",
+   "quantity": 690
+  },
+  {
+   "order_line_id": "SO-41530/63",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-11-07",
+   "bucket_start": "2026-11-07T06:00:00+05:30",
+   "bucket_end": "2026-11-08T06:00:00+05:30",
+   "quantity": 570
+  },
+  {
+   "order_line_id": "SO-41530/63",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-11-06",
+   "bucket_start": "2026-11-06T06:00:00+05:30",
+   "bucket_end": "2026-11-07T06:00:00+05:30",
+   "quantity": 760
+  },
+  {
+   "order_line_id": "SO-41530/63",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-11-06",
+   "bucket_start": "2026-11-06T06:00:00+05:30",
+   "bucket_end": "2026-11-07T06:00:00+05:30",
+   "quantity": 760
+  },
+  {
+   "order_line_id": "SO-41611/05",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-11-08",
+   "bucket_start": "2026-11-08T06:00:00+05:30",
+   "bucket_end": "2026-11-09T06:00:00+05:30",
+   "quantity": 570
+  },
+  {
+   "order_line_id": "SO-41611/05",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-11-07",
+   "bucket_start": "2026-11-07T06:00:00+05:30",
+   "bucket_end": "2026-11-08T06:00:00+05:30",
+   "quantity": 760
+  },
+  {
+   "order_line_id": "SO-41611/05",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-11-06",
+   "bucket_start": "2026-11-06T06:00:00+05:30",
+   "bucket_end": "2026-11-07T06:00:00+05:30",
+   "quantity": 760
   },
   {
    "order_line_id": "SO-41407/02",
@@ -7326,6 +10674,136 @@
    "quantity": 165
   },
   {
+   "order_line_id": "SO-41614/07",
+   "position_no": 50,
+   "machine_id": "PK-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-11-09",
+   "bucket_start": "2026-11-09T06:00:00+05:30",
+   "bucket_end": "2026-11-10T06:00:00+05:30",
+   "quantity": 400
+  },
+  {
+   "order_line_id": "SO-41614/07",
+   "position_no": 40,
+   "machine_id": "VTD-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-11-08",
+   "bucket_start": "2026-11-08T06:00:00+05:30",
+   "bucket_end": "2026-11-09T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41614/07",
+   "position_no": 30,
+   "machine_id": "R-101",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-11-08",
+   "bucket_start": "2026-11-08T06:00:00+05:30",
+   "bucket_end": "2026-11-09T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41614/07",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-11-07",
+   "bucket_start": "2026-11-07T06:00:00+05:30",
+   "bucket_end": "2026-11-08T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41614/07",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-11-07",
+   "bucket_start": "2026-11-07T06:00:00+05:30",
+   "bucket_end": "2026-11-08T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41614/06",
+   "position_no": 50,
+   "machine_id": "PK-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-11-09",
+   "bucket_start": "2026-11-09T06:00:00+05:30",
+   "bucket_end": "2026-11-10T06:00:00+05:30",
+   "quantity": 400
+  },
+  {
+   "order_line_id": "SO-41614/06",
+   "position_no": 40,
+   "machine_id": "VTD-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-11-09",
+   "bucket_start": "2026-11-09T06:00:00+05:30",
+   "bucket_end": "2026-11-10T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41614/06",
+   "position_no": 30,
+   "machine_id": "R-101",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-11-08",
+   "bucket_start": "2026-11-08T06:00:00+05:30",
+   "bucket_end": "2026-11-09T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41614/06",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-11-08",
+   "bucket_start": "2026-11-08T06:00:00+05:30",
+   "bucket_end": "2026-11-09T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41614/06",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-11-07",
+   "bucket_start": "2026-11-07T06:00:00+05:30",
+   "bucket_end": "2026-11-08T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41590/95",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-11-12",
+   "bucket_start": "2026-11-12T06:00:00+05:30",
+   "bucket_end": "2026-11-13T06:00:00+05:30",
+   "quantity": 125
+  },
+  {
+   "order_line_id": "SO-41590/95",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-11-11",
+   "bucket_start": "2026-11-11T06:00:00+05:30",
+   "bucket_end": "2026-11-12T06:00:00+05:30",
+   "quantity": 165
+  },
+  {
+   "order_line_id": "SO-41590/95",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-11-10",
+   "bucket_start": "2026-11-10T06:00:00+05:30",
+   "bucket_end": "2026-11-11T06:00:00+05:30",
+   "quantity": 165
+  },
+  {
    "order_line_id": "SO-41350/75",
    "position_no": 30,
    "machine_id": "VTD-01",
@@ -7333,7 +10811,7 @@
    "bucket_id": "2026-11-13",
    "bucket_start": "2026-11-13T06:00:00+05:30",
    "bucket_end": "2026-11-14T06:00:00+05:30",
-   "quantity": 1010
+   "quantity": 810
   },
   {
    "order_line_id": "SO-41350/75",
@@ -7363,7 +10841,7 @@
    "bucket_id": "2026-11-14",
    "bucket_start": "2026-11-14T06:00:00+05:30",
    "bucket_end": "2026-11-15T06:00:00+05:30",
-   "quantity": 960
+   "quantity": 770
   },
   {
    "order_line_id": "SO-41350/76",
@@ -7386,6 +10864,296 @@
    "quantity": 1400
   },
   {
+   "order_line_id": "SO-41470/33",
+   "position_no": 40,
+   "machine_id": "PK-02",
+   "sku_id": "HP-410",
+   "bucket_id": "2026-11-15",
+   "bucket_start": "2026-11-15T06:00:00+05:30",
+   "bucket_end": "2026-11-16T06:00:00+05:30",
+   "quantity": 105
+  },
+  {
+   "order_line_id": "SO-41470/33",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-410",
+   "bucket_id": "2026-11-14",
+   "bucket_start": "2026-11-14T06:00:00+05:30",
+   "bucket_end": "2026-11-15T06:00:00+05:30",
+   "quantity": 140
+  },
+  {
+   "order_line_id": "SO-41470/33",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-410",
+   "bucket_id": "2026-11-14",
+   "bucket_start": "2026-11-14T06:00:00+05:30",
+   "bucket_end": "2026-11-15T06:00:00+05:30",
+   "quantity": 140
+  },
+  {
+   "order_line_id": "SO-41470/33",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-410",
+   "bucket_id": "2026-11-13",
+   "bucket_start": "2026-11-13T06:00:00+05:30",
+   "bucket_end": "2026-11-14T06:00:00+05:30",
+   "quantity": 140
+  },
+  {
+   "order_line_id": "SO-41470/32",
+   "position_no": 40,
+   "machine_id": "PK-02",
+   "sku_id": "HP-410",
+   "bucket_id": "2026-11-15",
+   "bucket_start": "2026-11-15T06:00:00+05:30",
+   "bucket_end": "2026-11-16T06:00:00+05:30",
+   "quantity": 105
+  },
+  {
+   "order_line_id": "SO-41470/32",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-410",
+   "bucket_id": "2026-11-14",
+   "bucket_start": "2026-11-14T06:00:00+05:30",
+   "bucket_end": "2026-11-15T06:00:00+05:30",
+   "quantity": 140
+  },
+  {
+   "order_line_id": "SO-41470/32",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-410",
+   "bucket_id": "2026-11-14",
+   "bucket_start": "2026-11-14T06:00:00+05:30",
+   "bucket_end": "2026-11-15T06:00:00+05:30",
+   "quantity": 140
+  },
+  {
+   "order_line_id": "SO-41470/32",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-410",
+   "bucket_id": "2026-11-13",
+   "bucket_start": "2026-11-13T06:00:00+05:30",
+   "bucket_end": "2026-11-14T06:00:00+05:30",
+   "quantity": 140
+  },
+  {
+   "order_line_id": "SO-41524/61",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-11-15",
+   "bucket_start": "2026-11-15T06:00:00+05:30",
+   "bucket_end": "2026-11-16T06:00:00+05:30",
+   "quantity": 800
+  },
+  {
+   "order_line_id": "SO-41524/61",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-11-15",
+   "bucket_start": "2026-11-15T06:00:00+05:30",
+   "bucket_end": "2026-11-16T06:00:00+05:30",
+   "quantity": 1520
+  },
+  {
+   "order_line_id": "SO-41524/61",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-11-14",
+   "bucket_start": "2026-11-14T06:00:00+05:30",
+   "bucket_end": "2026-11-15T06:00:00+05:30",
+   "quantity": 1520
+  },
+  {
+   "order_line_id": "SO-41557/77",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-11-18",
+   "bucket_start": "2026-11-18T06:00:00+05:30",
+   "bucket_end": "2026-11-19T06:00:00+05:30",
+   "quantity": 1060
+  },
+  {
+   "order_line_id": "SO-41557/77",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-11-18",
+   "bucket_start": "2026-11-18T06:00:00+05:30",
+   "bucket_end": "2026-11-19T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41557/77",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-11-17",
+   "bucket_start": "2026-11-17T06:00:00+05:30",
+   "bucket_end": "2026-11-18T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41557/76",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-11-19",
+   "bucket_start": "2026-11-19T06:00:00+05:30",
+   "bucket_end": "2026-11-20T06:00:00+05:30",
+   "quantity": 1050
+  },
+  {
+   "order_line_id": "SO-41557/76",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-11-18",
+   "bucket_start": "2026-11-18T06:00:00+05:30",
+   "bucket_end": "2026-11-19T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41557/76",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-11-18",
+   "bucket_start": "2026-11-18T06:00:00+05:30",
+   "bucket_end": "2026-11-19T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41560/79",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-11-19",
+   "bucket_start": "2026-11-19T06:00:00+05:30",
+   "bucket_end": "2026-11-20T06:00:00+05:30",
+   "quantity": 570
+  },
+  {
+   "order_line_id": "SO-41560/79",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-11-19",
+   "bucket_start": "2026-11-19T06:00:00+05:30",
+   "bucket_end": "2026-11-20T06:00:00+05:30",
+   "quantity": 760
+  },
+  {
+   "order_line_id": "SO-41560/79",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-11-18",
+   "bucket_start": "2026-11-18T06:00:00+05:30",
+   "bucket_end": "2026-11-19T06:00:00+05:30",
+   "quantity": 760
+  },
+  {
+   "order_line_id": "SO-41560/78",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-120",
+   "bucket_id": "2026-11-20",
+   "bucket_start": "2026-11-20T06:00:00+05:30",
+   "bucket_end": "2026-11-21T06:00:00+05:30",
+   "quantity": 360
+  },
+  {
+   "order_line_id": "SO-41560/78",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-120",
+   "bucket_id": "2026-11-19",
+   "bucket_start": "2026-11-19T06:00:00+05:30",
+   "bucket_end": "2026-11-20T06:00:00+05:30",
+   "quantity": 480
+  },
+  {
+   "order_line_id": "SO-41560/78",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-120",
+   "bucket_id": "2026-11-19",
+   "bucket_start": "2026-11-19T06:00:00+05:30",
+   "bucket_end": "2026-11-20T06:00:00+05:30",
+   "quantity": 480
+  },
+  {
+   "order_line_id": "SO-41608/04",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-120",
+   "bucket_id": "2026-11-20",
+   "bucket_start": "2026-11-20T06:00:00+05:30",
+   "bucket_end": "2026-11-21T06:00:00+05:30",
+   "quantity": 360
+  },
+  {
+   "order_line_id": "SO-41608/04",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-120",
+   "bucket_id": "2026-11-20",
+   "bucket_start": "2026-11-20T06:00:00+05:30",
+   "bucket_end": "2026-11-21T06:00:00+05:30",
+   "quantity": 480
+  },
+  {
+   "order_line_id": "SO-41608/04",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-120",
+   "bucket_id": "2026-11-20",
+   "bucket_start": "2026-11-20T06:00:00+05:30",
+   "bucket_end": "2026-11-21T06:00:00+05:30",
+   "quantity": 480
+  },
+  {
+   "order_line_id": "SO-41500/49",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "NT-210",
+   "bucket_id": "2026-11-21",
+   "bucket_start": "2026-11-21T06:00:00+05:30",
+   "bucket_end": "2026-11-22T06:00:00+05:30",
+   "quantity": 730
+  },
+  {
+   "order_line_id": "SO-41500/49",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "NT-210",
+   "bucket_id": "2026-11-20",
+   "bucket_start": "2026-11-20T06:00:00+05:30",
+   "bucket_end": "2026-11-21T06:00:00+05:30",
+   "quantity": 840
+  },
+  {
+   "order_line_id": "SO-41500/49",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "NT-210",
+   "bucket_id": "2026-11-19",
+   "bucket_start": "2026-11-19T06:00:00+05:30",
+   "bucket_end": "2026-11-20T06:00:00+05:30",
+   "quantity": 840
+  },
+  {
    "order_line_id": "SO-41395/98",
    "position_no": 20,
    "machine_id": "CF-01",
@@ -7393,7 +11161,7 @@
    "bucket_id": "2026-11-23",
    "bucket_start": "2026-11-23T06:00:00+05:30",
    "bucket_end": "2026-11-24T06:00:00+05:30",
-   "quantity": 920
+   "quantity": 740
   },
   {
    "order_line_id": "SO-41395/98",
@@ -7456,6 +11224,26 @@
    "quantity": 540
   },
   {
+   "order_line_id": "SO-41587/93",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "IM-205",
+   "bucket_id": "2026-11-24",
+   "bucket_start": "2026-11-24T06:00:00+05:30",
+   "bucket_end": "2026-11-25T06:00:00+05:30",
+   "quantity": 520
+  },
+  {
+   "order_line_id": "SO-41587/93",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "IM-205",
+   "bucket_id": "2026-11-24",
+   "bucket_start": "2026-11-24T06:00:00+05:30",
+   "bucket_end": "2026-11-25T06:00:00+05:30",
+   "quantity": 690
+  },
+  {
    "order_line_id": "SO-41428/11",
    "position_no": 30,
    "machine_id": "VTD-01",
@@ -7463,7 +11251,7 @@
    "bucket_id": "2026-11-25",
    "bucket_start": "2026-11-25T06:00:00+05:30",
    "bucket_end": "2026-11-26T06:00:00+05:30",
-   "quantity": 1170
+   "quantity": 950
   },
   {
    "order_line_id": "SO-41428/11",
@@ -7493,7 +11281,7 @@
    "bucket_id": "2026-11-25",
    "bucket_start": "2026-11-25T06:00:00+05:30",
    "bucket_end": "2026-11-26T06:00:00+05:30",
-   "quantity": 1430
+   "quantity": 1160
   },
   {
    "order_line_id": "SO-41428/12",
@@ -7503,7 +11291,7 @@
    "bucket_id": "2026-11-24",
    "bucket_start": "2026-11-24T06:00:00+05:30",
    "bucket_end": "2026-11-25T06:00:00+05:30",
-   "quantity": 2070
+   "quantity": 1380
   },
   {
    "order_line_id": "SO-41332/67",
@@ -7513,7 +11301,7 @@
    "bucket_id": "2026-11-25",
    "bucket_start": "2026-11-25T06:00:00+05:30",
    "bucket_end": "2026-11-26T06:00:00+05:30",
-   "quantity": 1230
+   "quantity": 990
   },
   {
    "order_line_id": "SO-41332/67",
@@ -7534,6 +11322,36 @@
    "bucket_start": "2026-11-24T06:00:00+05:30",
    "bucket_end": "2026-11-25T06:00:00+05:30",
    "quantity": 1520
+  },
+  {
+   "order_line_id": "SO-41587/94",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AZ-230",
+   "bucket_id": "2026-11-25",
+   "bucket_start": "2026-11-25T06:00:00+05:30",
+   "bucket_end": "2026-11-26T06:00:00+05:30",
+   "quantity": 930
+  },
+  {
+   "order_line_id": "SO-41587/94",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AZ-230",
+   "bucket_id": "2026-11-25",
+   "bucket_start": "2026-11-25T06:00:00+05:30",
+   "bucket_end": "2026-11-26T06:00:00+05:30",
+   "quantity": 1800
+  },
+  {
+   "order_line_id": "SO-41587/94",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AZ-230",
+   "bucket_id": "2026-11-24",
+   "bucket_start": "2026-11-24T06:00:00+05:30",
+   "bucket_end": "2026-11-25T06:00:00+05:30",
+   "quantity": 1800
   },
   {
    "order_line_id": "SO-41242/21",
@@ -7593,7 +11411,7 @@
    "bucket_id": "2026-11-26",
    "bucket_start": "2026-11-26T06:00:00+05:30",
    "bucket_end": "2026-11-27T06:00:00+05:30",
-   "quantity": 300
+   "quantity": 250
   },
   {
    "order_line_id": "SO-41242/20",
@@ -7656,6 +11474,76 @@
    "quantity": 330
   },
   {
+   "order_line_id": "SO-41485/41",
+   "position_no": 70,
+   "machine_id": "PK-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-11-29",
+   "bucket_start": "2026-11-29T06:00:00+05:30",
+   "bucket_end": "2026-11-30T06:00:00+05:30",
+   "quantity": 250
+  },
+  {
+   "order_line_id": "SO-41485/41",
+   "position_no": 60,
+   "machine_id": "MC-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-11-29",
+   "bucket_start": "2026-11-29T06:00:00+05:30",
+   "bucket_end": "2026-11-30T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41485/41",
+   "position_no": 50,
+   "machine_id": "VTD-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-11-28",
+   "bucket_start": "2026-11-28T06:00:00+05:30",
+   "bucket_end": "2026-11-29T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41485/41",
+   "position_no": 40,
+   "machine_id": "CF-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-11-28",
+   "bucket_start": "2026-11-28T06:00:00+05:30",
+   "bucket_end": "2026-11-29T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41485/41",
+   "position_no": 30,
+   "machine_id": "R-101",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-11-27",
+   "bucket_start": "2026-11-27T06:00:00+05:30",
+   "bucket_end": "2026-11-28T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41485/41",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-11-27",
+   "bucket_start": "2026-11-27T06:00:00+05:30",
+   "bucket_end": "2026-11-28T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41485/41",
+   "position_no": 10,
+   "machine_id": "R-103",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-11-26",
+   "bucket_start": "2026-11-26T06:00:00+05:30",
+   "bucket_end": "2026-11-27T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
    "order_line_id": "SO-41431/13",
    "position_no": 30,
    "machine_id": "VTD-01",
@@ -7663,7 +11551,7 @@
    "bucket_id": "2026-11-30",
    "bucket_start": "2026-11-30T06:00:00+05:30",
    "bucket_end": "2026-12-01T06:00:00+05:30",
-   "quantity": 1110
+   "quantity": 900
   },
   {
    "order_line_id": "SO-41431/13",
@@ -7743,7 +11631,7 @@
    "bucket_id": "2026-11-30",
    "bucket_start": "2026-11-30T06:00:00+05:30",
    "bucket_end": "2026-12-01T06:00:00+05:30",
-   "quantity": 1620
+   "quantity": 1310
   },
   {
    "order_line_id": "SO-41308/56",
@@ -7876,6 +11764,36 @@
    "quantity": 120
   },
   {
+   "order_line_id": "SO-41533/65",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-12-03",
+   "bucket_start": "2026-12-03T06:00:00+05:30",
+   "bucket_end": "2026-12-04T06:00:00+05:30",
+   "quantity": 570
+  },
+  {
+   "order_line_id": "SO-41533/65",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-12-03",
+   "bucket_start": "2026-12-03T06:00:00+05:30",
+   "bucket_end": "2026-12-04T06:00:00+05:30",
+   "quantity": 760
+  },
+  {
+   "order_line_id": "SO-41533/65",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-130",
+   "bucket_id": "2026-12-02",
+   "bucket_start": "2026-12-02T06:00:00+05:30",
+   "bucket_end": "2026-12-03T06:00:00+05:30",
+   "quantity": 760
+  },
+  {
    "order_line_id": "SO-41386/93",
    "position_no": 30,
    "machine_id": "VTD-01",
@@ -7883,7 +11801,7 @@
    "bucket_id": "2026-12-04",
    "bucket_start": "2026-12-04T06:00:00+05:30",
    "bucket_end": "2026-12-05T06:00:00+05:30",
-   "quantity": 1890
+   "quantity": 1520
   },
   {
    "order_line_id": "SO-41386/93",
@@ -7893,7 +11811,7 @@
    "bucket_id": "2026-12-03",
    "bucket_start": "2026-12-03T06:00:00+05:30",
    "bucket_end": "2026-12-04T06:00:00+05:30",
-   "quantity": 2280
+   "quantity": 1520
   },
   {
    "order_line_id": "SO-41386/93",
@@ -7903,7 +11821,37 @@
    "bucket_id": "2026-12-03",
    "bucket_start": "2026-12-03T06:00:00+05:30",
    "bucket_end": "2026-12-04T06:00:00+05:30",
-   "quantity": 2280
+   "quantity": 1520
+  },
+  {
+   "order_line_id": "SO-41512/56",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-12-04",
+   "bucket_start": "2026-12-04T06:00:00+05:30",
+   "bucket_end": "2026-12-05T06:00:00+05:30",
+   "quantity": 460
+  },
+  {
+   "order_line_id": "SO-41512/56",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-12-03",
+   "bucket_start": "2026-12-03T06:00:00+05:30",
+   "bucket_end": "2026-12-04T06:00:00+05:30",
+   "quantity": 620
+  },
+  {
+   "order_line_id": "SO-41512/56",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-110",
+   "bucket_id": "2026-12-03",
+   "bucket_start": "2026-12-03T06:00:00+05:30",
+   "bucket_end": "2026-12-04T06:00:00+05:30",
+   "quantity": 620
   },
   {
    "order_line_id": "SO-41326/64",
@@ -7956,6 +11904,96 @@
    "quantity": 540
   },
   {
+   "order_line_id": "SO-41518/58",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "IM-315",
+   "bucket_id": "2026-12-06",
+   "bucket_start": "2026-12-06T06:00:00+05:30",
+   "bucket_end": "2026-12-07T06:00:00+05:30",
+   "quantity": 350
+  },
+  {
+   "order_line_id": "SO-41518/58",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "IM-315",
+   "bucket_id": "2026-12-05",
+   "bucket_start": "2026-12-05T06:00:00+05:30",
+   "bucket_end": "2026-12-06T06:00:00+05:30",
+   "quantity": 470
+  },
+  {
+   "order_line_id": "SO-41554/75",
+   "position_no": 70,
+   "machine_id": "PK-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-12-07",
+   "bucket_start": "2026-12-07T06:00:00+05:30",
+   "bucket_end": "2026-12-08T06:00:00+05:30",
+   "quantity": 250
+  },
+  {
+   "order_line_id": "SO-41554/75",
+   "position_no": 60,
+   "machine_id": "MC-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-12-07",
+   "bucket_start": "2026-12-07T06:00:00+05:30",
+   "bucket_end": "2026-12-08T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41554/75",
+   "position_no": 50,
+   "machine_id": "VTD-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-12-06",
+   "bucket_start": "2026-12-06T06:00:00+05:30",
+   "bucket_end": "2026-12-07T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41554/75",
+   "position_no": 40,
+   "machine_id": "CF-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-12-06",
+   "bucket_start": "2026-12-06T06:00:00+05:30",
+   "bucket_end": "2026-12-07T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41554/75",
+   "position_no": 30,
+   "machine_id": "R-101",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-12-05",
+   "bucket_start": "2026-12-05T06:00:00+05:30",
+   "bucket_end": "2026-12-06T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41554/75",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-12-05",
+   "bucket_start": "2026-12-05T06:00:00+05:30",
+   "bucket_end": "2026-12-06T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
+   "order_line_id": "SO-41554/75",
+   "position_no": 10,
+   "machine_id": "R-103",
+   "sku_id": "RX-320",
+   "bucket_id": "2026-12-04",
+   "bucket_start": "2026-12-04T06:00:00+05:30",
+   "bucket_end": "2026-12-05T06:00:00+05:30",
+   "quantity": 330
+  },
+  {
    "order_line_id": "SO-41425/10",
    "position_no": 30,
    "machine_id": "VTD-01",
@@ -7963,7 +12001,7 @@
    "bucket_id": "2026-12-07",
    "bucket_start": "2026-12-07T06:00:00+05:30",
    "bucket_end": "2026-12-08T06:00:00+05:30",
-   "quantity": 1260
+   "quantity": 1010
   },
   {
    "order_line_id": "SO-41425/10",
@@ -8044,6 +12082,46 @@
    "bucket_start": "2026-12-04T06:00:00+05:30",
    "bucket_end": "2026-12-05T06:00:00+05:30",
    "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41605/02",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "IM-315",
+   "bucket_id": "2026-12-07",
+   "bucket_start": "2026-12-07T06:00:00+05:30",
+   "bucket_end": "2026-12-08T06:00:00+05:30",
+   "quantity": 350
+  },
+  {
+   "order_line_id": "SO-41605/02",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "IM-315",
+   "bucket_id": "2026-12-06",
+   "bucket_start": "2026-12-06T06:00:00+05:30",
+   "bucket_end": "2026-12-07T06:00:00+05:30",
+   "quantity": 470
+  },
+  {
+   "order_line_id": "SO-41605/03",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "IM-315",
+   "bucket_id": "2026-12-07",
+   "bucket_start": "2026-12-07T06:00:00+05:30",
+   "bucket_end": "2026-12-08T06:00:00+05:30",
+   "quantity": 520
+  },
+  {
+   "order_line_id": "SO-41605/03",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "IM-315",
+   "bucket_id": "2026-12-06",
+   "bucket_start": "2026-12-06T06:00:00+05:30",
+   "bucket_end": "2026-12-07T06:00:00+05:30",
+   "quantity": 940
   },
   {
    "order_line_id": "SO-41419/07",
@@ -8083,7 +12161,7 @@
    "bucket_id": "2026-12-09",
    "bucket_start": "2026-12-09T06:00:00+05:30",
    "bucket_end": "2026-12-10T06:00:00+05:30",
-   "quantity": 1530
+   "quantity": 1240
   },
   {
    "order_line_id": "SO-41368/83",
@@ -8093,7 +12171,7 @@
    "bucket_id": "2026-12-08",
    "bucket_start": "2026-12-08T06:00:00+05:30",
    "bucket_end": "2026-12-09T06:00:00+05:30",
-   "quantity": 2280
+   "quantity": 1520
   },
   {
    "order_line_id": "SO-41368/83",
@@ -8103,7 +12181,7 @@
    "bucket_id": "2026-12-08",
    "bucket_start": "2026-12-08T06:00:00+05:30",
    "bucket_end": "2026-12-09T06:00:00+05:30",
-   "quantity": 2280
+   "quantity": 1520
   },
   {
    "order_line_id": "SO-41368/84",
@@ -8113,7 +12191,7 @@
    "bucket_id": "2026-12-08",
    "bucket_start": "2026-12-08T06:00:00+05:30",
    "bucket_end": "2026-12-09T06:00:00+05:30",
-   "quantity": 1480
+   "quantity": 1200
   },
   {
    "order_line_id": "SO-41368/84",
@@ -8123,7 +12201,7 @@
    "bucket_id": "2026-12-08",
    "bucket_start": "2026-12-08T06:00:00+05:30",
    "bucket_end": "2026-12-09T06:00:00+05:30",
-   "quantity": 1860
+   "quantity": 1240
   },
   {
    "order_line_id": "SO-41368/84",
@@ -8133,7 +12211,7 @@
    "bucket_id": "2026-12-07",
    "bucket_start": "2026-12-07T06:00:00+05:30",
    "bucket_end": "2026-12-08T06:00:00+05:30",
-   "quantity": 1860
+   "quantity": 1240
   },
   {
    "order_line_id": "SO-41452/24",
@@ -8426,6 +12504,26 @@
    "quantity": 120
   },
   {
+   "order_line_id": "SO-41464/30",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "IM-315",
+   "bucket_id": "2026-12-10",
+   "bucket_start": "2026-12-10T06:00:00+05:30",
+   "bucket_end": "2026-12-11T06:00:00+05:30",
+   "quantity": 350
+  },
+  {
+   "order_line_id": "SO-41464/30",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "IM-315",
+   "bucket_id": "2026-12-10",
+   "bucket_start": "2026-12-10T06:00:00+05:30",
+   "bucket_end": "2026-12-11T06:00:00+05:30",
+   "quantity": 470
+  },
+  {
    "order_line_id": "SO-41389/94",
    "position_no": 30,
    "machine_id": "VTD-01",
@@ -8433,7 +12531,7 @@
    "bucket_id": "2026-12-10",
    "bucket_start": "2026-12-10T06:00:00+05:30",
    "bucket_end": "2026-12-11T06:00:00+05:30",
-   "quantity": 1840
+   "quantity": 1480
   },
   {
    "order_line_id": "SO-41389/94",
@@ -8443,7 +12541,7 @@
    "bucket_id": "2026-12-10",
    "bucket_start": "2026-12-10T06:00:00+05:30",
    "bucket_end": "2026-12-11T06:00:00+05:30",
-   "quantity": 2520
+   "quantity": 1680
   },
   {
    "order_line_id": "SO-41389/94",
@@ -8453,7 +12551,27 @@
    "bucket_id": "2026-12-09",
    "bucket_start": "2026-12-09T06:00:00+05:30",
    "bucket_end": "2026-12-10T06:00:00+05:30",
-   "quantity": 2520
+   "quantity": 1680
+  },
+  {
+   "order_line_id": "SO-41494/47",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "IM-205",
+   "bucket_id": "2026-12-12",
+   "bucket_start": "2026-12-12T06:00:00+05:30",
+   "bucket_end": "2026-12-13T06:00:00+05:30",
+   "quantity": 1040
+  },
+  {
+   "order_line_id": "SO-41494/47",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "IM-205",
+   "bucket_id": "2026-12-12",
+   "bucket_start": "2026-12-12T06:00:00+05:30",
+   "bucket_end": "2026-12-13T06:00:00+05:30",
+   "quantity": 1380
   },
   {
    "order_line_id": "SO-41383/91",
@@ -8486,6 +12604,36 @@
    "quantity": 165
   },
   {
+   "order_line_id": "SO-41494/46",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AZ-230",
+   "bucket_id": "2026-12-13",
+   "bucket_start": "2026-12-13T06:00:00+05:30",
+   "bucket_end": "2026-12-14T06:00:00+05:30",
+   "quantity": 1440
+  },
+  {
+   "order_line_id": "SO-41494/46",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AZ-230",
+   "bucket_id": "2026-12-12",
+   "bucket_start": "2026-12-12T06:00:00+05:30",
+   "bucket_end": "2026-12-13T06:00:00+05:30",
+   "quantity": 1800
+  },
+  {
+   "order_line_id": "SO-41494/46",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AZ-230",
+   "bucket_id": "2026-12-12",
+   "bucket_start": "2026-12-12T06:00:00+05:30",
+   "bucket_end": "2026-12-13T06:00:00+05:30",
+   "quantity": 1800
+  },
+  {
    "order_line_id": "SO-41383/92",
    "position_no": 20,
    "machine_id": "CF-01",
@@ -8513,7 +12661,7 @@
    "bucket_id": "2026-12-14",
    "bucket_start": "2026-12-14T06:00:00+05:30",
    "bucket_end": "2026-12-15T06:00:00+05:30",
-   "quantity": 1630
+   "quantity": 1320
   },
   {
    "order_line_id": "SO-41281/42",
@@ -8593,7 +12741,7 @@
    "bucket_id": "2026-12-15",
    "bucket_start": "2026-12-15T06:00:00+05:30",
    "bucket_end": "2026-12-16T06:00:00+05:30",
-   "quantity": 880
+   "quantity": 710
   },
   {
    "order_line_id": "SO-41365/82",
@@ -8603,7 +12751,7 @@
    "bucket_id": "2026-12-14",
    "bucket_start": "2026-12-14T06:00:00+05:30",
    "bucket_end": "2026-12-15T06:00:00+05:30",
-   "quantity": 1520
+   "quantity": 760
   },
   {
    "order_line_id": "SO-41365/82",
@@ -8613,7 +12761,7 @@
    "bucket_id": "2026-12-14",
    "bucket_start": "2026-12-14T06:00:00+05:30",
    "bucket_end": "2026-12-15T06:00:00+05:30",
-   "quantity": 1520
+   "quantity": 760
   },
   {
    "order_line_id": "SO-41362/81",
@@ -8803,7 +12951,7 @@
    "bucket_id": "2026-12-18",
    "bucket_start": "2026-12-18T06:00:00+05:30",
    "bucket_end": "2026-12-19T06:00:00+05:30",
-   "quantity": 1190
+   "quantity": 960
   },
   {
    "order_line_id": "SO-41275/38",
@@ -8833,7 +12981,7 @@
    "bucket_id": "2026-12-18",
    "bucket_start": "2026-12-18T06:00:00+05:30",
    "bucket_end": "2026-12-19T06:00:00+05:30",
-   "quantity": 1600
+   "quantity": 1290
   },
   {
    "order_line_id": "SO-41275/39",
@@ -8843,7 +12991,97 @@
    "bucket_id": "2026-12-17",
    "bucket_start": "2026-12-17T06:00:00+05:30",
    "bucket_end": "2026-12-18T06:00:00+05:30",
-   "quantity": 2070
+   "quantity": 1380
+  },
+  {
+   "order_line_id": "SO-41551/74",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-12-19",
+   "bucket_start": "2026-12-19T06:00:00+05:30",
+   "bucket_end": "2026-12-20T06:00:00+05:30",
+   "quantity": 1350
+  },
+  {
+   "order_line_id": "SO-41551/74",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-12-19",
+   "bucket_start": "2026-12-19T06:00:00+05:30",
+   "bucket_end": "2026-12-20T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41551/74",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-12-18",
+   "bucket_start": "2026-12-18T06:00:00+05:30",
+   "bucket_end": "2026-12-19T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41521/59",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-12-20",
+   "bucket_start": "2026-12-20T06:00:00+05:30",
+   "bucket_end": "2026-12-21T06:00:00+05:30",
+   "quantity": 1030
+  },
+  {
+   "order_line_id": "SO-41521/59",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-12-20",
+   "bucket_start": "2026-12-20T06:00:00+05:30",
+   "bucket_end": "2026-12-21T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41521/59",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-12-19",
+   "bucket_start": "2026-12-19T06:00:00+05:30",
+   "bucket_end": "2026-12-20T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41521/60",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-12-20",
+   "bucket_start": "2026-12-20T06:00:00+05:30",
+   "bucket_end": "2026-12-21T06:00:00+05:30",
+   "quantity": 1010
+  },
+  {
+   "order_line_id": "SO-41521/60",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-12-20",
+   "bucket_start": "2026-12-20T06:00:00+05:30",
+   "bucket_end": "2026-12-21T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41521/60",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "NT-220",
+   "bucket_id": "2026-12-19",
+   "bucket_start": "2026-12-19T06:00:00+05:30",
+   "bucket_end": "2026-12-20T06:00:00+05:30",
+   "quantity": 1400
   },
   {
    "order_line_id": "SO-41398/99",
@@ -8853,7 +13091,7 @@
    "bucket_id": "2026-12-21",
    "bucket_start": "2026-12-21T06:00:00+05:30",
    "bucket_end": "2026-12-22T06:00:00+05:30",
-   "quantity": 480
+   "quantity": 460
   },
   {
    "order_line_id": "SO-41398/99",
@@ -8913,7 +13151,7 @@
    "bucket_id": "2026-12-23",
    "bucket_start": "2026-12-23T06:00:00+05:30",
    "bucket_end": "2026-12-24T06:00:00+05:30",
-   "quantity": 1100
+   "quantity": 890
   },
   {
    "order_line_id": "SO-41440/18",
@@ -8934,6 +13172,36 @@
    "bucket_start": "2026-12-22T06:00:00+05:30",
    "bucket_end": "2026-12-23T06:00:00+05:30",
    "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41506/52",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-12-23",
+   "bucket_start": "2026-12-23T06:00:00+05:30",
+   "bucket_end": "2026-12-24T06:00:00+05:30",
+   "quantity": 125
+  },
+  {
+   "order_line_id": "SO-41506/52",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-12-23",
+   "bucket_start": "2026-12-23T06:00:00+05:30",
+   "bucket_end": "2026-12-24T06:00:00+05:30",
+   "quantity": 165
+  },
+  {
+   "order_line_id": "SO-41506/52",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-12-22",
+   "bucket_start": "2026-12-22T06:00:00+05:30",
+   "bucket_end": "2026-12-23T06:00:00+05:30",
+   "quantity": 165
   },
   {
    "order_line_id": "SO-41224/12",
@@ -8974,6 +13242,36 @@
    "bucket_start": "2026-12-22T06:00:00+05:30",
    "bucket_end": "2026-12-23T06:00:00+05:30",
    "quantity": 120
+  },
+  {
+   "order_line_id": "SO-41506/53",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-12-23",
+   "bucket_start": "2026-12-23T06:00:00+05:30",
+   "bucket_end": "2026-12-24T06:00:00+05:30",
+   "quantity": 125
+  },
+  {
+   "order_line_id": "SO-41506/53",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-12-23",
+   "bucket_start": "2026-12-23T06:00:00+05:30",
+   "bucket_end": "2026-12-24T06:00:00+05:30",
+   "quantity": 165
+  },
+  {
+   "order_line_id": "SO-41506/53",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-430",
+   "bucket_id": "2026-12-22",
+   "bucket_start": "2026-12-22T06:00:00+05:30",
+   "bucket_end": "2026-12-23T06:00:00+05:30",
+   "quantity": 165
   },
   {
    "order_line_id": "SO-41224/11",
@@ -9053,7 +13351,7 @@
    "bucket_id": "2026-12-27",
    "bucket_start": "2026-12-27T06:00:00+05:30",
    "bucket_end": "2026-12-28T06:00:00+05:30",
-   "quantity": 1540
+   "quantity": 1240
   },
   {
    "order_line_id": "SO-41410/03",
@@ -9063,7 +13361,87 @@
    "bucket_id": "2026-12-26",
    "bucket_start": "2026-12-26T06:00:00+05:30",
    "bucket_end": "2026-12-27T06:00:00+05:30",
-   "quantity": 1880
+   "quantity": 1410
+  },
+  {
+   "order_line_id": "SO-41458/27",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-120",
+   "bucket_id": "2026-12-27",
+   "bucket_start": "2026-12-27T06:00:00+05:30",
+   "bucket_end": "2026-12-28T06:00:00+05:30",
+   "quantity": 980
+  },
+  {
+   "order_line_id": "SO-41458/27",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-120",
+   "bucket_id": "2026-12-26",
+   "bucket_start": "2026-12-26T06:00:00+05:30",
+   "bucket_end": "2026-12-27T06:00:00+05:30",
+   "quantity": 1440
+  },
+  {
+   "order_line_id": "SO-41458/27",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-120",
+   "bucket_id": "2026-12-26",
+   "bucket_start": "2026-12-26T06:00:00+05:30",
+   "bucket_end": "2026-12-27T06:00:00+05:30",
+   "quantity": 1440
+  },
+  {
+   "order_line_id": "SO-41497/48",
+   "position_no": 50,
+   "machine_id": "PK-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-12-28",
+   "bucket_start": "2026-12-28T06:00:00+05:30",
+   "bucket_end": "2026-12-29T06:00:00+05:30",
+   "quantity": 400
+  },
+  {
+   "order_line_id": "SO-41497/48",
+   "position_no": 40,
+   "machine_id": "VTD-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-12-27",
+   "bucket_start": "2026-12-27T06:00:00+05:30",
+   "bucket_end": "2026-12-28T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41497/48",
+   "position_no": 30,
+   "machine_id": "R-101",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-12-26",
+   "bucket_start": "2026-12-26T06:00:00+05:30",
+   "bucket_end": "2026-12-27T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41497/48",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-12-26",
+   "bucket_start": "2026-12-26T06:00:00+05:30",
+   "bucket_end": "2026-12-27T06:00:00+05:30",
+   "quantity": 540
+  },
+  {
+   "order_line_id": "SO-41497/48",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "RX-330",
+   "bucket_id": "2026-12-25",
+   "bucket_start": "2026-12-25T06:00:00+05:30",
+   "bucket_end": "2026-12-26T06:00:00+05:30",
+   "quantity": 540
   },
   {
    "order_line_id": "SO-41455/26",
@@ -9133,7 +13511,7 @@
    "bucket_id": "2027-01-01",
    "bucket_start": "2027-01-01T06:00:00+05:30",
    "bucket_end": "2027-01-02T06:00:00+05:30",
-   "quantity": 640
+   "quantity": 520
   },
   {
    "order_line_id": "SO-41434/15",
@@ -9184,6 +13562,176 @@
    "bucket_start": "2026-12-31T06:00:00+05:30",
    "bucket_end": "2027-01-01T06:00:00+05:30",
    "quantity": 700
+  },
+  {
+   "order_line_id": "SO-41563/81",
+   "position_no": 60,
+   "machine_id": "PK-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2027-01-03",
+   "bucket_start": "2027-01-03T06:00:00+05:30",
+   "bucket_end": "2027-01-04T06:00:00+05:30",
+   "quantity": 310
+  },
+  {
+   "order_line_id": "SO-41563/81",
+   "position_no": 50,
+   "machine_id": "VTD-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2027-01-02",
+   "bucket_start": "2027-01-02T06:00:00+05:30",
+   "bucket_end": "2027-01-03T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41563/81",
+   "position_no": 40,
+   "machine_id": "CF-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2027-01-02",
+   "bucket_start": "2027-01-02T06:00:00+05:30",
+   "bucket_end": "2027-01-03T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41563/81",
+   "position_no": 30,
+   "machine_id": "R-101",
+   "sku_id": "RX-310",
+   "bucket_id": "2027-01-01",
+   "bucket_start": "2027-01-01T06:00:00+05:30",
+   "bucket_end": "2027-01-02T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41563/81",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2027-01-01",
+   "bucket_start": "2027-01-01T06:00:00+05:30",
+   "bucket_end": "2027-01-02T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41563/81",
+   "position_no": 10,
+   "machine_id": "R-103",
+   "sku_id": "RX-310",
+   "bucket_id": "2026-12-31",
+   "bucket_start": "2026-12-31T06:00:00+05:30",
+   "bucket_end": "2027-01-01T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41476/35",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AZ-230",
+   "bucket_id": "2027-01-02",
+   "bucket_start": "2027-01-02T06:00:00+05:30",
+   "bucket_end": "2027-01-03T06:00:00+05:30",
+   "quantity": 680
+  },
+  {
+   "order_line_id": "SO-41476/35",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AZ-230",
+   "bucket_id": "2027-01-02",
+   "bucket_start": "2027-01-02T06:00:00+05:30",
+   "bucket_end": "2027-01-03T06:00:00+05:30",
+   "quantity": 900
+  },
+  {
+   "order_line_id": "SO-41476/35",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AZ-230",
+   "bucket_id": "2027-01-01",
+   "bucket_start": "2027-01-01T06:00:00+05:30",
+   "bucket_end": "2027-01-02T06:00:00+05:30",
+   "quantity": 900
+  },
+  {
+   "order_line_id": "SO-41488/42",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "IM-205",
+   "bucket_id": "2027-01-02",
+   "bucket_start": "2027-01-02T06:00:00+05:30",
+   "bucket_end": "2027-01-03T06:00:00+05:30",
+   "quantity": 1530
+  },
+  {
+   "order_line_id": "SO-41488/42",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "IM-205",
+   "bucket_id": "2027-01-02",
+   "bucket_start": "2027-01-02T06:00:00+05:30",
+   "bucket_end": "2027-01-03T06:00:00+05:30",
+   "quantity": 2070
+  },
+  {
+   "order_line_id": "SO-41563/80",
+   "position_no": 60,
+   "machine_id": "PK-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2027-01-03",
+   "bucket_start": "2027-01-03T06:00:00+05:30",
+   "bucket_end": "2027-01-04T06:00:00+05:30",
+   "quantity": 310
+  },
+  {
+   "order_line_id": "SO-41563/80",
+   "position_no": 50,
+   "machine_id": "VTD-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2027-01-02",
+   "bucket_start": "2027-01-02T06:00:00+05:30",
+   "bucket_end": "2027-01-03T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41563/80",
+   "position_no": 40,
+   "machine_id": "CF-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2027-01-02",
+   "bucket_start": "2027-01-02T06:00:00+05:30",
+   "bucket_end": "2027-01-03T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41563/80",
+   "position_no": 30,
+   "machine_id": "R-101",
+   "sku_id": "RX-310",
+   "bucket_id": "2027-01-01",
+   "bucket_start": "2027-01-01T06:00:00+05:30",
+   "bucket_end": "2027-01-02T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41563/80",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "RX-310",
+   "bucket_id": "2027-01-01",
+   "bucket_start": "2027-01-01T06:00:00+05:30",
+   "bucket_end": "2027-01-02T06:00:00+05:30",
+   "quantity": 410
+  },
+  {
+   "order_line_id": "SO-41563/80",
+   "position_no": 10,
+   "machine_id": "R-103",
+   "sku_id": "RX-310",
+   "bucket_id": "2026-12-31",
+   "bucket_start": "2026-12-31T06:00:00+05:30",
+   "bucket_end": "2027-01-01T06:00:00+05:30",
+   "quantity": 410
   },
   {
    "order_line_id": "SO-41272/37",
@@ -9256,6 +13804,56 @@
    "quantity": 330
   },
   {
+   "order_line_id": "SO-41569/85",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "AM-130",
+   "bucket_id": "2027-01-03",
+   "bucket_start": "2027-01-03T06:00:00+05:30",
+   "bucket_end": "2027-01-04T06:00:00+05:30",
+   "quantity": 1160
+  },
+  {
+   "order_line_id": "SO-41569/85",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "AM-130",
+   "bucket_id": "2027-01-02",
+   "bucket_start": "2027-01-02T06:00:00+05:30",
+   "bucket_end": "2027-01-03T06:00:00+05:30",
+   "quantity": 1520
+  },
+  {
+   "order_line_id": "SO-41569/85",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "AM-130",
+   "bucket_id": "2027-01-01",
+   "bucket_start": "2027-01-01T06:00:00+05:30",
+   "bucket_end": "2027-01-02T06:00:00+05:30",
+   "quantity": 1520
+  },
+  {
+   "order_line_id": "SO-41488/43",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "IM-205",
+   "bucket_id": "2027-01-03",
+   "bucket_start": "2027-01-03T06:00:00+05:30",
+   "bucket_end": "2027-01-04T06:00:00+05:30",
+   "quantity": 1370
+  },
+  {
+   "order_line_id": "SO-41488/43",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "IM-205",
+   "bucket_id": "2027-01-02",
+   "bucket_start": "2027-01-02T06:00:00+05:30",
+   "bucket_end": "2027-01-03T06:00:00+05:30",
+   "quantity": 1380
+  },
+  {
    "order_line_id": "SO-41443/19",
    "position_no": 20,
    "machine_id": "CF-01",
@@ -9263,7 +13861,7 @@
    "bucket_id": "2027-01-03",
    "bucket_start": "2027-01-03T06:00:00+05:30",
    "bucket_end": "2027-01-04T06:00:00+05:30",
-   "quantity": 1760
+   "quantity": 1420
   },
   {
    "order_line_id": "SO-41443/19",
@@ -9316,6 +13914,56 @@
    "quantity": 140
   },
   {
+   "order_line_id": "SO-41476/36",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "IM-205",
+   "bucket_id": "2027-01-03",
+   "bucket_start": "2027-01-03T06:00:00+05:30",
+   "bucket_end": "2027-01-04T06:00:00+05:30",
+   "quantity": 520
+  },
+  {
+   "order_line_id": "SO-41476/36",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "IM-205",
+   "bucket_id": "2027-01-02",
+   "bucket_start": "2027-01-02T06:00:00+05:30",
+   "bucket_end": "2027-01-03T06:00:00+05:30",
+   "quantity": 690
+  },
+  {
+   "order_line_id": "SO-41569/84",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2027-01-03",
+   "bucket_start": "2027-01-03T06:00:00+05:30",
+   "bucket_end": "2027-01-04T06:00:00+05:30",
+   "quantity": 1050
+  },
+  {
+   "order_line_id": "SO-41569/84",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2027-01-02",
+   "bucket_start": "2027-01-02T06:00:00+05:30",
+   "bucket_end": "2027-01-03T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41569/84",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "NT-220",
+   "bucket_id": "2027-01-02",
+   "bucket_start": "2027-01-02T06:00:00+05:30",
+   "bucket_end": "2027-01-03T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
    "order_line_id": "SO-41299/53",
    "position_no": 30,
    "machine_id": "VTD-01",
@@ -9323,7 +13971,7 @@
    "bucket_id": "2027-01-03",
    "bucket_start": "2027-01-03T06:00:00+05:30",
    "bucket_end": "2027-01-04T06:00:00+05:30",
-   "quantity": 1820
+   "quantity": 1470
   },
   {
    "order_line_id": "SO-41299/53",
@@ -9333,7 +13981,7 @@
    "bucket_id": "2027-01-03",
    "bucket_start": "2027-01-03T06:00:00+05:30",
    "bucket_end": "2027-01-04T06:00:00+05:30",
-   "quantity": 2280
+   "quantity": 1520
   },
   {
    "order_line_id": "SO-41299/53",
@@ -9343,7 +13991,7 @@
    "bucket_id": "2027-01-02",
    "bucket_start": "2027-01-02T06:00:00+05:30",
    "bucket_end": "2027-01-03T06:00:00+05:30",
-   "quantity": 2280
+   "quantity": 1520
   },
   {
    "order_line_id": "SO-41299/52",
@@ -9353,7 +14001,7 @@
    "bucket_id": "2027-01-04",
    "bucket_start": "2027-01-04T06:00:00+05:30",
    "bucket_end": "2027-01-05T06:00:00+05:30",
-   "quantity": 1710
+   "quantity": 1380
   },
   {
    "order_line_id": "SO-41299/52",
@@ -9363,7 +14011,7 @@
    "bucket_id": "2027-01-04",
    "bucket_start": "2027-01-04T06:00:00+05:30",
    "bucket_end": "2027-01-05T06:00:00+05:30",
-   "quantity": 2280
+   "quantity": 1520
   },
   {
    "order_line_id": "SO-41299/52",
@@ -9373,7 +14021,7 @@
    "bucket_id": "2027-01-03",
    "bucket_start": "2027-01-03T06:00:00+05:30",
    "bucket_end": "2027-01-04T06:00:00+05:30",
-   "quantity": 2280
+   "quantity": 1520
   },
   {
    "order_line_id": "SO-41323/63",
@@ -9426,6 +14074,76 @@
    "quantity": 540
   },
   {
+   "order_line_id": "SO-41617/08",
+   "position_no": 30,
+   "machine_id": "VTD-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2027-01-05",
+   "bucket_start": "2027-01-05T06:00:00+05:30",
+   "bucket_end": "2027-01-06T06:00:00+05:30",
+   "quantity": 1110
+  },
+  {
+   "order_line_id": "SO-41617/08",
+   "position_no": 20,
+   "machine_id": "CF-01",
+   "sku_id": "NT-220",
+   "bucket_id": "2027-01-05",
+   "bucket_start": "2027-01-05T06:00:00+05:30",
+   "bucket_end": "2027-01-06T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41617/08",
+   "position_no": 10,
+   "machine_id": "R-101",
+   "sku_id": "NT-220",
+   "bucket_id": "2027-01-04",
+   "bucket_start": "2027-01-04T06:00:00+05:30",
+   "bucket_end": "2027-01-05T06:00:00+05:30",
+   "quantity": 1400
+  },
+  {
+   "order_line_id": "SO-41548/73",
+   "position_no": 40,
+   "machine_id": "PK-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2027-01-06",
+   "bucket_start": "2027-01-06T06:00:00+05:30",
+   "bucket_end": "2027-01-07T06:00:00+05:30",
+   "quantity": 90
+  },
+  {
+   "order_line_id": "SO-41548/73",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2027-01-05",
+   "bucket_start": "2027-01-05T06:00:00+05:30",
+   "bucket_end": "2027-01-06T06:00:00+05:30",
+   "quantity": 120
+  },
+  {
+   "order_line_id": "SO-41548/73",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2027-01-05",
+   "bucket_start": "2027-01-05T06:00:00+05:30",
+   "bucket_end": "2027-01-06T06:00:00+05:30",
+   "quantity": 120
+  },
+  {
+   "order_line_id": "SO-41548/73",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-420",
+   "bucket_id": "2027-01-04",
+   "bucket_start": "2027-01-04T06:00:00+05:30",
+   "bucket_end": "2027-01-05T06:00:00+05:30",
+   "quantity": 120
+  },
+  {
    "order_line_id": "SO-41380/89",
    "position_no": 30,
    "machine_id": "VTD-02",
@@ -9463,7 +14181,7 @@
    "bucket_id": "2027-01-06",
    "bucket_start": "2027-01-06T06:00:00+05:30",
    "bucket_end": "2027-01-07T06:00:00+05:30",
-   "quantity": 1220
+   "quantity": 980
   },
   {
    "order_line_id": "SO-41380/90",
@@ -9484,6 +14202,46 @@
    "bucket_start": "2027-01-05T06:00:00+05:30",
    "bucket_end": "2027-01-06T06:00:00+05:30",
    "quantity": 1520
+  },
+  {
+   "order_line_id": "SO-41548/72",
+   "position_no": 40,
+   "machine_id": "PK-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2027-01-06",
+   "bucket_start": "2027-01-06T06:00:00+05:30",
+   "bucket_end": "2027-01-07T06:00:00+05:30",
+   "quantity": 90
+  },
+  {
+   "order_line_id": "SO-41548/72",
+   "position_no": 30,
+   "machine_id": "VTD-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2027-01-05",
+   "bucket_start": "2027-01-05T06:00:00+05:30",
+   "bucket_end": "2027-01-06T06:00:00+05:30",
+   "quantity": 120
+  },
+  {
+   "order_line_id": "SO-41548/72",
+   "position_no": 20,
+   "machine_id": "ANFD-02",
+   "sku_id": "HP-420",
+   "bucket_id": "2027-01-05",
+   "bucket_start": "2027-01-05T06:00:00+05:30",
+   "bucket_end": "2027-01-06T06:00:00+05:30",
+   "quantity": 120
+  },
+  {
+   "order_line_id": "SO-41548/72",
+   "position_no": 10,
+   "machine_id": "R-201",
+   "sku_id": "HP-420",
+   "bucket_id": "2027-01-04",
+   "bucket_start": "2027-01-04T06:00:00+05:30",
+   "bucket_end": "2027-01-05T06:00:00+05:30",
+   "quantity": 120
   }
  ],
  "changeovers": [

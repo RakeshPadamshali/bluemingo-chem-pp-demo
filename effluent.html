@@ -12,6 +12,7 @@
   .days { display:flex; align-items:flex-end; gap:2px; height:150px; border-bottom:1px solid var(--color-border); position:relative; }
   .days .d { flex:1; min-width:3px; background:var(--color-info); border-radius:2px 2px 0 0; position:relative; }
   .days .d.at { background:var(--color-warning); } .days .d.over { background:var(--color-danger); }
+  .days .d.inherit { background:repeating-linear-gradient(45deg,#bdbdbd 0 3px,#e0e0e0 3px 6px); }
   .days .capl { position:absolute; left:0; right:0; border-top:2px dashed var(--color-danger); }
   .dax { display:flex; gap:2px; margin-top:3px; } .dax span { flex:1; min-width:3px; font-size:8.5px; color:var(--color-text-hint); text-align:center; overflow:hidden; }
   .flow { display:grid; grid-template-columns:1fr 26px 1fr; gap:6px; align-items:center; font-size:11.5px; }
@@ -54,6 +55,15 @@
     </div>
 
     <div class="card">
+      <div class="card-head"><i class="fa-solid fa-droplet-slash"></i>What a tonne of each product costs in effluent and solvent
+        <span class="right">the master that ties generation to volume &mdash; per batch and per tonne</span></div>
+      <div class="card-body">
+        <div class="tbl-wrap"><table class="tbl" id="inten"></table></div>
+        <div class="note"><i class="fa-solid fa-circle-info"></i><div id="inote"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
       <div class="card-head"><i class="fa-solid fa-triangle-exclamation"></i>Where the generic plan overloaded the plant
         <span class="right"><span id="gmeta"></span></span></div>
       <div class="card-body tbl-wrap" style="max-height:340px;overflow:auto"><table class="tbl" id="gen"></table></div>
@@ -76,15 +86,36 @@
   var $ = function (id) { return document.getElementById(id); };
   var CUR = null;
 
+  /* What the frozen history left on the first days of the plan.
+
+     History was planned the generic way, so work still in flight at the as-of moment can put a day over its consent
+     before this plan places anything. The aware plan cannot undo that and never ADDS to such a day — the proof applies
+     exactly that carve-out, so the chart has to as well, or a day the plan inherited reads as a day the plan broke.
+     Same treatment as the inherited hours on Utilities. */
+  function inherited(C, wid) {
+    var m = C.m || X.model(), inh = {};
+    ((C.aware.hist && C.aware.hist.batches) || []).forEach(function (b) {
+      var p = m.P[b.pix];
+      b.ops.forEach(function (o) {
+        var op = p.ops[o.seq - 1];
+        if (!op) return;
+        var d = Math.floor(o.s / 1440);
+        if (wid === 'RECOVERY') { if (o.solvKL) inh[d] = (inh[d] || 0) + o.solvKL; return; }
+        if (op.wasteCat === wid && o.efflM3) inh[d] = (inh[d] || 0) + o.efflM3;
+      });
+    });
+    return inh;
+  }
+
   function daily(C, wid) {
-    var m = C.m || X.model(), out = [];
+    var m = C.m || X.model(), out = [], inh = inherited(C, wid);
     var d0 = Math.floor(X.ASOF / 1440), d1 = Math.ceil(m.end / 1440);
     if (wid === 'RECOVERY') {
-      for (var d = d0; d < d1; d++) out.push({ d: d, v: C.aware.state.recov[d], cap: m.recovery.cap });
+      for (var d = d0; d < d1; d++) out.push({ d: d, v: C.aware.state.recov[d], cap: m.recovery.cap, inh: inh[d] || 0 });
       return out;
     }
     var w = m.wastes[m.wix[wid]];
-    for (var d2 = d0; d2 < d1; d2++) out.push({ d: d2, v: C.aware.state.waste[w.ix * m.Dn + d2], cap: w.cap });
+    for (var d2 = d0; d2 < d1; d2++) out.push({ d: d2, v: C.aware.state.waste[w.ix * m.Dn + d2], cap: w.cap, inh: inh[d2] || 0 });
     return out;
   }
 
@@ -115,20 +146,27 @@
     var w = wid === 'RECOVERY' ? { name: 'Solvent recovery', unit: 'kL/day', cap: m.recovery.cap, note: m.recovery.note } : m.wastes[m.wix[wid]];
     var maxV = Math.max.apply(null, s.map(function (x) { return x.v; }).concat([w.cap])) * 1.1 || 1;
     $('days').innerHTML = s.map(function (x) {
-      var k = x.v > x.cap + 1e-6 ? 'over' : x.v >= x.cap - 1e-6 && x.v > 0 ? 'at' : '';
+      var carried = x.inh > x.cap + 1e-6;
+      var k = carried ? 'inherit' : x.v > x.cap + 1e-6 ? 'over' : x.v >= x.cap - 1e-6 && x.v > 0 ? 'at' : '';
       return '<div class="d ' + k + '" style="height:' + (x.v / maxV * 150).toFixed(1) + 'px" title="' +
-        X.esc(X.fmtD(x.d * 1440) + ' — ' + X.n(x.v, 1) + ' of ' + x.cap + ' ' + w.unit) + '"></div>';
+        X.esc(X.fmtD(x.d * 1440) + ' — ' + X.n(x.v, 1) + ' of ' + x.cap + ' ' + w.unit +
+              (carried ? ' (' + X.n(x.inh, 1) + ' of it already discharged by work in flight from the frozen history, which was planned the generic way)' : '')) + '"></div>';
     }).join('') + '<div class="capl" style="bottom:' + (w.cap / maxV * 150).toFixed(1) + 'px"></div>';
     var every = Math.max(1, Math.ceil(s.length / 14));
     $('dax').innerHTML = s.map(function (x, i) { return '<span>' + (i % every === 0 ? X.fmtDM(x.d * 1440) : '') + '</span>'; }).join('');
-    var at = s.filter(function (x) { return x.v >= x.cap - 1e-6 && x.v > 0; }).length;
-    var over = s.filter(function (x) { return x.v > x.cap + 1e-6; }).length;
+    var live = s.filter(function (x) { return !(x.inh > x.cap + 1e-6); });
+    var at = live.filter(function (x) { return x.v >= x.cap - 1e-6 && x.v > 0; }).length;
+    var over = live.filter(function (x) { return x.v > x.cap + 1e-6; }).length;
+    var inhD = s.length - live.length;
     $('wleg').innerHTML = '<span><i style="background:var(--color-info)"></i>inside the consent</span>' +
       '<span><i style="background:var(--color-warning)"></i>at the consent</span>' +
       '<span><i style="background:var(--color-danger)"></i>over</span>' +
+      (inhD ? '<span><i style="background:repeating-linear-gradient(45deg,#bdbdbd 0 3px,#e0e0e0 3px 6px)"></i>inherited from the frozen history</span>' : '') +
       '<span><i style="background:transparent;border-top:2px dashed var(--color-danger);height:0"></i>' + w.cap + ' ' + X.esc(w.unit) + '</span>';
     $('wnote').innerHTML = '<b>' + X.esc(w.name) + '</b> is a daily limit, so it does not average out: a day over the consent is a day the plant ' +
       'cannot discharge, whatever the month looks like. <b>' + at + '</b> days in this plan sit on the limit and <b>' + over + '</b> go over. ' +
+      (inhD ? 'A further <b>' + inhD + '</b> day' + (inhD > 1 ? 's were' : ' was') + ' already over the consent before this plan placed anything — ' +
+       'work still in flight from the frozen history, which was planned the generic way. The plan cannot undo it and never adds to it. ' : '') +
       'That is why the scheduler interleaves a light-effluent batch between two heavy ones rather than running the heavy campaign straight through. ' +
       (w.note ? X.esc(w.note) + '.' : '');
   }
@@ -182,6 +220,51 @@
     'Two of them back to back is not a sequencing preference — it is a day the treatment plant cannot absorb.</div></div>';
   }
 
+  /* "Effluent generation is independent of production volume" is a fair thing to suspect from a daily-load chart, which
+     shows m3 a day and never says where the m3 came from. It is not independent: the route carries an effluent volume
+     and a solvent charge PER BATCH, per operation, and the batch is a fixed charge of a fixed size — so m3 per tonne is
+     a constant of the product, and the total is that times the batches the plan makes. Put the arithmetic on screen. */
+  function inten(C) {
+    var m = C.m || X.model(), E = X.E;
+    var made = {};
+    C.aware.fwd.forEach(function (b) { made[b.productId] = (made[b.productId] || 0) + 1; });
+    var rows = m.P.map(function (p) {
+      var w = E.wastePerBatch(m, p), t = p.batchKg / 1000;
+      return { p: p, w: w, perT: w.efflM3 / t, solvT: w.solvKL / t, n: made[p.id] || 0,
+               planEffl: (made[p.id] || 0) * w.efflM3, planMakeup: (made[p.id] || 0) * w.makeupKL };
+    }).sort(function (a, b) { return b.perT - a.perT; });
+    var cats = m.wastes.map(function (w) { return w.id; });
+    $('inten').innerHTML =
+      '<thead><tr><th>Product</th><th class="num">Charge</th><th class="num">Batch</th>' +
+      cats.map(function (c) { return '<th class="num">' + X.esc(c) + ' m³</th>'; }).join('') +
+      '<th class="num">Effluent a batch</th><th class="num">m³ per tonne</th>' +
+      '<th class="num">Solvent a batch</th><th class="num">Recovered</th><th class="num">Fresh</th>' +
+      '<th class="num">kL per tonne</th><th class="num">Batches</th><th class="num">Effluent in the plan</th></tr></thead><tbody>' +
+      rows.map(function (r) {
+        return '<tr><td><span class="mono">' + X.esc(r.p.id) + '</span> <span class="hint">' + X.esc(r.p.name) + '</span></td>' +
+          '<td class="num">' + X.n(r.p.chargeKL, 1) + ' kL</td><td class="num">' + X.n(r.p.batchKg) + ' kg</td>' +
+          cats.map(function (c) { return '<td class="num">' + (r.w.byCat[c] ? X.n(r.w.byCat[c], 1) : '—') + '</td>'; }).join('') +
+          '<td class="num">' + X.n(r.w.efflM3, 1) + '</td>' +
+          '<td class="num"><b>' + X.n(r.perT, 1) + '</b></td>' +
+          '<td class="num">' + X.n(r.w.solvKL, 2) + '</td><td class="num">' + X.n(r.w.recoveredKL, 2) + '</td>' +
+          '<td class="num">' + X.n(r.w.makeupKL, 2) + '</td><td class="num"><b>' + X.n(r.solvT, 2) + '</b></td>' +
+          '<td class="num">' + (r.n || '—') + '</td><td class="num">' + (r.n ? X.n(r.planEffl, 0) + ' m³' : '—') + '</td></tr>';
+      }).join('') + '</tbody>';
+    var tot = rows.reduce(function (a, r) { return a + r.planEffl; }, 0);
+    var mk = rows.reduce(function (a, r) { return a + r.planMakeup; }, 0);
+    var top = rows[0], bot = rows[rows.length - 1];
+    $('inote').innerHTML =
+      'Generation is <b>not</b> independent of volume. Every operation in the <b>Routes</b> master carries the effluent it ' +
+      'puts down the drain and the solvent it charges, for one batch of that product; the batch is a fixed charge of a ' +
+      'fixed size, so <b>m³ per tonne is a constant of the product</b> and the plant\'s load is that constant times the ' +
+      'batches the plan makes. ' + X.esc(top.p.id) + ' puts down <b>' + X.n(top.perT, 1) + ' m³ a tonne</b> and ' +
+      X.esc(bot.p.id) + ' only <b>' + X.n(bot.perT, 1) + '</b> — a factor of ' + X.n(top.perT / Math.max(0.01, bot.perT), 1) +
+      ', which is why two deep-colour batches on the same day is a treatment problem and two amine batches is not. ' +
+      'Across this plan: <b>' + X.n(tot, 0) + ' m³</b> of effluent and <b>' + X.n(mk, 1) + ' kL</b> of fresh solvent after ' +
+      'recovery. The same figures per product are in Master Data &rarr; <b>Effluent and solvent per batch</b>, and per ' +
+      'individual batch in the <b>Production Plan Report</b>.';
+  }
+
   function gen(C) {
     var ev = C.cons.events.filter(function (e) { return e.nuance === 'P5'; }).sort(function (a, b) { return b.cost.rupees - a.cost.rupees; });
     $('gmeta').textContent = ev.length ? X.n(ev.length) + ' events · ' + X.rs(ev.reduce(function (s, e) { return s + e.cost.rupees; }, 0)) : 'none';
@@ -220,7 +303,7 @@
     }
     var h = X.hashParam();
     if (h && (m.wix[h] != null || h === 'RECOVERY')) $('w').value = h;
-    kpis(C); days(C); loop(C); per(C); gen(C); acts(C);
+    kpis(C); days(C); loop(C); per(C); inten(C); gen(C); acts(C);
   }
   X.withPlan(paint);
   X.whenPlanChanges(paint);

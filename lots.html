@@ -14,6 +14,15 @@
   .gen .bx { border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:7px 9px; background:#fff; }
   .gen .bx b { display:block; font-size:12px; } .gen .ar { text-align:center; color:var(--color-text-hint); }
   .rejrow { display:grid; grid-template-columns:120px 92px 1fr; gap:8px; font-size:11.5px; padding:3px 0; border-bottom:1px solid var(--color-border-light); }
+  .chain3 { display:grid; grid-template-columns:1fr 26px 1fr 26px 1fr; gap:8px; align-items:stretch; }
+  @media (max-width:1000px){ .chain3 { grid-template-columns:1fr; } .chain3 .c3a { display:none; } }
+  .chain3 .c3 { border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:10px 12px; background:#fff; }
+  .chain3 .c3.mid { border-color:var(--color-primary); }
+  .chain3 .c3 h5 { margin:0 0 2px; font-size:13px; }
+  .chain3 .c3 .c3w { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.3px; color:var(--color-text-muted); }
+  .chain3 .c3 p { margin:5px 0 0; font-size:11px; color:var(--color-text-secondary); line-height:1.55; }
+  .chain3 .c3 .c3n { font-size:11px; margin-top:6px; padding-top:6px; border-top:1px solid var(--color-border-light); }
+  .chain3 .c3a { display:flex; align-items:center; justify-content:center; color:var(--color-text-hint); font-size:17px; }
 </style>
 </head>
 <body>
@@ -24,6 +33,15 @@
       <div class="actions" id="acts"></div>
     </div>
     <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-circle-question"></i>Batch, lot, customer lot — three different things
+        <span class="right">and why the plan needs all three</span></div>
+      <div class="card-body">
+        <div class="chain3" id="chain3"></div>
+        <div class="note"><i class="fa-solid fa-circle-info"></i><div id="c3note"></div></div>
+      </div>
+    </div>
 
     <div class="grid-2-1">
       <div class="card">
@@ -263,6 +281,53 @@
     };
   }
 
+  /* "How is a lot different from a batch?" is the right question, and the page assumed the answer.
+
+     A BATCH is a manufacturing event — one charge through one route, with a start, an end and a number.
+     A LOT is the released material that event produced — the same mass, but now with an assay, an impurity, a particle
+     size and a retest date, and it only exists once QC has passed it.
+     A CUSTOMER LOT is what ships: one to three lots mixed so that the MIXTURE meets that customer's spec.
+     The plan needs all three because they are constrained by different things — equipment and time, quality and shelf
+     life, and the contract. */
+  function chain3(C) {
+    /* Lots this PLAN's own batches released. The pool also holds opening stock and the frozen history's lots, and a
+       few history batches are still in flight at the as-of moment, so filtering on the made-at date alone counts more
+       lots than the plan has batches — which reads like a lot being more than one batch, and it is not. */
+    var a = C.aware.kpi, fwdIds = {};
+    C.aware.fwd.forEach(function (b) { fwdIds[b.id] = 1; });
+    var lots = C.aware.lots.filter(function (l) { return !l.opening && fwdIds[l.batchId]; });
+    var multi = C.aware.allocs.filter(function (x) { return x.blended; }).length;
+    var parts = C.aware.allocs.reduce(function (s, x) { return s + x.lots.length; }, 0);
+    var qc = lots.length ? lots.reduce(function (s, l) { return s + (l.readyAt - l.madeAt); }, 0) / lots.length / 1440 : 0;
+    $('chain3').innerHTML =
+      '<div class="c3"><div class="c3w">What the plant makes</div><h5>Batch</h5>' +
+      '<p>One charge taken through one route, start to end, on named units. It is a <b>manufacturing event</b>: it has a ' +
+      'window on the Gantt, it occupies equipment, it draws utilities and it puts effluent down the drain. Numbered ' +
+      '<span class="mono">PRODUCT-Bnnn</span>.</p>' +
+      '<div class="c3n"><b>' + X.n(a.batches) + '</b> in this plan · see the <b>Production Plan Report</b></div></div>' +
+      '<div class="c3a"><i class="fa-solid fa-arrow-right"></i></div>' +
+      '<div class="c3 mid"><div class="c3w">What QC releases</div><h5>Lot</h5>' +
+      '<p>The material that batch produced, once QC has passed it — the same kilos, but now carrying an <b>assay, an ' +
+      'impurity, a particle size and a retest date</b>. It does not exist until release, on average <b>' +
+      X.n(qc, 1) + ' days</b> after drying, and from then on it is a quality object, not a schedule one. Numbered ' +
+      '<span class="mono">L</span> plus its batch number, so the link back is never lost.</p>' +
+      '<div class="c3n"><b>' + X.n(lots.length) + '</b> released by this plan</div></div>' +
+      '<div class="c3a"><i class="fa-solid fa-arrow-right"></i></div>' +
+      '<div class="c3"><div class="c3w">What the customer gets</div><h5>Customer lot</h5>' +
+      '<p>One to three lots <b>blended</b> so that the mixture meets that customer\'s specification, comes from a site ' +
+      'they have approved, and still has the remaining shelf life they insist on. One customer lot, one COA. This is the ' +
+      'only one of the three the customer ever sees.</p>' +
+      '<div class="c3n"><b>' + X.n(a.allocs) + '</b> allocations, <b>' + X.n(multi) + '</b> of them blended</div></div>';
+    $('c3note').innerHTML =
+      'They are not three names for one thing, and the difference is what makes allocation a decision. A batch is ' +
+      'constrained by <b>equipment and time</b>; a lot by <b>quality and shelf life</b>; a customer lot by the ' +
+      '<b>contract</b>. A planner who stops at the batch can tell you the kilos exist and still be wrong about whether ' +
+      'they can be shipped — the stock is there, and the assay, the impurity, the particle size, the approved site or ' +
+      'the remaining life says no. Across this plan the ' + X.n(a.allocs) + ' allocations drew on <b>' + X.n(parts) +
+      '</b> lots between them: ' + X.pct(multi / Math.max(1, a.allocs)) + ' needed more than one, because no single ' +
+      'lot met the spec on its own.';
+  }
+
   function paint(C) {
     CUR = C;
     if (!$('f')._w) {
@@ -287,7 +352,7 @@
       var bl = C.aware.allocs.filter(function (a) { return a.blended; }).sort(function (a, b) { return b.kg - a.kg; })[0];
       if (bl) selLine = bl.lineId;
     }
-    kpis(C); table(C); blend(C); rej(C); genealogy(C); acts(C);
+    kpis(C); chain3(C); table(C); blend(C); rej(C); genealogy(C); acts(C);
   }
   X.withPlan(paint);
   X.whenPlanChanges(paint);

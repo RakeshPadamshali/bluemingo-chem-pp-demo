@@ -127,6 +127,68 @@ def duty_of(prod, arch_id):
     return out
 
 
+def charge_sheet(prod):
+    """What one batch of this product CONSUMES in materials, operation by operation.
+
+    Same shape as the duty profile and for the same reason: the rate is per kL of charge against the archetype, so the
+    quantity follows the batch size and a new product inherits the whole bill of materials from its family and its route.
+    The FEED role is charged at the first reaction only — every later reaction consumes the intermediate the stage before
+    it made, and that link is already in the route.
+    """
+    fam = CFG.FAMILY_INPUTS.get(prod["family"], {})
+    rm = {r["id"]: r for r in CFG.RAW_MATERIALS}
+    out, seen_feed = [], False
+    for o in prod["ops"]:
+        for role, rate in CFG.INPUT_PROFILE.get(o["arch"], []):
+            if role == "FEED":
+                if seen_feed:
+                    continue                       # stage two onwards is fed by stage one, not from the store
+                seen_feed = True
+            mat = rm.get(fam.get(role))
+            if not mat:
+                continue
+            qty = rnd(rate * prod["chargeKL"], 2)
+            net = rnd(qty * (1 - CFG.CATALYST_RECOVERY), 3) if role == "CATALYST" else qty
+            out.append(dict(seq=o["seq"], op=o["op"], opLabel=o["label"], role=role,
+                            roleName=CFG.ROLE_NAMES.get(role, role), rmId=mat["id"], rmName=mat["name"],
+                            unit=mat["unit"], perKL=rate, qty=qty, net=net, priceUnit=mat["priceUnit"],
+                            rupees=int(round(net * mat["priceUnit"])),
+                            note="recovered and returned; only the %.0f%% loss is consumed"
+                                 % ((1 - CFG.CATALYST_RECOVERY) * 100) if role == "CATALYST" else ""))
+    return out
+
+
+def utility_per_batch(prod):
+    """Utility consumed by one batch, per utility: the duty profile integrated over each operation's hours.
+
+    A rate times a time is a quantity: t of steam, TR-hours of refrigeration, Nm3 of nitrogen, m3 of vacuum. This is the
+    arithmetic that ties consumption to volume — the duty is per kL of charge, so the quantity is too.
+    """
+    tot, by_op = {}, []
+    for o in prod["ops"]:
+        row = {}
+        for seg in duty_of(prod, o["arch"]):
+            hrs = o["hours"] * seg["frac"]
+            for k, v in seg["draw"].items():
+                row[k] = row.get(k, 0.0) + v * hrs
+        by_op.append(dict(seq=o["seq"], op=o["op"], opLabel=o["label"], hours=o["hours"],
+                          draw={k: rnd(v, 2) for k, v in sorted(row.items())}))
+        for k, v in row.items():
+            tot[k] = tot.get(k, 0.0) + v
+    return {k: rnd(v, 2) for k, v in sorted(tot.items())}, by_op
+
+
+def waste_per_batch(prod):
+    """Effluent by category, spent solvent, what the recovery train gives back and what has to be bought in."""
+    rec = (CFG.SOLVENT_RECOVERY["recoveryMin"] + CFG.SOLVENT_RECOVERY["recoveryMax"]) / 2.0
+    by_cat, solv = {}, 0.0
+    for o in prod["ops"]:
+        by_cat[o["wasteCat"]] = rnd(by_cat.get(o["wasteCat"], 0.0) + o["efflM3"], 2)
+        solv += o["solvKL"]
+    return dict(byCat=by_cat, efflM3=rnd(sum(by_cat.values()), 2), solvKL=rnd(solv, 2),
+                recoveredKL=rnd(solv * rec, 2), makeupKL=rnd(solv * (1 - rec), 2), recoveryRate=rnd(rec, 3))
+
+
 def build_products():
     """The product master: attributes, spec, route operations, and (for the asserts) eligible units and duty."""
     out = []
@@ -152,6 +214,11 @@ def build_products():
         row["cycleH"] = sum(o["hours"] for o in ops)
         row["efflM3"] = round(sum(o["efflM3"] for o in ops), 2)
         row["solvKL"] = round(sum(o["solvKL"] for o in ops), 2)
+        # what one batch consumes and produces as waste — the arithmetic that ties both to the batch volume
+        row["charge"] = charge_sheet(row)
+        row["utilBatch"], row["utilByOp"] = utility_per_batch(row)
+        row["wasteBatch"] = waste_per_batch(row)
+        row["rmCostBatch"] = sum(c["rupees"] for c in row["charge"])
         out.append(row)
     return out
 

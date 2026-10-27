@@ -122,20 +122,29 @@ def build_deliveries(tanks, products, lines):
 
 
 def build_raw_materials(products):
-    """Key raw materials, in minimum tanker / drum blocks, with a contract price that resets on a lag."""
-    names = [("RM-01", "Aniline", "kL", 24.0), ("RM-02", "Toluene feedstock", "kL", 25.0), ("RM-03", "Sodium nitrite", "t", 10.0),
-             ("RM-04", "Catalyst (Pd/C 5%)", "kg", 25.0), ("RM-05", "Protected amine", "t", 2.0), ("RM-06", "Chiral auxiliary", "kg", 15.0),
-             ("RM-07", "Caustic lye", "kL", 20.0), ("RM-08", "Acetic anhydride", "kL", 20.0)]
+    """Key raw materials, in minimum buy blocks, with a contract price that resets on a lag.
+
+    Which products use a material is DERIVED from the charge sheets, never asserted here: a material is used by exactly
+    the products whose route and family charge it. Add a product and its materials pick it up for free; change a family's
+    reagent and the usage list follows.
+    """
+    used, per_day = {}, {}
+    span = float(CFG.HISTORY_DAYS + CFG.FORWARD_DAYS + 20)
+    for p in products:
+        for c in p.get("charge", []):
+            used.setdefault(c["rmId"], set()).add(p["id"])
+            per_day[c["rmId"]] = per_day.get(c["rmId"], 0.0) + c["net"]
     out = []
-    for i, (rid, nm, unit, block) in enumerate(names):
-        price = int(between(28000, 420000))
-        out.append(dict(id=rid, name=nm, unit=unit, minBlock=block, priceUnit=price,
-                        leadDays=rint(18, 52), priceLagDays=CFG.RM_BLOCKS["priceLagDays"],
-                        priceMove=round(between(-0.06, 0.19), 3),
-                        onHand=round(block * between(0.6, 2.4), 1),
-                        usedBy=sorted({p["id"] for p in R.sample(products, min(len(products), rint(2, 5)))}),
-                        note="Minimum buy block %g %s; contract price resets %d days after the index moves"
-                             % (block, unit, CFG.RM_BLOCKS["priceLagDays"])))
+    for r in CFG.RAW_MATERIALS:
+        ids = sorted(used.get(r["id"], ()))
+        out.append(dict(id=r["id"], name=r["name"], unit=r["unit"], minBlock=r["minBlock"],
+                        priceUnit=r["priceUnit"], leadDays=r["leadDays"],
+                        priceLagDays=CFG.RM_BLOCKS["priceLagDays"],
+                        priceMove=round(between(-0.06, 0.19), 3), onHand=r["onHand"],
+                        perBatchAvg=round(per_day.get(r["id"], 0.0) / max(1, len(ids)), 2),
+                        usedBy=ids,
+                        note="Minimum buy block %s %s; contract price resets %d days after the index moves"
+                             % ("{:,}".format(r["minBlock"]), r["unit"], CFG.RM_BLOCKS["priceLagDays"])))
     return out
 
 

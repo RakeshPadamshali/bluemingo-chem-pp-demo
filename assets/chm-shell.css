@@ -294,3 +294,13 @@ table.led td.kg, table.led td.hrs { color:var(--color-text-secondary); }
 .tour { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:11.5px; }
 .tour .step { padding:3px 9px; border:1px solid var(--color-border); border-radius:var(--radius-pill); background:#fff; cursor:pointer; }
 .tour .step.on { border-color:var(--color-primary); background:var(--color-primary-light); color:var(--color-primary-dark); font-weight:600; }
+
+/* A horizontal "where it all went" bar: a label, a stacked track, and the figure. Used by the Block Schedule's time
+   accounting and by the per-tonne intensity panels, so it lives here rather than in three page styles. */
+.tu { display:grid; grid-template-columns:132px 1fr 196px; gap:10px; align-items:center; font-size:11.5px; margin-bottom:5px; }
+.tu .tb { display:flex; height:18px; border-radius:3px; overflow:hidden; background:#eef1f4; }
+.tu .tb i { display:block; height:18px; }
+.tu .tn { font-weight:600; }
+.tu .tv { text-align:right; color:var(--color-text-secondary); font-variant-numeric:tabular-nums; }
+.tukey { display:flex; gap:12px; font-size:11px; flex-wrap:wrap; margin:6px 0 2px; align-items:center; }
+.tukey i { width:13px; height:11px; border-radius:2px; display:inline-block; vertical-align:-1px; margin-right:4px; }

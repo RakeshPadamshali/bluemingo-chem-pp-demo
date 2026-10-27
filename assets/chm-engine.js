@@ -238,6 +238,59 @@
     else if ((m.cfg.oversizeClasses || ['REACTOR']).indexOf(op.cls) >= 0 && u.vol > need * over) out.push('a ' + need.toFixed(2) + ' kL load is lost in a ' + u.vol + ' kL vessel (agitation limit)');
     return out;
   };
+  /* What one batch CONSUMES and PRODUCES, derived the same way its duty is.
+
+     These three answer the question "where is the master that ties this to the volume?" — there is no per-product table
+     anywhere: the rate is per kL of charge against the operation archetype, the charge is the product's own, and the
+     material that fills each role comes from the family. A product added from Excel gets all of it for free.
+
+     They are computed here rather than read from the generated master so that an uploaded charge profile, a changed
+     batch size or a new product is reflected immediately; tools/audit.py checks the two agree. */
+  E.inputs = function (m, p) {
+    var prof = m.cfg.inputProfile || {}, fam = (m.cfg.familyInputs || {})[p.family] || {};
+    var names = m.cfg.roleNames || {}, rec = m.cfg.catalystRecovery != null ? m.cfg.catalystRecovery : 0;
+    var rm = {}; (m.raws || []).forEach(function (r) { rm[r.id] = r; });
+    var out = [], feed = false;
+    p.ops.forEach(function (op) {
+      (prof[op.arch] || []).forEach(function (pr) {
+        var role = pr[0], rate = +pr[1];
+        if (role === 'FEED') { if (feed) return; feed = true; }
+        var mat = rm[fam[role]];
+        if (!mat) return;
+        var qty = Math.round(rate * p.chargeKL * 100) / 100;
+        var net = role === 'CATALYST' ? Math.round(qty * (1 - rec) * 1000) / 1000 : qty;
+        out.push({ seq: op.seq, op: op.id, opLabel: op.label, role: role, roleName: names[role] || role,
+                   rmId: mat.id, rmName: mat.name, unit: mat.unit, perKL: rate, qty: qty, net: net,
+                   priceUnit: +mat.priceUnit, rupees: Math.round(net * (+mat.priceUnit || 0)),
+                   recovered: role === 'CATALYST' ? Math.round((qty - net) * 1000) / 1000 : 0 });
+      });
+    });
+    return out;
+  };
+  // a rate times a time is a quantity: t of steam, TR-hours of refrigeration, Nm3 of nitrogen, m3 of vacuum
+  E.utilPerBatch = function (m, p) {
+    var tot = {};
+    p.ops.forEach(function (op) {
+      op.duty.forEach(function (seg) {
+        var hrs = op.hours * seg.frac;
+        Object.keys(seg.draw).forEach(function (k) { tot[k] = (tot[k] || 0) + seg.draw[k] * hrs; });
+      });
+    });
+    Object.keys(tot).forEach(function (k) { tot[k] = Math.round(tot[k] * 100) / 100; });
+    return tot;
+  };
+  E.UTIL_QTY_UNIT = { 't/h': 't', 'TR': 'TR-h', 'm3/h': 'm3', 'Nm3/h': 'Nm3' };
+  E.wastePerBatch = function (m, p) {
+    var byCat = {}, solv = 0, rate = (m.recovery.min + m.recovery.max) / 2;
+    p.ops.forEach(function (op) {
+      if (op.wasteCat) byCat[op.wasteCat] = Math.round(((byCat[op.wasteCat] || 0) + op.efflM3) * 100) / 100;
+      solv += op.solvKL;
+    });
+    return { byCat: byCat, efflM3: Math.round(p.efflM3 * 100) / 100, solvKL: Math.round(solv * 100) / 100,
+             recoveredKL: Math.round(solv * rate * 100) / 100, makeupKL: Math.round(solv * (1 - rate) * 100) / 100,
+             recoveryRate: Math.round(rate * 1000) / 1000 };
+  };
+
   E.duty = function (p, arch) {
     return (arch.segs || []).map(function (s) {
       var draw = {}; Object.keys(s[1] || {}).forEach(function (k) { draw[k] = Math.round(s[1][k] * p.chargeKL * 100) / 100; });

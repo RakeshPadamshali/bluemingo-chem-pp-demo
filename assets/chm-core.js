@@ -305,9 +305,30 @@
     var C = live(); if (!C) return S.C5.cutTo;
     return Math.max(4, Math.round(((C.aware.kpi.wastePeak || {})[S.C5.waste] || 0) * 0.72));
   }
+  /* C6 cuts the licensed quantity until a tanker is turned away at the gate.
+
+     Two things have to be read off the live plan, not fixed when the data was generated. The CUT, because the licence
+     position moves with the plan; and the DELIVERY the card names, because a tanker chosen weeks ago may well be one
+     the cut never touches — and a card that names a tanker which is then accepted proves nothing.
+
+     The cut has to clear the recovery train's own relief valve: when the ceiling drops, returned solvent is simply held
+     back in the still rather than let into a full tank, which lowers the position and lets the next tanker in. Cutting
+     to just under the peak is therefore absorbed; this goes far enough that deliveries are actually refused. */
   function c6Licence() {
     var C = live(); if (!C) return S.C6.licenceCutTo;
-    return Math.max(10, Math.round(((C.aware.kpi.licencePeak || {})[S.C6.haz] || 0) * 0.88));
+    return Math.max(10, Math.round(((C.aware.kpi.licencePeak || {})[S.C6.haz] || 0) * 0.78));
+  }
+  // the accepted delivery of this hazard class that lands on the fullest licence position — the one the cut bites first
+  function c6Delivery() {
+    var C = live();
+    if (!C) return { id: S.C6.deliveryId, tank: S.C6.tankId, kl: S.C6.kl };
+    var m = C.m || model(), hix = m.hix[S.C6.haz], best = null;
+    (C.aware.state.accepted || []).forEach(function (d) {
+      if (d.hix !== hix || d.at < ASOF) return;
+      var pos = E.hazPos(m, C.aware.state, hix, Math.floor(d.at / 1440));
+      if (!best || pos > best.pos) best = { id: d.id, tank: d.tank, kl: d.kl, at: d.at, pos: pos };
+    });
+    return best || { id: S.C6.deliveryId, tank: S.C6.tankId, kl: S.C6.kl };
   }
   /* C7 tightens the IMPURITY limit, not the assay.
      A blend's assay is the mass-weighted mean of its lots, so blending can never beat the best lot in the pool — an
@@ -384,9 +405,9 @@
       title: 'Two heavy-effluent campaigns back to back',
       desc: function () { return 'The effluent plant is cut to ' + c5Cap() + ' m³ a day. ' + S.C5.productIds.join(' and ') + ' are the heaviest loads in the book: the treatment plant decides when they can run.'; },
       run: function () { addWhatif({ type: 'wasteCut', waste: S.C5.waste, cap: c5Cap() }); } },
-    { id: 'C6', nuance: 'P6', changes: 'schedule', wants: 'P6', icon: 'fa-triangle-exclamation', page: 'tanks', hash: function () { return S.C6.tankId; },
+    { id: 'C6', nuance: 'P6', changes: 'schedule', wants: 'P6', icon: 'fa-triangle-exclamation', page: 'tanks', hash: function () { return c6Delivery().tank || S.C6.tankId; },
       title: 'A delivery that breaches the licence',
-      desc: function () { return 'The flammable licence is cut to ' + c6Licence() + ' kL. Tanker ' + S.C6.deliveryId + ' (' + S.C6.kl + ' kL into ' + S.C6.tankId + ') is refused at the gate — by the licence, not by the tank.'; },
+      desc: function () { var d = c6Delivery(); return 'The flammable licence is cut to ' + c6Licence() + ' kL. Tanker ' + d.id + ' (' + n(d.kl, 1) + ' kL into ' + d.tank + ') is refused at the gate — by the licence, not by the tank.'; },
       run: function () { addWhatif({ type: 'licenceCut', haz: S.C6.haz, kl: c6Licence() }); } },
     { id: 'C7', nuance: 'P7', changes: 'allocation', wants: 'P7', icon: 'fa-flask', page: 'lots', hash: function () { return c7Line(); },
       title: 'Three batches blended into one lot',
@@ -463,7 +484,7 @@
     product: product, pname: pname, unit: unit, custName: custName, famName: famName, famColor: famColor,
     gradeName: gradeName, gradeHours: gradeHours, line: line,
     nu: nu, nuLabel: nuLabel, nuChip: nuChip, nuOf: nuOf,
-    c3Op: c3Op, c5Cap: c5Cap, c6Licence: c6Licence, c7Line: c7Line, c7Spec: c7Spec, c11Lot: c11Lot,
+    c3Op: c3Op, c5Cap: c5Cap, c6Licence: c6Licence, c6Delivery: c6Delivery, c7Line: c7Line, c7Spec: c7Spec, c11Lot: c11Lot,
     gantt: gantt, pager: pager, xlsx: xlsx,
     // host-side API (the tab host computes once; tabs read)
     _cached: function (st) { var ov = mastersOverlay(); return C.plans[planKey(st, JSON.stringify(ov))] || null; },

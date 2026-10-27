@@ -87,9 +87,9 @@
       ['blue', 'OTIF, chemical-aware', X.pct(a.otif), a.onTime + ' of ' + a.dueIn + ' committed lines due in the window'],
       ['green', 'Output, actual', X.t(a.madeKg), X.pct(a.yieldRealisation) + ' of nameplate — yield is physics, not a plan'],
       ['amber', 'Cleaning hours', X.n(a.cleanHours), a.cleanCount + ' cleans the matrix actually requires'],
-      ['grey', (a.utilClass ? X.clsName(a.utilClass) : 'Unit') + ' time used', X.pct(a.utilBusiest),
-       'the busiest class: ' + X.pct(a.utilByClass[a.utilClass].run) + ' running, ' +
-       X.pct(a.utilByClass[a.utilClass].clean) + ' cleaning. A plant mean would average it with a mill that runs an hour a batch'],
+      ['grey', 'Busiest equipment: ' + (a.utilClass ? X.clsName(a.utilClass).toLowerCase() : 'units'), X.pct(a.utilBusiest),
+       X.pct(a.utilByClass[a.utilClass].run) + ' running plus ' + X.pct(a.utilByClass[a.utilClass].clean) +
+       ' cleaning. Reported per equipment class, not as one plant figure — see the Block Schedule'],
       ['red', 'What the generic plan costs', X.rs(cons.total.rupees), cons.total.n + ' priced events across all seven plant nuances'],
       ['brand', 'Constraints honoured', X.n(C.proof.total.checks), C.proof.total.violations === 0 ? 'checked, zero broken' : C.proof.total.violations + ' broken']
     ];

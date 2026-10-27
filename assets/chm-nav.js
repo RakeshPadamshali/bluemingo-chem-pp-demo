@@ -18,7 +18,8 @@ window.CHM_NAV = [
     ['tanks', 'Tank Farm & Hazard Licence', 'fa-oil-well', 'plant']]],
   ['Execution', [
     ['batches', 'Batch Record & Yield', 'fa-flask-vial', 'plant'],
-    ['lots', 'Lots, Blending & Allocation', 'fa-flask', 'plant']]],
+    ['lots', 'Lots, Blending & Allocation', 'fa-flask', 'plant'],
+    ['report', 'Production Plan Report', 'fa-table-list', 'both']]],
   ['Sales & operations planning', [
     ['capacity', 'Capacity, Mix & Margin', 'fa-chart-pie', 'sop'],
     ['sourcing', 'Sourcing & Supply', 'fa-handshake', 'sop'],

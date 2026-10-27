@@ -72,6 +72,13 @@ for p in products:
         assert o["maxLagH"] > o["minLagH"], "hold window not a window: " + o["op"]
         assert o["duty"] and abs(sum(s["frac"] for s in o["duty"]) - 1.0) < 1e-6, "duty profile does not sum to the operation: " + o["op"]
     assert p["marginKg"] > 0, "product sold below cost: " + p["id"]
+    # the charge sheet has to be arithmetic a plant would recognise: every batch consumes a key starting material, and
+    # the materials cannot cost more than the batch does
+    assert any(c["role"] == "FEED" for c in p["charge"]), "no key starting material charged: " + p["id"]
+    assert p["rmCostBatch"] < p["costKg"] * p["batchKg"], (
+        "materials alone cost more than the batch: %s, Rs %s of a Rs %s batch"
+        % (p["id"], "{:,}".format(p["rmCostBatch"]), "{:,}".format(int(p["costKg"] * p["batchKg"]))))
+    assert p["utilBatch"] and p["wasteBatch"]["efflM3"] > 0, "no utility or effluent per batch: " + p["id"]
     assert 0.6 < p["yieldMean"] < 1.0 and 0 < p["yieldSd"] < 0.1, p["id"]
 for l in lines:
     assert l["productId"] in P and l["customerId"] in C and l["orderId"] in O, l["id"]
@@ -153,7 +160,10 @@ cfg = dict(unitUptime=CFG.UNIT_UPTIME, oversize=CFG.OVERSIZE_FACTOR, oversizeCla
            recovery=CFG.SOLVENT_RECOVERY, assumptions=[a["id"] for a in CFG.GENERIC_ASSUMPTIONS],
            generic=CFG.GENERIC, aware=CFG.AWARE, utilities=CFG.UTILITIES, waste=CFG.WASTE,
            hazardClasses=CFG.HAZARD_CLASSES, bunds=CFG.BUNDS, segregation=CFG.SEGREGATION,
-           orderClasses=CFG.ORDER_CLASSES, archetypes=CFG.OP_ARCHETYPES, opClasses=sorted({u["cls"] for u in CFG.UNITS}))
+           orderClasses=CFG.ORDER_CLASSES, archetypes=CFG.OP_ARCHETYPES, opClasses=sorted({u["cls"] for u in CFG.UNITS}),
+           # the charge rules, so the engine computes a batch's materials at run time rather than reading a snapshot
+           inputProfile=CFG.INPUT_PROFILE, familyInputs=CFG.FAMILY_INPUTS, roleNames=CFG.ROLE_NAMES,
+           catalystRecovery=CFG.CATALYST_RECOVERY)
 data = dict(meta=meta, cfg=cfg, m=m, orders=orders, lines=lines, events=events, scenarios=scenarios)
 
 os.makedirs(os.path.dirname(OUT("x")), exist_ok=True)

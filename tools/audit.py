@@ -78,7 +78,7 @@ def main():
             pg.evaluate("localStorage.removeItem('chm-demo-state')")
             pg.evaluate("(p) => localStorage.setItem('chm-demo-state', JSON.stringify({plan:{preset:p}}))", PRESET)
             pages = ["home", "studio", "orders", "schedule", "cleaning", "stages", "utilities",
-                     "effluent", "tanks", "batches", "lots", "capacity", "sourcing", "stock", "masters"]
+                     "effluent", "tanks", "batches", "lots", "report", "capacity", "sourcing", "stock", "masters"]
             for pid in pages:
                 pg.goto(BASE + pid + ".html", wait_until="load")
                 pg.wait_for_function("!document.getElementById('chm-busy') && !!window.CHMX", timeout=120000)

@@ -112,6 +112,57 @@ OP_ARCHETYPES = {
 }
 
 # =====================================================================================================================
+# THE CHARGE SHEET — what one batch CONSUMES in materials, written the same way the duty profile is written: per kL of
+# charge, against the OPERATION ARCHETYPE. So a 6 kL batch consumes proportionally more than a 2 kL one without a second
+# table, and a product added from Excel inherits its whole bill of materials from its family and its route.
+#
+# Roles, not material ids, hang off the archetype. FAMILY_INPUTS says which material fills each role for each family —
+# four rows, and the only place a product id comes anywhere near a material id.
+#   FEED          the key starting material. Charged at the FIRST reaction only: every later reaction stage consumes the
+#                 intermediate the stage before it made, which the route already tracks.
+#   REAGENT       the reacting partner, every reaction
+#   NEUTRALISER   caustic for the work-up, on the reactions that need one
+#   CATALYST      hydrogenations only, and recovered rather than consumed
+#   FILTER_AID    the isolation steps
+#   PACKAGING     drums and liners, on the pack line
+# Rates are kg per kL of charge, except PACKAGING, which is drums per kL.
+# =====================================================================================================================
+INPUT_PROFILE = {
+    "RXN_EXO":  [("FEED", 185.0), ("REAGENT", 96.0), ("NEUTRALISER", 34.0)],
+    "RXN_HOT":  [("FEED", 172.0), ("REAGENT", 78.0), ("NEUTRALISER", 28.0)],
+    "RXN_CRYO": [("FEED", 164.0), ("REAGENT", 112.0)],
+    "RXN_HYD":  [("FEED", 178.0), ("REAGENT", 44.0), ("CATALYST", 1.6)],
+    "ISO_CFG":  [("FILTER_AID", 7.0)],
+    "ISO_ANFD": [("FILTER_AID", 9.0)],
+    "DRY_VTD":  [],
+    "DRY_SFD":  [],
+    "MILL":     [],
+    "PACK":     [("PACKAGING", 1.8)],
+}
+FAMILY_INPUTS = {
+    "F1": dict(FEED="RM-01", REAGENT="RM-03", NEUTRALISER="RM-07", CATALYST="RM-04", FILTER_AID="RM-09", PACKAGING="RM-10"),
+    "F2": dict(FEED="RM-02", REAGENT="RM-03", NEUTRALISER="RM-07", CATALYST="RM-04", FILTER_AID="RM-09", PACKAGING="RM-10"),
+    "F3": dict(FEED="RM-05", REAGENT="RM-08", NEUTRALISER="RM-07", CATALYST="RM-04", FILTER_AID="RM-09", PACKAGING="RM-10"),
+    "F4": dict(FEED="RM-05", REAGENT="RM-06", NEUTRALISER="RM-07", CATALYST="RM-04", FILTER_AID="RM-09", PACKAGING="RM-10"),
+}
+# The catalogue. Prices and lead times are fixed, not drawn, so a batch's material cost is the same number every run.
+RAW_MATERIALS = [
+    dict(id="RM-01", name="Aniline", unit="kg", minBlock=24000, priceUnit=138, leadDays=28, onHand=41000),
+    dict(id="RM-02", name="Toluene feedstock", unit="kg", minBlock=25000, priceUnit=96, leadDays=24, onHand=37500),
+    dict(id="RM-03", name="Sodium nitrite", unit="kg", minBlock=10000, priceUnit=84, leadDays=21, onHand=16200),
+    dict(id="RM-04", name="Catalyst (Pd/C 5%)", unit="kg", minBlock=25, priceUnit=286000, leadDays=52, onHand=46.0),
+    dict(id="RM-05", name="Protected amine", unit="kg", minBlock=2000, priceUnit=780, leadDays=45, onHand=3400),
+    dict(id="RM-06", name="Chiral auxiliary", unit="kg", minBlock=150, priceUnit=18600, leadDays=48, onHand=265),
+    dict(id="RM-07", name="Caustic lye 48%", unit="kg", minBlock=20000, priceUnit=31, leadDays=18, onHand=34000),
+    dict(id="RM-08", name="Acetic anhydride", unit="kg", minBlock=20000, priceUnit=118, leadDays=26, onHand=28500),
+    dict(id="RM-09", name="Filter aid (celite)", unit="kg", minBlock=2000, priceUnit=210, leadDays=20, onHand=3900),
+    dict(id="RM-10", name="Drums, liners and labels", unit="drum", minBlock=500, priceUnit=1450, leadDays=14, onHand=820),
+]
+ROLE_NAMES = dict(FEED="Key starting material", REAGENT="Reagent", NEUTRALISER="Neutraliser",
+                  CATALYST="Catalyst", FILTER_AID="Filter aid", PACKAGING="Packaging")
+CATALYST_RECOVERY = 0.94        # catalyst is filtered off and returned; only the loss is a real consumption
+
+# =====================================================================================================================
 # WASTE AND RECOVERY — daily limits per category, with carry-over. Recovered solvent is credited to a later batch.
 # =====================================================================================================================
 WASTE = [
@@ -171,10 +222,10 @@ SOLVENTS = [
 #               nuance 3: how long that intermediate may wait. The first operation's pair is unused.
 # =====================================================================================================================
 FAMILIES = [
-    dict(id="F1", name="Aryl amines", note="Pale intermediates, light effluent load"),
-    dict(id="F2", name="Nitro and azo", note="Deep colour load, heavy effluent"),
-    dict(id="F3", name="Regulated APIs", note="Three stages, filed route, export"),
-    dict(id="F4", name="High-potency APIs", note="Segregated suite, contained pack"),
+    dict(id="F1", name="Aryl amines", kind="aryl amine", note="Pale intermediates, light effluent load"),
+    dict(id="F2", name="Nitro and azo", kind="nitro or azo intermediate", note="Deep colour load, heavy effluent"),
+    dict(id="F3", name="Regulated APIs", kind="regulated active", note="Three stages, filed route, export"),
+    dict(id="F4", name="High-potency APIs", kind="high-potency active", note="Segregated suite, contained pack"),
 ]
 
 # route rows: (archetype, hours, minLagH, maxLagH, effl_m3, waste_cat, solvent_kL)
@@ -291,7 +342,7 @@ ORDER_CLASSES = [       # class drives priority, the delay penalty and the relea
     dict(id="DOM_COMMITTED", name="Committed domestic", share=0.30, penaltyPerDay=6000, relWinDays=18, note="Confirmed date"),
     dict(id="DOM_OPEN", name="Open domestic", share=0.18, penaltyPerDay=1200, relWinDays=14, note="Requested date, not committed"),
 ]
-ORDERS_TARGET = 86           # orders in the book: fewer and larger, as a fine-chemicals book actually is
+ORDERS_TARGET = 140          # orders in the book: a fine-chemicals book, and enough lines that the release window keeps the plant fed
 LINES_PER_ORDER = (1, 2)
 LINE_QTY_KG = (100, 6000)
 # the smallest order line, as a share of one batch: a line consumes a whole batch however small it is
@@ -301,7 +352,7 @@ DEMAND_LOAD = 0.82           # orders ask for this share of the capacity the pla
 # chemistry makes it, a schedule realises only part of the nameplate: a reactor waits because the filter it feeds cannot
 # take the slurry in time, and that wait is not recoverable. Measured from the aware plan with tools/calibrate.js.
 # Calibrating the order book against nameplate instead is how a plant ends up with a book it was never going to serve.
-SCHEDULE_FRICTION = 0.41
+SCHEDULE_FRICTION = 0.60
 REGULATED_SHARE = 0.30       # share of customers with an approved-site matrix
 MIN_LIFE_MONTHS = (12, 24)   # a regulated customer's minimum remaining shelf life on receipt
 QUAL_LEAD_WEEKS = (12, 36)   # qualifying a second site for a regulated customer
